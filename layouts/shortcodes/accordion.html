@@ -1,0 +1,11 @@
+{{ $title := .Get "title" }}
+{{ $open := .Get "open" | default "false" }}
+<details class="accordion-item" {{ if eq $open "true" }}open{{ end }}>
+  <summary class="accordion-summary">
+    <span class="accordion-title">{{ $title }}</span>
+    <span class="accordion-icon">▶</span>
+  </summary>
+  <div class="accordion-content prose max-w-none">
+    {{ .Inner | markdownify }}
+  </div>
+</details>

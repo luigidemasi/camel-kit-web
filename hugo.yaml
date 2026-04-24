@@ -10,7 +10,7 @@ params:
 
 menu:
   main:
-    - name: Docs
+    - name: Getting Started
       pageRef: /getting-started
       weight: 1
     - name: Pipeline
@@ -19,15 +19,12 @@ menu:
     - name: Architecture
       pageRef: /architecture
       weight: 3
-    - name: Research
-      pageRef: /research
+    - name: Reference
+      pageRef: /reference
       weight: 4
-    - name: Presentations
-      pageRef: /presentations
-      weight: 5
     - name: Blog
       pageRef: /blog
-      weight: 6
+      weight: 5
 
 markup:
   goldmark:

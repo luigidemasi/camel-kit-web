@@ -1,0 +1,23 @@
+{{ $id := .Get "id" | default (printf "carousel-%d" .Ordinal) }}
+<div class="carousel-container" data-carousel="{{ $id }}">
+  <div class="carousel-viewport">
+    {{ range $i, $e := split .Inner "<!--step " }}
+    {{ if $i }}
+    {{ $parts := split $e "-->" }}
+    {{ $title := index $parts 0 }}
+    {{ $content := index $parts 1 }}
+    <div class="carousel-slide {{ if eq $i 1 }}active{{ end }}" data-slide="{{ $i }}">
+      <div class="carousel-nav-row">
+        <button class="carousel-btn" onclick="carouselNav('{{ $id }}', -1)">←</button>
+        <div class="carousel-step-label">{{ $title }}</div>
+        <button class="carousel-btn" onclick="carouselNav('{{ $id }}', 1)">→</button>
+      </div>
+      <div class="prose max-w-none">
+        {{ $content | markdownify }}
+      </div>
+    </div>
+    {{ end }}
+    {{ end }}
+  </div>
+  <div class="carousel-dots" id="{{ $id }}-dots"></div>
+</div>

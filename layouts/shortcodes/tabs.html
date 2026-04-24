@@ -1,0 +1,30 @@
+{{ $id := .Get "id" | default (printf "tabs-%d" .Ordinal) }}
+<div class="tabs-container" data-tabs="{{ $id }}">
+  <div class="tabs-nav" role="tablist">
+    {{ range $i, $e := split .Inner "<!--tab " }}
+    {{ if $i }}
+    {{ $parts := split $e "-->" }}
+    {{ $name := index $parts 0 }}
+    <button class="tab-btn {{ if eq $i 1 }}active{{ end }}"
+            role="tab"
+            data-tab="{{ $id }}-{{ $i }}"
+            onclick="switchTab('{{ $id }}', '{{ $id }}-{{ $i }}')">
+      {{ $name }}
+    </button>
+    {{ end }}
+    {{ end }}
+  </div>
+  {{ range $i, $e := split .Inner "<!--tab " }}
+  {{ if $i }}
+  {{ $parts := split $e "-->" }}
+  {{ $content := index $parts 1 }}
+  <div class="tab-panel {{ if eq $i 1 }}active{{ end }}"
+       role="tabpanel"
+       data-tab-panel="{{ $id }}-{{ $i }}">
+    <div class="prose max-w-none">
+      {{ $content | markdownify }}
+    </div>
+  </div>
+  {{ end }}
+  {{ end }}
+</div>

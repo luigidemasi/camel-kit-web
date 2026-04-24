@@ -1,0 +1,38 @@
+{{ $lines := split .Inner "\n" }}
+<div class="filetree">
+{{ range $lines }}
+{{ $trimmed := strings.TrimRight " " . }}
+{{ if ne $trimmed "" }}
+{{ $depth := 0 }}
+{{ $name := $trimmed }}
+{{ if hasPrefix $trimmed "        " }}{{ $depth = 4 }}{{ $name = strings.TrimLeft " " $trimmed }}
+{{ else if hasPrefix $trimmed "      " }}{{ $depth = 3 }}{{ $name = strings.TrimLeft " " $trimmed }}
+{{ else if hasPrefix $trimmed "    " }}{{ $depth = 2 }}{{ $name = strings.TrimLeft " " $trimmed }}
+{{ else if hasPrefix $trimmed "  " }}{{ $depth = 1 }}{{ $name = strings.TrimLeft " " $trimmed }}
+{{ end }}
+{{ $isDir := or (strings.HasSuffix $name "/") (strings.Contains $name "/") }}
+{{ $icon := "📄" }}
+{{ if $isDir }}{{ $icon = "📁" }}{{ end }}
+{{ if strings.HasSuffix $name ".yaml" }}{{ $icon = "⚙️" }}{{ end }}
+{{ if strings.HasSuffix $name ".yml" }}{{ $icon = "⚙️" }}{{ end }}
+{{ if strings.HasSuffix $name ".md" }}{{ $icon = "📝" }}{{ end }}
+{{ if strings.HasSuffix $name ".java" }}{{ $icon = "☕" }}{{ end }}
+{{ if strings.HasSuffix $name ".xml" }}{{ $icon = "📋" }}{{ end }}
+{{ if strings.HasSuffix $name ".json" }}{{ $icon = "📋" }}{{ end }}
+{{ if strings.HasSuffix $name ".properties" }}{{ $icon = "🔧" }}{{ end }}
+{{ if strings.HasSuffix $name ".sh" }}{{ $icon = "🔨" }}{{ end }}
+{{ if strings.HasSuffix $name ".png" }}{{ $icon = "🖼️" }}{{ end }}
+{{ $comment := "" }}
+{{ if strings.Contains $name "#" }}
+  {{ $parts := split $name "#" }}
+  {{ $name = strings.TrimRight " " (index $parts 0) }}
+  {{ $comment = strings.TrimLeft " " (index $parts 1) }}
+{{ end }}
+<div class="filetree-item" style="padding-left: {{ mul $depth 1.25 }}rem;">
+  <span class="filetree-icon">{{ $icon }}</span>
+  <span class="filetree-name {{ if $isDir }}filetree-dir{{ end }}">{{ $name }}</span>
+  {{ if ne $comment "" }}<span class="filetree-comment">{{ $comment }}</span>{{ end }}
+</div>
+{{ end }}
+{{ end }}
+</div>

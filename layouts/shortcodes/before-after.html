@@ -1,14 +1,24 @@
-{{ $before_title := .Get "before_title" }}
-{{ $after_title := .Get "after_title" }}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-  <div class="rounded-lg p-6" style="background-color: #E8E8E8; border-top: 3px solid #CC4444;">
-    <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: #CC4444;">Before</div>
-    <h4 class="font-semibold mb-2" style="color: #666666;">{{ $before_title }}</h4>
-    <div class="text-sm" style="color: #777777;">{{ index (split .Inner "---" ) 0 | markdownify }}</div>
+{{ $before_title := .Get "before" }}
+{{ $after_title := .Get "after" }}
+{{ $id := .Get "id" | default (printf "ba-%d" .Ordinal) }}
+{{ $parts := split .Inner "<!--after-->" }}
+{{ $before_content := index $parts 0 }}
+{{ $after_content := index $parts 1 }}
+<div class="ba-container" data-ba="{{ $id }}">
+  <div class="ba-toggle">
+    <button class="ba-btn active" data-ba-state="before" onclick="toggleBA('{{ $id }}', 'before')">{{ $before_title }}</button>
+    <button class="ba-btn" data-ba-state="after" onclick="toggleBA('{{ $id }}', 'after')">{{ $after_title }}</button>
   </div>
-  <div class="card" style="border-top: 3px solid var(--color-accent);">
-    <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--color-accent);">After</div>
-    <h4 class="font-semibold mb-2" style="color: var(--color-text-heading);">{{ $after_title }}</h4>
-    <div class="text-sm" style="color: var(--color-text-primary);">{{ index (split .Inner "---" ) 1 | markdownify }}</div>
+  <div class="ba-panel ba-before active" data-ba-panel="before">
+    <div class="ba-label ba-label-before">{{ $before_title }}</div>
+    <div class="prose max-w-none">
+      {{ $before_content | markdownify }}
+    </div>
+  </div>
+  <div class="ba-panel ba-after" data-ba-panel="after">
+    <div class="ba-label ba-label-after">{{ $after_title }}</div>
+    <div class="prose max-w-none">
+      {{ $after_content | markdownify }}
+    </div>
   </div>
 </div>

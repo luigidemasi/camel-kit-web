@@ -11,5 +11,7 @@
   {{ partial "footer.html" . }}
   {{ $js := resources.Get "js/theme-switcher.js" | minify }}
   <script src="{{ $js.RelPermalink }}"></script>
+  {{ $interactive := resources.Get "js/interactive.js" | minify }}
+  <script src="{{ $interactive.RelPermalink }}"></script>
 </body>
 </html>
