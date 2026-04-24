@@ -1,0 +1,40 @@
+<nav class="sticky top-0 z-50 backdrop-blur-md border-b" style="background-color: var(--color-bg-nav); border-color: var(--color-border);">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="{{ "/" | relURL }}" class="flex items-center gap-2 no-underline">
+        <img src="{{ "images/logo.png" | relURL }}" alt="Camel-Kit" class="h-8 w-8">
+        <span class="font-bold text-lg" style="color: var(--color-text-nav);">Camel Kit</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-6">
+        {{ range .Site.Menus.main }}
+        <a href="{{ .URL | relURL }}" class="text-sm font-medium no-underline hover:opacity-80" style="color: var(--color-text-nav);">{{ .Name }}</a>
+        {{ end }}
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-0.5 rounded-full px-1 py-1" style="background: rgba(255,255,255,0.1);">
+          <button data-theme-btn="classic" title="Classic Teal" class="theme-btn">&#9728;</button>
+          <button data-theme-btn="colorful" title="Colorful" class="theme-btn">&#127912;</button>
+          <button data-theme-btn="dark" title="Dark" class="theme-btn">&#9790;</button>
+        </div>
+        <a href="{{ .Site.Params.github }}" target="_blank" rel="noopener" class="hover:opacity-80" style="color: var(--color-text-nav);">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button id="mobile-menu-btn" class="md:hidden w-8 h-8 flex items-center justify-center" style="color: var(--color-text-nav);">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden pb-4">
+      {{ range .Site.Menus.main }}
+      <a href="{{ .URL | relURL }}" class="block py-2 text-sm font-medium no-underline" style="color: var(--color-text-nav);">{{ .Name }}</a>
+      {{ end }}
+    </div>
+  </div>
+</nav>
+<script>
+  document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+</script>

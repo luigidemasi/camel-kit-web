@@ -1,0 +1,18 @@
+<div class="my-8 overflow-x-auto">
+  <div class="flex items-center justify-center gap-3 min-w-[600px] py-4">
+    {{ $phases := slice
+      (dict "name" "brainstorm" "label" "Design" "icon" "💡")
+      (dict "name" "plan" "label" "Plan" "icon" "📋")
+      (dict "name" "execute" "label" "Execute" "icon" "⚙️")
+      (dict "name" "verify" "label" "Verify" "icon" "✅")
+    }}
+    {{ range $i, $p := $phases }}
+    {{ if $i }}<div class="text-xl font-bold" style="color: var(--color-accent);">&rarr;</div>{{ end }}
+    <a href="{{ printf "pipeline/%s" $p.name | relURL }}" class="card text-center px-6 py-4 no-underline hover:shadow-lg transition-shadow min-w-[130px]">
+      <div class="text-2xl mb-1">{{ $p.icon }}</div>
+      <div class="font-semibold text-sm" style="color: var(--color-text-heading);">{{ $p.label }}</div>
+      <div class="text-xs mt-1" style="color: var(--color-accent);">/camel-{{ $p.name }}</div>
+    </a>
+    {{ end }}
+  </div>
+</div>

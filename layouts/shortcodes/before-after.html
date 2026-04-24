@@ -1,0 +1,14 @@
+{{ $before_title := .Get "before_title" }}
+{{ $after_title := .Get "after_title" }}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+  <div class="rounded-lg p-6" style="background-color: #E8E8E8; border-top: 3px solid #CC4444;">
+    <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: #CC4444;">Before</div>
+    <h4 class="font-semibold mb-2" style="color: #666666;">{{ $before_title }}</h4>
+    <div class="text-sm" style="color: #777777;">{{ index (split .Inner "---" ) 0 | markdownify }}</div>
+  </div>
+  <div class="card" style="border-top: 3px solid var(--color-accent);">
+    <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--color-accent);">After</div>
+    <h4 class="font-semibold mb-2" style="color: var(--color-text-heading);">{{ $after_title }}</h4>
+    <div class="text-sm" style="color: var(--color-text-primary);">{{ index (split .Inner "---" ) 1 | markdownify }}</div>
+  </div>
+</div>

@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════
+   Theme: Classic Teal
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="classic"] {
+  --color-bg-primary: #EDF2F7;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-nav: #1B6B7D;
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-nav: #FFFFFF;
+  --color-text-heading: #0C4A5E;
+  --color-accent: #1B9AAA;
+  --color-accent-hover: #0C4A5E;
+  --color-border: #E0E0E0;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E0E0E0;
+  --color-code-bg: #F7FAFC;
+  --color-code-text: #1A202C;
+  --color-hero-gradient: linear-gradient(135deg, #1B6B7D, #0C4A5E);
+  --color-hero-text: #FFFFFF;
+  --color-hero-subtitle: #8ECAE6;
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-active: #1B9AAA;
+  --color-footer-bg: #0C4A5E;
+  --color-footer-text: #C8CCD4;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Theme: Light & Colorful
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="colorful"] {
+  --color-bg-primary: #F8F9FA;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-nav: #FFFFFF;
+  --color-text-primary: #1A1A2E;
+  --color-text-secondary: #555555;
+  --color-text-nav: #1A1A2E;
+  --color-text-heading: #1A1A2E;
+  --color-accent: #E85D75;
+  --color-accent-hover: #D14B63;
+  --color-border: #E8E8E8;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E8E8E8;
+  --color-code-bg: #F5F5F5;
+  --color-code-text: #1A202C;
+  --color-hero-gradient: linear-gradient(135deg, #FFFFFF, #F0F0F5);
+  --color-hero-text: #1A1A2E;
+  --color-hero-subtitle: #E85D75;
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-active: #E85D75;
+  --color-footer-bg: #1A1A2E;
+  --color-footer-text: #C8CCD4;
+  --color-phase-brainstorm: #E85D75;
+  --color-phase-plan: #4A90E2;
+  --color-phase-execute: #7ED321;
+  --color-phase-verify: #F0A500;
+  --color-phase-validate: #9013FE;
+  --color-phase-migrate: #50E3C2;
+  --color-phase-knowledge: #8B572A;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Theme: Dark Hybrid
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --color-bg-primary: #1A1A2E;
+  --color-bg-secondary: #2A2F52;
+  --color-bg-nav: #1B6B7D;
+  --color-text-primary: #C8CCD4;
+  --color-text-secondary: #8890A0;
+  --color-text-nav: #FFFFFF;
+  --color-text-heading: #FFFFFF;
+  --color-accent: #F0A500;
+  --color-accent-hover: #E09400;
+  --color-border: #3A3F62;
+  --color-card-bg: #2A2F52;
+  --color-card-border: #3A3F62;
+  --color-code-bg: #151528;
+  --color-code-text: #C8CCD4;
+  --color-hero-gradient: linear-gradient(135deg, #1B6B7D, #0F0E17);
+  --color-hero-text: #FFFFFF;
+  --color-hero-subtitle: #F0A500;
+  --color-sidebar-bg: #151528;
+  --color-sidebar-active: #F0A500;
+  --color-footer-bg: #0F0E17;
+  --color-footer-text: #8890A0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Base Styles
+   ═══════════════════════════════════════════════════════════ */
+@layer base {
+  body {
+    @apply font-sans;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-heading);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  code {
+    background-color: var(--color-code-bg);
+    color: var(--color-code-text);
+    @apply rounded px-1.5 py-0.5 text-sm font-mono;
+  }
+
+  pre {
+    background-color: var(--color-code-bg) !important;
+    @apply rounded-lg p-4 overflow-x-auto;
+  }
+  pre code {
+    background: none;
+    @apply p-0;
+  }
+
+  /* Prose styling for markdown content */
+  .prose h1 { @apply text-3xl font-bold mt-8 mb-4; }
+  .prose h2 { @apply text-2xl font-bold mt-6 mb-3; border-bottom: 1px solid var(--color-border); @apply pb-2; }
+  .prose h3 { @apply text-xl font-semibold mt-5 mb-2; }
+  .prose p { @apply mb-4 leading-relaxed; }
+  .prose ul, .prose ol { @apply mb-4 pl-6; }
+  .prose li { @apply mb-1; }
+  .prose blockquote { @apply border-l-4 pl-4 italic my-4; border-color: var(--color-accent); color: var(--color-text-secondary); }
+  .prose table { @apply w-full mb-4 text-sm; }
+  .prose th { @apply text-left py-2 px-3 font-semibold border-b-2; border-color: var(--color-border); }
+  .prose td { @apply py-2 px-3 border-b; border-color: var(--color-border); }
+  .prose img { @apply rounded-lg my-4; }
+  .prose hr { border-color: var(--color-border); @apply my-8; }
+}
+
+@layer components {
+  .card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    @apply rounded-lg p-6;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    @apply inline-flex items-center px-6 py-3 rounded-lg font-semibold text-sm text-white no-underline;
+    transition: background-color 0.2s ease;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-accent-hover);
+    @apply text-white;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center px-6 py-3 rounded-lg font-semibold text-sm no-underline border;
+    border-color: rgba(255,255,255,0.3);
+    color: var(--color-hero-text);
+  }
+  .btn-outline:hover {
+    border-color: rgba(255,255,255,0.6);
+    color: var(--color-hero-text);
+  }
+
+  .theme-btn {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer;
+    color: var(--color-text-nav);
+    transition: background-color 0.15s ease;
+  }
+  .theme-btn:hover {
+    background: rgba(255,255,255,0.15);
+  }
+  .theme-btn.active {
+    background: rgba(255,255,255,0.25);
+  }
+}

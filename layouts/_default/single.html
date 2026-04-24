@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0">
+  {{ partial "sidebar.html" . }}
+  <article class="flex-1 min-w-0 py-8 px-0 lg:px-8">
+    <h1 class="text-3xl font-bold mb-2">{{ .Title }}</h1>
+    {{ with .Description }}<p class="text-lg mb-6" style="color: var(--color-text-secondary);">{{ . }}</p>{{ end }}
+    <div class="prose max-w-none">
+      {{ .Content }}
+    </div>
+  </article>
+  {{ partial "toc.html" . }}
+</div>
+{{ end }}

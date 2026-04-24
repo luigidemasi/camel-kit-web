@@ -1,0 +1,8 @@
+{{ if .TableOfContents }}
+<aside class="w-56 shrink-0 hidden xl:block sticky top-16 h-[calc(100vh-4rem)] py-6 pl-4 overflow-y-auto">
+  <div class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--color-text-secondary);">On this page</div>
+  <nav class="text-sm space-y-1" style="color: var(--color-text-secondary);">
+    {{ .TableOfContents }}
+  </nav>
+</aside>
+{{ end }}

@@ -1,0 +1,234 @@
+---
+title: Command Reference
+weight: 1
+---
+
+## CLI Commands
+
+### camel-kit init
+
+Initialize a new Camel-Kit project.
+
+**Usage:**
+
+```bash
+camel-kit init <project-name> [options]
+camel-kit init --here [options]
+```
+
+**Options:**
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--ai`, `-a` | `bob` | AI coding assistant to configure (bob, gemini, claude, qwen, opencode) |
+| `--citrus-version` | `4.9.2` | Citrus Framework version for test schemas |
+| `--here` | `false` | Initialize in current directory |
+| `--no-fetch` | `false` | Skip external catalog fetching |
+| `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `camel`, `auto` |
+| `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
+| `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.19.0`) |
+| `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
+
+**Examples:**
+
+```bash
+# Create new project for Claude Code
+camel-kit init my-integration --ai claude
+
+# Create new project for IBM Project Bob
+camel-kit init my-integration --ai bob
+
+# Initialize in current directory
+camel-kit init --here --ai claude
+
+# Explicitly declare MuleSoft source platform
+camel-kit init my-integration --ai claude --source-platform mulesoft
+```
+
+**Output structure:**
+
+```
+my-integration/
+├── AGENTS.md                        # Cross-agent skill routing and iron laws
+├── CLAUDE.md / GEMINI.md / QWEN.md  # Agent-specific configuration
+├── .claude/commands/                 # Slash commands (Claude Code)
+│   ├── camel-brainstorm.md
+│   ├── camel-plan.md
+│   ├── camel-execute.md
+│   ├── camel-verify.md
+│   ├── camel-flow.md
+│   ├── camel-validate.md
+│   ├── camel-migrate.md
+│   └── camel-knowledge.md
+├── .claude/skills/                  # Skill files with guides
+├── .mcp.json                        # MCP server configuration
+└── .camel-kit/
+    ├── config.properties            # Project configuration
+    └── constitution.md              # Best practices (7 rules)
+```
+
+### camel-kit graph
+
+Query the project's property graph for code intelligence.
+
+```bash
+camel-kit graph stats                           # Graph availability check
+camel-kit graph generate                        # Rebuild project graph
+camel-kit graph find --type CAMEL_ROUTE         # Find nodes by type
+camel-kit graph neighbors <node-id>             # Get connected nodes
+camel-kit graph route-flow <route-id>           # Trace a route's flow
+camel-kit graph dead-code                       # Detect unused code
+camel-kit graph project-norms                   # Get project norms for validation
+camel-kit graph project-context                 # Get context for implementation
+camel-kit graph route-context <route-id>        # Get context for testing
+camel-kit graph visualize                       # Generate interactive HTML visualization
+camel-kit plan analyze <plan-file>              # Analyze plan for parallel execution waves
+```
+
+---
+
+## Slash Commands
+
+These commands are used within your AI coding assistant after project initialization. The pipeline follows a 3-phase orchestrated flow: **Design → Plan → Execute**.
+
+### Pipeline Commands (3-Phase Flow)
+
+#### /camel-brainstorm
+
+Design an integration through an AI-guided interview. This is **Phase 1** of the pipeline and the primary entry point for all camel-kit work.
+
+**When to use:** Any new integration, connecting systems, building data pipelines, or starting migration projects.
+
+**Process:**
+
+1. Detects project type (greenfield or migration)
+2. Runs a Socratic interview: business purpose, systems, data formats, processing, error handling, performance
+3. Verifies all components via MCP catalog (Iron Law 1)
+4. Produces a formal Design Specification
+5. After user approval, automatically invokes `/camel-plan`
+
+**Output:** `docs/design-spec.md`
+
+---
+
+#### /camel-plan
+
+Generate an implementation plan from an approved design spec. This is **Phase 2** of the pipeline, auto-invoked by `/camel-brainstorm` after spec approval.
+
+**Process:**
+
+1. Reads the approved design spec
+2. Decomposes into implementation tasks with acceptance criteria
+3. Runs wave analysis to identify parallelizable tasks
+4. Specifies two-stage review per task (spec compliance then quality)
+5. After user approval, automatically invokes `/camel-execute`
+
+**Output:** `docs/implementation-plan.md`
+
+**Key rule:** The plan is a recipe, not the meal — it describes WHAT to generate, not the generated code itself.
+
+---
+
+#### /camel-execute
+
+Execute the approved implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline, auto-invoked by `/camel-plan` after plan approval.
+
+**Process:**
+
+1. Analyzes plan for parallel execution waves
+2. For each task: implement → spec compliance review → code quality review
+3. Loads internal skills as needed (camel-implement, camel-test, camel-validate)
+4. After all tasks complete, auto-invokes `/camel-verify`
+
+**Generated artifacts:** `.camel.yaml` routes, `application.properties`, `docker-compose.yaml`, DataMapper files (XSLT/Groovy), Citrus test definitions, validation report
+
+---
+
+### Entry Point Commands
+
+#### /camel-flow
+
+Shortcut into `/camel-brainstorm` for greenfield projects. Use when creating a new integration from scratch.
+
+---
+
+#### /camel-migrate
+
+Shortcut into `/camel-brainstorm` for migration projects.
+
+**Supported source platforms:**
+
+| Platform | Versions | Detection |
+|----------|---------|-----------|
+| MuleSoft Mule | 3.x, 4.x | XML namespace, pom.xml groupId |
+| Apache Camel | 2.x, 3.x | camel-context.xml, Spring XML, Blueprint |
+| JBoss Fuse | 6.x | groupId, version qualifiers |
+
+**Features:** Auto-detect source vendor, graph-based flow analysis, DataWeave parsing, flow-by-flow incremental migration.
+
+---
+
+### Standalone Commands
+
+#### /camel-verify
+
+Runtime verification feedback loop. Builds, starts, tests, classifies errors, applies fixes, and retries until the application works.
+
+**5-phase loop:**
+
+1. **Environment** — prepare Docker containers
+2. **Build** — Maven/Gradle compilation
+3. **Start** — route startup with health checks
+4. **Behavioral** — send test data, verify output
+5. **Report** — structured summary of findings and fixes
+
+Can be invoked standalone for troubleshooting or auto-invoked by `/camel-execute`.
+
+---
+
+#### /camel-validate
+
+Validate Camel routes for correctness, security, and constitution compliance. Produces timestamped validation reports.
+
+**Validation categories:** Schema validation, endpoint verification, quality checks, security analysis, anti-pattern detection, constitution compliance (all 7 rules).
+
+**Output:** `docs/validation-report-YYYY-MM-DD_HH-mm.md`
+
+---
+
+#### /camel-knowledge
+
+Look up Apache Camel documentation, component details, CVEs, errata, migration guides, release notes, and JIRA issues via MCP tools.
+
+**MCP Tools:**
+- `camel_docs_search` — general documentation search
+- `camel_docs_component_info` — component information + CVE lookup
+- `camel_docs_cve_search` — security advisory search
+- `camel_docs_release_info` — release notes
+- `camel_docs_jira_lookup` — JIRA issue lookup
+
+---
+
+## Command Cheat Sheet
+
+```bash
+# CLI
+camel-kit init my-project --ai claude           # Create project
+camel-kit graph stats                           # Check graph availability
+camel-kit graph visualize                       # Interactive graph HTML
+camel-kit plan analyze docs/implementation-plan.md  # Wave analysis
+
+# 3-Phase Pipeline (in AI assistant)
+/camel-brainstorm                # Phase 1: Design interview → design-spec.md
+/camel-plan                      # Phase 2: Task decomposition → implementation-plan.md
+/camel-execute                   # Phase 3: Generate code + tests + validation
+
+# Entry Points
+/camel-flow                      # Greenfield shortcut → brainstorm
+/camel-migrate                   # Migration shortcut → brainstorm
+
+# Standalone
+/camel-verify                    # Runtime verification loop
+/camel-validate                  # Route quality check
+/camel-knowledge                 # Documentation lookup
+```

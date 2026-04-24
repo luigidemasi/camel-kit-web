@@ -1,0 +1,14 @@
+{
+  "name": "camel-kit-website",
+  "private": true,
+  "scripts": {
+    "dev": "hugo serve",
+    "build": "hugo --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "postcss-cli": "^11.0.0",
+    "autoprefixer": "^10.4.0"
+  }
+}

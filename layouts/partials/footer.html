@@ -1,0 +1,15 @@
+<footer class="mt-auto py-8" style="background-color: var(--color-footer-bg); color: var(--color-footer-text);">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-4 text-sm">
+        <a href="{{ "getting-started" | relURL }}" class="hover:opacity-80 no-underline" style="color: var(--color-footer-text);">Docs</a>
+        <a href="{{ "pipeline" | relURL }}" class="hover:opacity-80 no-underline" style="color: var(--color-footer-text);">Pipeline</a>
+        <a href="{{ "research" | relURL }}" class="hover:opacity-80 no-underline" style="color: var(--color-footer-text);">Research</a>
+        <a href="{{ .Site.Params.github }}" class="hover:opacity-80 no-underline" style="color: var(--color-footer-text);">GitHub</a>
+      </div>
+      <div class="text-sm opacity-60">
+        Apache License 2.0 &middot; Built with Hugo &amp; Tailwind CSS
+      </div>
+    </div>
+  </div>
+</footer>

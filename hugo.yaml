@@ -1,0 +1,42 @@
+baseURL: "https://luigidemasi.github.io/camel-kit/"
+languageCode: en-us
+title: Camel-Kit
+enableRobotsTXT: true
+enableGitInfo: true
+
+params:
+  description: "AI-Guided Integration Design for Apache Camel"
+  github: "https://github.com/luigidemasi/camel-kit"
+
+menu:
+  main:
+    - name: Docs
+      pageRef: /getting-started
+      weight: 1
+    - name: Pipeline
+      pageRef: /pipeline
+      weight: 2
+    - name: Architecture
+      pageRef: /architecture
+      weight: 3
+    - name: Research
+      pageRef: /research
+      weight: 4
+    - name: Presentations
+      pageRef: /presentations
+      weight: 5
+    - name: Blog
+      pageRef: /blog
+      weight: 6
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+
+module:
+  hugoVersion:
+    extended: true
+    min: "0.157.0"
