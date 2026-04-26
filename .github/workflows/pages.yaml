@@ -51,7 +51,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: hugo --minify --baseURL "https://luigidemasi.github.io/camel-kit/"
+        run: hugo --minify --baseURL "https://luigidemasi.github.io/camel-kit-web/"
 
       - name: Verify build output
         run: |
