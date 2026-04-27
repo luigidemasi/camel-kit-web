@@ -286,17 +286,6 @@
     color: var(--color-hero-text);
   }
 
-  .theme-btn {
-    @apply w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer;
-    color: var(--color-text-nav);
-    transition: background-color 0.15s ease;
-  }
-  .theme-btn:hover {
-    background: rgba(255,255,255,0.15);
-  }
-  .theme-btn.active {
-    background: rgba(255,255,255,0.25);
-  }
 }
 
 
