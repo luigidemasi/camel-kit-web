@@ -163,7 +163,7 @@ camel-kit init --here [options]
 | `--no-fetch` | `false` | Skip external catalog fetching |
 | `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `camel`, `auto` |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
-| `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.19.0`) |
+| `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.20.0`) |
 | `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
 
 **Examples:**

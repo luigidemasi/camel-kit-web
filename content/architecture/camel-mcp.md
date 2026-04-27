@@ -173,10 +173,10 @@ The Camel MCP server version matches the target Camel version:
 
 | Property | Current Value |
 |----------|--------------|
-| **Camel MCP version** | `4.19.0` |
-| **Camel Main default** | `4.19.0` |
-| **Camel Spring Boot** | `4.19.0` |
-| **Camel Quarkus** | `4.18.1` |
+| **Camel MCP version** | `4.20.0` |
+| **Camel Main default** | `4.20.0` |
+| **Camel Spring Boot** | `4.20.0` |
+| **Camel Quarkus** | `4.18.0` |
 
 When the user specifies a different Camel version via `camel-kit init -p camelVersion=4.14.0`, the MCP server loads the catalog for that specific version.
 
