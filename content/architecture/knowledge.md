@@ -191,7 +191,7 @@ The model runs locally via ONNX Runtime — no external API calls, no data leave
 
 ## Index Storage
 
-The knowledge index is a **pre-built Lucene 9.12.1 index** shipped as a Maven artifact:
+The knowledge index is a **pre-built Apache Lucene 9.12.1 index** shipped as a Maven artifact:
 
 | Property | Value |
 |----------|-------|
@@ -199,8 +199,22 @@ The knowledge index is a **pre-built Lucene 9.12.1 index** shipped as a Maven ar
 | **Index size** | 472 MB (88 segment files) |
 | **Vector storage** | `KnnFloatVectorField` (384-dim per document) |
 | **Total documents** | 166,973 |
-| **Location** | `camel-kit-knowledge/index/src/main/resources/knowledge-index/` |
-| **Versioning** | CI-Friendly — `mvn -Drevision=$(date +%Y%m%d%H%M)` |
+
+### Why Lucene?
+
+Camel-Kit chose Lucene over vector databases (Pinecone, Weaviate, Chroma, Milvus) and full search platforms (Elasticsearch, OpenSearch) for specific reasons:
+
+- **Zero infrastructure** — Lucene is an embedded library, not a server. No Docker containers, no ports, no configuration. The index loads from the classpath at JVM startup. This keeps the MCP server self-contained — one JAR, one process.
+
+- **Native hybrid search** — Lucene 9.x supports both BM25 text search and `KnnFloatVectorField` vector search in the same index. No need for two separate systems or a coordination layer. The 20/80 BM25+KNN blend runs in a single query.
+
+- **Pre-built, portable index** — The index is built once by the indexer and shipped as a Maven artifact. Users don't need to run an indexer or download docs — the knowledge is embedded in the JAR. This makes deployment trivial: `jbang org.apache.camel:camel-jbang-mcp:{version}:runner` and it's ready.
+
+- **Java ecosystem alignment** — Camel-Kit is a Java/JBang project. Lucene is a Java library with no native dependencies (except ONNX for embeddings). No Python, no gRPC, no REST clients needed.
+
+- **Proven at scale** — 166,973 documents with 384-dim vectors, hybrid search under 50ms on commodity hardware. Lucene powers Wikipedia, Stack Overflow, and Elasticsearch. The scale is well within its comfort zone.
+
+The tradeoff: no built-in replication or distributed search. But for a single-user MCP server running locally, that's not needed.
 
 The index module has **no Java code** — it's a pure resource artifact containing the pre-built Lucene segments. The MCP server loads it at startup from the classpath.
 
