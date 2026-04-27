@@ -189,6 +189,39 @@ Each includes:
 
 The model runs locally via ONNX Runtime — no external API calls, no data leaves the machine.
 
+## Index Storage
+
+The knowledge index is a **pre-built Lucene 9.12.1 index** shipped as a Maven artifact:
+
+| Property | Value |
+|----------|-------|
+| **Storage engine** | Apache Lucene 9.12.1 |
+| **Index size** | 472 MB (88 segment files) |
+| **Vector storage** | `KnnFloatVectorField` (384-dim per document) |
+| **Total documents** | 166,973 |
+| **Location** | `camel-kit-knowledge/index/src/main/resources/knowledge-index/` |
+| **Versioning** | CI-Friendly — `mvn -Drevision=$(date +%Y%m%d%H%M)` |
+
+The index module has **no Java code** — it's a pure resource artifact containing the pre-built Lucene segments. The MCP server loads it at startup from the classpath.
+
+**Rebuild the index:**
+
+```bash
+mvn package -pl camel-kit-knowledge/index -Prebuild-index -Drevision=$(date +%Y%m%d%H%M) -am
+```
+
+This triggers the indexer to re-crawl Apache Camel documentation, re-embed with the Granite model, and write new Lucene segments.
+
+**Knowledge repo structure:**
+
+| Module | Purpose |
+|--------|---------|
+| `schema` | Lucene field definitions (`KnowledgeFields`, `KnowledgeDocument`) |
+| `embedding` | ONNX model loading and vector generation |
+| `indexer` | Document crawling, parsing, chunking, and index building |
+| `index` | Pre-built Lucene index artifact (no code) |
+| `mcp` | Quarkus MCP server exposing 5 search tools |
+
 ## /camel-knowledge Skill
 
 The `/camel-knowledge` slash command is a **prescriptive Q&A layer** over the Knowledge MCP. It routes user questions to the appropriate tool:
