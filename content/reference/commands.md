@@ -7,7 +7,8 @@ Camel-Kit provides both CLI commands for project initialization and slash comman
 
 ## Pipeline Commands
 
-{{< accordion title="/camel-brainstorm — Design Phase" open="true" >}}
+{{< carousel id="pipeline-cmds" >}}
+<!--step /camel-brainstorm — Design Phase-->
 
 Design an integration through an AI-guided interview. This is **Phase 1** of the pipeline and the primary entry point for all camel-kit work.
 
@@ -23,9 +24,8 @@ Design an integration through an AI-guided interview. This is **Phase 1** of the
 
 **Output:** `docs/design-spec.md`
 
-{{< /accordion >}}
 
-{{< accordion title="/camel-plan — Planning Phase" >}}
+<!--step /camel-plan — Planning Phase-->
 
 Generate an implementation plan from an approved design spec. This is **Phase 2** of the pipeline, auto-invoked by `/camel-brainstorm` after spec approval.
 
@@ -41,9 +41,8 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 
 **Key rule:** The plan is a recipe, not the meal — it describes WHAT to generate, not the generated code itself.
 
-{{< /accordion >}}
 
-{{< accordion title="/camel-execute — Execution Phase" >}}
+<!--step /camel-execute — Execution Phase-->
 
 Execute the approved implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline, auto-invoked by `/camel-plan` after plan approval.
 
@@ -62,19 +61,19 @@ Execute the approved implementation plan with orchestrated task dispatch. This i
 - Citrus test definitions
 - Validation report
 
-{{< /accordion >}}
+{{< /carousel >}}
 
 ## Entry Point Commands
 
-{{< accordion title="/camel-flow — Greenfield Shortcut" >}}
+{{< carousel id="entry-cmds" >}}
+<!--step /camel-flow — Greenfield-->
 
 Shortcut into `/camel-brainstorm` for greenfield projects. Use when creating a new integration from scratch.
 
 Immediately starts the design interview process optimized for new integrations.
 
-{{< /accordion >}}
 
-{{< accordion title="/camel-migrate — Migration Shortcut" >}}
+<!--step /camel-migrate — Migration-->
 
 Shortcut into `/camel-brainstorm` for migration projects.
 
@@ -91,11 +90,12 @@ Shortcut into `/camel-brainstorm` for migration projects.
 - DataWeave parsing
 - Flow-by-flow incremental migration
 
-{{< /accordion >}}
+{{< /carousel >}}
 
 ## Standalone Commands
 
-{{< accordion title="/camel-verify — Runtime Verification" >}}
+{{< carousel id="standalone-cmds" >}}
+<!--step /camel-verify — Verification-->
 
 Runtime verification feedback loop. Builds, starts, tests, classifies errors, applies fixes, and retries until the application works.
 
@@ -109,9 +109,8 @@ Runtime verification feedback loop. Builds, starts, tests, classifies errors, ap
 
 Can be invoked standalone for troubleshooting or auto-invoked by `/camel-execute`.
 
-{{< /accordion >}}
 
-{{< accordion title="/camel-validate — Route Validation" >}}
+<!--step /camel-validate — Validation-->
 
 Validate Camel routes for correctness, security, and constitution compliance. Produces timestamped validation reports.
 
@@ -125,9 +124,8 @@ Validate Camel routes for correctness, security, and constitution compliance. Pr
 
 **Output:** `docs/validation-report-YYYY-MM-DD_HH-mm.md`
 
-{{< /accordion >}}
 
-{{< accordion title="/camel-knowledge — Documentation Lookup" >}}
+<!--step /camel-knowledge — Docs-->
 
 Look up Apache Camel documentation, component details, CVEs, migration guides, release notes, and JIRA issues via MCP tools.
 
@@ -138,11 +136,12 @@ Look up Apache Camel documentation, component details, CVEs, migration guides, r
 - `camel_docs_release_info` — release notes
 - `camel_docs_jira_lookup` — JIRA issue lookup
 
-{{< /accordion >}}
+{{< /carousel >}}
 
 ## CLI Commands
 
-{{< accordion title="camel-kit init — Project Initialization" >}}
+{{< carousel id="cli-cmds" >}}
+<!--step camel-kit init-->
 
 Initialize a new Camel-Kit project.
 
@@ -205,9 +204,8 @@ my-integration/
     constitution.md # Best practices (7 rules)
 {{< /filetree >}}
 
-{{< /accordion >}}
 
-{{< accordion title="camel-kit graph — Property Graph Queries" >}}
+<!--step camel-kit graph-->
 
 Query the project's property graph for code intelligence.
 
@@ -225,7 +223,7 @@ camel-kit graph visualize                       # Generate interactive HTML visu
 camel-kit plan analyze <plan-file>              # Analyze plan for parallel execution waves
 ```
 
-{{< /accordion >}}
+{{< /carousel >}}
 
 ## Command Cheat Sheet
 
