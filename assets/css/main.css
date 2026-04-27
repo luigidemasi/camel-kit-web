@@ -2,66 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════════
-   Theme: Classic Teal
-   ═══════════════════════════════════════════════════════════ */
-[data-theme="classic"] {
-  --color-bg-primary: #EDF2F7;
-  --color-bg-secondary: #FFFFFF;
-  --color-bg-nav: #1B6B7D;
-  --color-text-primary: #333333;
-  --color-text-secondary: #666666;
-  --color-text-nav: #FFFFFF;
-  --color-text-heading: #0C4A5E;
-  --color-accent: #1B9AAA;
-  --color-accent-hover: #0C4A5E;
-  --color-border: #E0E0E0;
-  --color-card-bg: #FFFFFF;
-  --color-card-border: #E0E0E0;
-  --color-code-bg: #F7FAFC;
-  --color-code-text: #1A202C;
-  --color-hero-gradient: linear-gradient(135deg, #1B6B7D, #0C4A5E);
-  --color-hero-text: #FFFFFF;
-  --color-hero-subtitle: #8ECAE6;
-  --color-sidebar-bg: #FFFFFF;
-  --color-sidebar-active: #1B9AAA;
-  --color-footer-bg: #0C4A5E;
-  --color-footer-text: #C8CCD4;
-}
 
-/* ═══════════════════════════════════════════════════════════
-   Theme: Light & Colorful
-   ═══════════════════════════════════════════════════════════ */
-[data-theme="colorful"] {
-  --color-bg-primary: #F8F9FA;
-  --color-bg-secondary: #FFFFFF;
-  --color-bg-nav: #FFFFFF;
-  --color-text-primary: #1A1A2E;
-  --color-text-secondary: #555555;
-  --color-text-nav: #1A1A2E;
-  --color-text-heading: #1A1A2E;
-  --color-accent: #E85D75;
-  --color-accent-hover: #D14B63;
-  --color-border: #E8E8E8;
-  --color-card-bg: #FFFFFF;
-  --color-card-border: #E8E8E8;
-  --color-code-bg: #F5F5F5;
-  --color-code-text: #1A202C;
-  --color-hero-gradient: linear-gradient(135deg, #FFFFFF, #F0F0F5);
-  --color-hero-text: #1A1A2E;
-  --color-hero-subtitle: #E85D75;
-  --color-sidebar-bg: #FFFFFF;
-  --color-sidebar-active: #E85D75;
-  --color-footer-bg: #1A1A2E;
-  --color-footer-text: #C8CCD4;
-  --color-phase-brainstorm: #E85D75;
-  --color-phase-plan: #4A90E2;
-  --color-phase-execute: #7ED321;
-  --color-phase-verify: #F0A500;
-  --color-phase-validate: #9013FE;
-  --color-phase-migrate: #50E3C2;
-  --color-phase-knowledge: #8B572A;
-}
 
 /* ═══════════════════════════════════════════════════════════
    Theme: Dark Hybrid

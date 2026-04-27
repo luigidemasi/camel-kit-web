@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ .Site.LanguageCode }}" data-theme="classic">
+<html lang="{{ .Site.LanguageCode }}" data-theme="dark">
 <head>
   {{ partial "head.html" . }}
 </head>
@@ -9,8 +9,6 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  {{ $js := resources.Get "js/theme-switcher.js" | minify }}
-  <script src="{{ $js.RelPermalink }}"></script>
   {{ $interactive := resources.Get "js/interactive.js" | minify }}
   <script src="{{ $interactive.RelPermalink }}"></script>
 </body>
