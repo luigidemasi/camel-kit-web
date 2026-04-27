@@ -77,7 +77,7 @@ Get release notes for a specific Apache Camel version — new features, bug fixe
 
 | Param | Required | Example |
 |-------|----------|---------|
-| `version` | yes | `4.14`, `4.18.1` |
+| `version` | yes | `4.14`, `4.18.2` |
 | `max_results` | no | `20` (default) |
 
 **Example:**
