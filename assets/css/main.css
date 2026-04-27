@@ -222,7 +222,7 @@
   transition: all 0.2s ease;
 }
 .ba-btn.active[data-ba-state="before"] {
-  background-color: #CC4444;
+  background-color: #D4533B;
   color: white;
 }
 .ba-btn.active[data-ba-state="after"] {
@@ -239,7 +239,7 @@
 }
 .ba-before {
   background-color: #E8E8E8;
-  border-left: 3px solid #CC4444;
+  border-left: 3px solid #D4533B;
 }
 [data-theme="dark"] .ba-before {
   background-color: #1f2020;
@@ -251,7 +251,7 @@
 .ba-label {
   @apply text-sm font-bold mb-2;
 }
-.ba-label-before { color: #CC4444; }
+.ba-label-before { color: #D4533B; }
 .ba-label-after { color: var(--color-accent); }
 
 @layer components {
