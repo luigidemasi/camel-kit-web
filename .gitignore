@@ -1,7 +1,22 @@
+# Hugo
 public/
 resources/
-node_modules/
 .hugo_build.lock
+
+# Node
+node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Superpowers
 .superpowers/
-camel-kit-website.iml
-.idea
