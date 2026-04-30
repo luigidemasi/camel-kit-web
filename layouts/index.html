@@ -1,58 +1,71 @@
 {{ define "main" }}
 {{ partial "hero.html" . }}
 
-<!-- What is Camel-Kit -->
-<section class="py-16 px-4" style="background-color: var(--color-bg-secondary);">
-  <div class="max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-4">What is Camel-Kit?</h2>
-    <p class="text-lg text-center mb-8" style="color: var(--color-text-secondary);">
+<!-- Value Proposition -->
+<section class="py-20 md:py-24 px-4" style="background-color: var(--color-bg-secondary);">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-2xl font-bold mb-4">What is Camel-Kit?</h2>
+    <p class="text-lg mb-10 leading-relaxed" style="color: var(--color-text-secondary);">
       A CLI tool that installs AI agent skills into your project. Instead of prompting an AI to "generate a Camel route" and hoping for the best, Camel-Kit guides the AI through a structured design process &mdash; interviewing you about requirements, capturing decisions in versionable specifications, and generating catalog-verified code that follows your team's rules.
     </p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm" style="color: var(--color-text-secondary);">
-      <div><strong style="color: var(--color-accent);">Spec-Driven</strong> &mdash; design documents are the source of truth, not chat conversations</div>
-      <div><strong style="color: var(--color-accent);">Governed</strong> &mdash; every component verified against the real Camel catalog via MCP</div>
-      <div><strong style="color: var(--color-accent);">Agent-Agnostic</strong> &mdash; same quality across Claude Code, IBM Bob, Gemini CLI, Qwen, OpenCode</div>
-    </div>
-  </div>
-</section>
-
-<!-- What does it do -->
-<section class="py-16 px-4">
-  <div class="max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-4">What Does It Do?</h2>
-    <p class="text-lg text-center mb-8" style="color: var(--color-text-secondary);">
-      Camel-Kit replaces the "prompt and pray" approach with a structured pipeline. The AI interviews you like a senior architect, captures decisions in formal specifications, then generates production-grade code with built-in quality gates.
-    </p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="card">
-        <div class="text-2xl mb-2">💡</div>
-        <h3 class="font-semibold mb-2" style="color: var(--color-text-heading);">Greenfield Integrations</h3>
-        <p class="text-sm mb-3" style="color: var(--color-text-secondary);">Start from requirements, end with running code. The AI walks you through business purpose, data formats, error handling, and performance needs.</p>
-        <code class="text-xs">/camel-brainstorm</code>
+    <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+      <div class="text-center max-w-[200px]">
+        <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Spec-Driven</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Design documents are the source of truth, not chat conversations</div>
       </div>
-      <div class="card">
-        <div class="text-2xl mb-2">🔄</div>
-        <h3 class="font-semibold mb-2" style="color: var(--color-text-heading);">Platform Migration</h3>
-        <p class="text-sm mb-3" style="color: var(--color-text-secondary);">Migrate from MuleSoft or older Camel versions. Auto-detect source platform, graph-based flow analysis, flow-by-flow incremental migration.</p>
-        <code class="text-xs">/camel-migrate</code>
+      <div class="text-center max-w-[200px]">
+        <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Governed</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Every component verified against the real Camel catalog via MCP</div>
+      </div>
+      <div class="text-center max-w-[200px]">
+        <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Agent-Agnostic</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Same quality across Claude Code, IBM Bob, Gemini CLI, Qwen, OpenCode</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Migration Highlight -->
-<section class="py-16 px-4" style="background-color: var(--color-bg-secondary);">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+<!-- Two Paths: Greenfield + Migration -->
+<section class="py-20 md:py-24 px-4">
+  <div class="max-w-5xl mx-auto space-y-16 md:space-y-24">
+
+    <!-- Greenfield: text left, code right -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
       <div>
-        <h2 class="text-2xl font-bold mb-4">Migrate with Confidence</h2>
-        <p class="mb-4" style="color: var(--color-text-secondary);">
-          Camel-Kit builds a <strong>property graph</strong> of your existing project &mdash; parsing flows, connectors, dependencies, and configurations. The AI uses this graph to plan migrations in the correct dependency order.
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-accent);">Greenfield Integrations</div>
+        <h2 class="text-xl md:text-2xl font-bold mb-4">Start from requirements, end with running code</h2>
+        <p class="mb-4 leading-relaxed" style="color: var(--color-text-secondary);">
+          The AI walks you through business purpose, data formats, error handling, and performance needs &mdash; then generates production-grade Camel routes with built-in quality gates.
         </p>
-        <div class="space-y-3 mb-6">
+        <code class="text-sm" style="color: var(--color-accent);">/camel-brainstorm</code>
+      </div>
+      <div class="rounded-lg p-6" style="background-color: var(--color-code-bg); border: 1px solid var(--color-border);">
+        <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm" style="color: var(--color-text-secondary);">$ camel-kit init my-project --ai claude
+<span style="color: var(--color-accent);">&#10003;</span> Project scaffolded
+<span style="color: var(--color-accent);">&#10003;</span> Skills installed
+<span style="color: var(--color-accent);">&rarr;</span> Run /camel-brainstorm to start</code></pre>
+      </div>
+    </div>
+
+    <!-- Migration: image left, text right -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div class="order-2 md:order-1">
+        <img src="{{ "images/graph-visualize.png" | relURL }}" alt="Property graph of a MuleSoft project showing flows, connectors, and dependencies" class="rounded-lg shadow-lg">
+      </div>
+      <div class="order-1 md:order-2">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-accent);">Platform Migration</div>
+        <h2 class="text-xl md:text-2xl font-bold mb-4">Migrate with Confidence</h2>
+        <p class="mb-4 leading-relaxed" style="color: var(--color-text-secondary);">
+          Camel-Kit builds a property graph of your existing project &mdash; parsing flows, connectors, dependencies, and configurations. The AI uses this graph to plan migrations in the correct dependency order.
+        </p>
+        <div class="space-y-2 mb-6">
           <div class="flex items-start gap-3">
             <span style="color: var(--color-accent);">&#10003;</span>
             <span class="text-sm"><strong>MuleSoft Mule 3.x/4.x</strong> &mdash; XML flows, DataWeave, connectors</span>
+          </div>
+          <div class="flex items-start gap-3">
+            <span style="color: var(--color-accent);">&#10003;</span>
+            <span class="text-sm"><strong>Microsoft BizTalk</strong> &mdash; orchestrations, pipelines, schemas</span>
           </div>
           <div class="flex items-start gap-3">
             <span style="color: var(--color-accent);">&#10003;</span>
@@ -63,54 +76,63 @@
             <span class="text-sm"><strong>Flow-by-flow</strong> &mdash; incremental migration, not big-bang</span>
           </div>
         </div>
-        <a href="{{ "getting-started/migration" | relURL }}" class="btn-primary text-sm px-6 py-3">Migration Guide &rarr;</a>
-      </div>
-      <div>
-        <img src="{{ "images/graph-visualize.png" | relURL }}" alt="Property graph of a MuleSoft project showing flows, connectors, and dependencies" class="rounded-lg shadow-lg">
+        <div class="flex flex-wrap items-center gap-4">
+          <code class="text-sm" style="color: var(--color-accent);">/camel-migrate</code>
+          <a href="{{ "getting-started/migration" | relURL }}" class="btn-primary text-sm px-6 py-3">Migration Guide &rarr;</a>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 
-<!-- Pipeline Diagram -->
-<section class="py-12 px-4" style="background-color: var(--color-bg-secondary);">
+<!-- Three-Phase Pipeline -->
+<section class="py-20 md:py-24 px-4" style="background-color: var(--color-bg-secondary);">
   <div class="max-w-5xl mx-auto">
     <h2 class="text-2xl font-bold text-center mb-2">Three-Phase Pipeline</h2>
-    <p class="text-center mb-6" style="color: var(--color-text-secondary);">Design &rarr; Plan &rarr; Execute &mdash; each gate requires user approval</p>
+    <p class="text-center mb-8" style="color: var(--color-text-secondary);">Design &rarr; Plan &rarr; Execute &mdash; each gate requires user approval</p>
     {{ partial "pipeline-diagram.html" . }}
   </div>
 </section>
 
-<!-- Features -->
-<section class="py-12 px-4" style="background-color: var(--color-bg-secondary);">
+<!-- Why Camel-Kit: 6 Feature Cards -->
+<section class="py-20 md:py-24 px-4">
   <div class="max-w-5xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-8">Why Camel-Kit</h2>
+    <h2 class="text-2xl font-bold text-center mb-10">Why Camel-Kit</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {{ .Content }}
     </div>
   </div>
 </section>
 
-<!-- Install -->
-<section class="py-12 px-4" style="background-color: var(--color-bg-secondary);">
+<!-- Quick Install -->
+<section class="py-20 md:py-24 px-4" style="background-color: var(--color-bg-secondary);">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-6">Quick Install</h2>
-    <div class="space-y-4">
-      <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-        <div class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--color-accent);">Standalone CLI</div>
-        <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang app install camel-kit@luigidemasi/camel-kit
+    <h2 class="text-2xl font-bold text-center mb-8">Get Started</h2>
+    <div class="tabs-container" data-tabs="install">
+      <div class="tabs-nav" role="tablist">
+        <button class="tab-btn active" role="tab" data-tab="install-1" onclick="switchTab('install', 'install-1')">Standalone CLI</button>
+        <button class="tab-btn" role="tab" data-tab="install-2" onclick="switchTab('install', 'install-2')">Run Without Installing</button>
+        <button class="tab-btn" role="tab" data-tab="install-3" onclick="switchTab('install', 'install-3')">JBang Plugin</button>
+      </div>
+      <div class="tab-panel active" role="tabpanel" data-tab-panel="install-1">
+        <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang app install camel-kit@luigidemasi/camel-kit
 camel-kit init my-project --ai claude</code></pre>
+        </div>
       </div>
-      <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-        <div class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--color-accent);">Run Without Installing</div>
-        <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang camel-kit@luigidemasi/camel-kit init my-project --ai claude</code></pre>
+      <div class="tab-panel" role="tabpanel" data-tab-panel="install-2">
+        <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang camel-kit@luigidemasi/camel-kit init my-project --ai claude</code></pre>
+        </div>
       </div>
-      <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-        <div class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--color-accent);">Camel JBang Plugin</div>
-        <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">camel plugin add kit \
+      <div class="tab-panel" role="tabpanel" data-tab-panel="install-3">
+        <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">camel plugin add kit \
   --gav io.github.luigidemasi:camel-kit-jbang-plugin:{version} \
   -d "Design Apache Camel Integrations with AI"
 camel kit init my-project --ai claude</code></pre>
+        </div>
       </div>
     </div>
   </div>
