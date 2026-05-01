@@ -72,7 +72,9 @@
     <!-- Migration: image left, text right -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
       <div>
-        <img src="{{ "images/graph-visualize.png" | relURL }}" alt="Property graph of a MuleSoft project showing flows, connectors, and dependencies" class="rounded-lg shadow-lg">
+        <a href="{{ "images/migration.png" | relURL }}" data-lightbox>
+          <img src="{{ "images/migration.png" | relURL }}" alt="Migration flow: MuleSoft, BizTalk, and Camel 2.x sources are parsed, transformed, and adapted into Apache Camel 4.x on Quarkus, Spring Boot, or JBang" class="w-full rounded-lg shadow-lg">
+        </a>
       </div>
       <div>
         <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-accent);">Platform Migration</div>
