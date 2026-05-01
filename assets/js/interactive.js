@@ -67,6 +67,39 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Lightbox
+(function() {
+  var overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+
+  var lbImg = document.createElement('img');
+  lbImg.className = 'lightbox-img';
+  overlay.appendChild(lbImg);
+
+  var closeBtn = document.createElement('span');
+  closeBtn.className = 'lightbox-close';
+  closeBtn.textContent = '×';
+  overlay.appendChild(closeBtn);
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', function() {
+    overlay.classList.remove('active');
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') overlay.classList.remove('active');
+  });
+
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('[data-lightbox]');
+    if (!link) return;
+    e.preventDefault();
+    lbImg.src = link.href || link.querySelector('img').src;
+    overlay.classList.add('active');
+  });
+})();
+
 // Before/After Toggle
 function toggleBA(id, state) {
   var container = document.querySelector('[data-ba="' + id + '"]');
