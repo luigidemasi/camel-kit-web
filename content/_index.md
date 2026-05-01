@@ -7,7 +7,7 @@ Slash commands guide integration design through structured interviews, producing
 {{< /feature-card >}}
 
 {{< feature-card title="Platform Migration" icon="🔄" >}}
-Auto-detect source platform, map components, convert from MuleSoft 3.x/4.x or Camel 2.x/3.x.
+Auto-detect source platform, map components, convert from MuleSoft 3.x/4.x, BizTalk, or Camel 2.x/3.x.
 {{< /feature-card >}}
 
 {{< feature-card title="MCP-Powered" icon="⚡" >}}
@@ -19,7 +19,7 @@ Same skills, same quality across Claude Code, IBM Bob, Gemini CLI, Qwen, and Ope
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}
-8 parsers build a queryable property graph of your codebase — dead code detection, dependency impact, route topology.
+9 parsers build a queryable property graph of your codebase — dead code detection, dependency impact, route topology.
 {{< /feature-card >}}
 
 {{< feature-card title="Runtime Verification" icon="✅" >}}

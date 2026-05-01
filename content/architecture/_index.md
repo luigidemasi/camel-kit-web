@@ -41,7 +41,7 @@ This ensures **multi-agent parity** — same experience regardless of which AI a
 
 <!--step Layer 2: Skills-->
 
-**11 skills**, **79 guides**, **2,412 lines** of composable Markdown instructions.
+**11 skills**, **97 guides**, **~18,649 lines** of composable Markdown instructions.
 
 Skills are not code — they are structured prompts with step-by-step procedures, MCP tool invocations, conditionals, and shared guide imports.
 
@@ -66,7 +66,7 @@ Significant context reduction — metadata loaded upfront, MCP queried on demand
 
 <!--step Layer 4: Graph CLI (Optional)-->
 
-Code intelligence via a property graph built from **8 parsers** (Camel XML, Maven POM, Java Beans, MuleSoft XML, DataWeave, Properties, YAML, Spring Beans).
+Code intelligence via a property graph built from **9 parsers** (Camel YAML, Camel XML, Maven POM, Java, MuleSoft XML, DataWeave, Properties, Groovy, BizTalk).
 
 **Optional** — all skills work without it. When available:
 - Dead code detection
@@ -135,6 +135,6 @@ By combining progressive disclosure and MCP on-demand queries, Camel-Kit avoids 
 
 ## Next Steps
 
-- [Skills System](skills) — Deep dive into the 11 skills and 79 guides
+- [Skills System](skills) — Deep dive into the 11 skills and 97 guides
 - [MCP Integration](mcp) — How catalog verification and knowledge search work
-- [Graph Intelligence](graph) — Property graph analysis with 8 parsers
+- [Graph Intelligence](graph) — Property graph analysis with 9 parsers

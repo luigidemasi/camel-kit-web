@@ -82,12 +82,14 @@ Shortcut into `/camel-brainstorm` for migration projects.
 | Platform | Versions | Detection |
 |----------|---------|-----------|
 | MuleSoft Mule | 3.x, 4.x | XML namespace, pom.xml groupId |
+| Microsoft BizTalk | - | `.odx`, `.btm`, `.btp`, BizTalk namespace |
+| JBoss Fuse | 6.x, 7.x | Fuse BOM, Blueprint XML |
 | Apache Camel | 2.x, 3.x | camel-context.xml, Spring XML, Blueprint |
 
 **Features:**
 - Auto-detect source vendor
 - Graph-based flow analysis
-- DataWeave parsing
+- DataWeave and BizTalk map parsing
 - Flow-by-flow incremental migration
 
 {{< /carousel >}}
@@ -136,6 +138,25 @@ Look up Apache Camel documentation, component details, CVEs, migration guides, r
 - `camel_docs_release_info` — release notes
 - `camel_docs_jira_lookup` — JIRA issue lookup
 
+<!--step /camel-ship — Autonomous Pipeline-->
+
+Autonomous pipeline orchestrator that chains all four phases (brainstorm → plan → execute → verify) in a single command with configurable oversight.
+
+**Process:**
+
+1. **Brainstorm** — Design interview with the user
+2. **Plan** — Task decomposition from approved design
+3. **Execute** — Code generation with two-stage review
+4. **Verify** — Runtime verification loop
+
+**Oversight levels (`--ask`):**
+
+| Level | Behavior |
+|-------|----------|
+| `always` | Pause for user approval at every stage transition |
+| `smart` | Auto-approve when all criteria pass, pause on ambiguity |
+| `never` | Fully autonomous — only stop on blocking errors |
+
 {{< /carousel >}}
 
 ## CLI Commands
@@ -160,7 +181,7 @@ camel-kit init --here [options]
 | `--citrus-version` | `4.9.2` | Citrus Framework version for test schemas |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
-| `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `camel`, `auto` |
+| `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `biztalk`, `fuse`, `camel`, `auto` |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
 | `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.20.0`) |
 | `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
@@ -242,6 +263,9 @@ camel-kit plan analyze docs/implementation-plan.md  # Wave analysis
 # Entry Points
 /camel-flow                      # Greenfield shortcut → brainstorm
 /camel-migrate                   # Migration shortcut → brainstorm
+
+# Autonomous
+/camel-ship                      # Full pipeline: brainstorm → plan → execute → verify
 
 # Standalone
 /camel-verify                    # Runtime verification loop

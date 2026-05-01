@@ -131,8 +131,8 @@ Now that you have Camel-Kit installed and a project initialized:
 - [Migration Workflow](./migration/) - Convert existing integrations
 
 **Explore features:**
-- [Graph CLI](../graph/) - Migration analysis tools
-- [Knowledge](../knowledge/) - Q&A about Camel components
+- [Graph CLI](../architecture/graph/) - Migration analysis tools
+- [Knowledge](../architecture/knowledge/) - Q&A about Camel components
 
 **Get help:**
 - Documentation at this site
@@ -166,7 +166,9 @@ camel-kit init my-project --ai claude
 Migrate existing integrations from other platforms:
 
 - **MuleSoft Mule 3.x/4.x** — Full XML and DataWeave support
+- **Microsoft BizTalk** — Orchestration, map, and pipeline migration
 - **Apache Camel 2.x/3.x** — Modernize to Camel 4.x YAML DSL
+- **JBoss Fuse** — Legacy Fuse/Karaf migration
 
 The AI auto-detects the source platform, uses graph-based flow analysis, and converts flow-by-flow.
 

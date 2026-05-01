@@ -171,7 +171,7 @@ Total: 1 command, 2 approvals, 4 phases
 <!--tab Migration-->
 
 ```
-You: Migrate my MuleSoft flows to Camel
+You: Migrate my MuleSoft/BizTalk flows to Camel
 
 AI: /camel-migrate → Detect → Parse → Graph → Design
     (You approve flow 1 design)
