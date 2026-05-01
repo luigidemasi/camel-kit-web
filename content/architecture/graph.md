@@ -1,10 +1,10 @@
 ---
 title: "Graph Intelligence"
 weight: 3
-description: "Property graph code analysis with 8 parsers"
+description: "Property graph code analysis with 9 parsers"
 ---
 
-Camel-Kit includes a **property graph code intelligence layer** that analyzes integration projects using 8 specialized parsers. The graph provides deep insights for migration planning, dead code detection, and impact analysis — but it's **optional**. All skills work without the graph.
+Camel-Kit includes a **property graph code intelligence layer** that analyzes integration projects using 9 specialized parsers. The graph provides deep insights for migration planning, dead code detection, and impact analysis — but it's **optional**. All skills work without the graph.
 
 ![Graph visualization of a MuleSoft project — nodes represent flows, connectors, Maven artifacts, and config properties](../../images/graph-visualize.png)
 
@@ -21,20 +21,21 @@ This means:
 - Skills **gracefully degrade** if the graph CLI is unavailable
 
 {{< carousel id="graph-features" >}}
-<!--step 8 Parsers-->
+<!--step 9 Parsers-->
 
-The graph is built by parsing project files with 8 specialized parsers:
+The graph is built by parsing project files with 9 specialized parsers:
 
 | Parser | Purpose | File Patterns |
 |--------|---------|---------------|
-| **CamelXmlParser** | Camel XML routes | `src/main/resources/camel/*.xml` |
-| **MavenPomParser** | Maven dependencies | `pom.xml` |
-| **JavaBeansParser** | Java bean definitions | `src/main/java/**/*.java` |
-| **MulesoftXmlParser** | Mule 3.x/4.x flows | `src/main/app/*.xml`, `src/main/mule/**/*.xml` |
-| **DataWeaveParser** | DataWeave transformations | `src/main/resources/dw/*.dwl` |
-| **PropertiesParser** | Configuration properties | `*.properties`, `application.yml` |
+| **XmlRouteParser** | Camel XML routes | `src/main/resources/camel/*.xml` |
 | **YamlRoutesParser** | Camel YAML DSL routes | `src/main/resources/camel/*.yaml` |
-| **SpringBeansParser** | Spring XML bean configs | `src/main/resources/META-INF/spring/*.xml` |
+| **PomParser** | Maven dependencies | `pom.xml` |
+| **JavaGraphParser** | Java class definitions | `src/main/java/**/*.java` |
+| **MuleXmlFlowParser** | Mule 3.x/4.x flows | `src/main/app/*.xml`, `src/main/mule/**/*.xml` |
+| **DataWeaveParser** | DataWeave transformations | `src/main/resources/dw/*.dwl` |
+| **ConfigParser** | Configuration properties | `application.properties`, `application-*.properties` |
+| **GroovyGraphParser** | Groovy scripts and classes | `**/*.groovy` |
+| **BizTalkParser** | BizTalk orchestrations, maps, pipelines, bindings | `.odx`, `.btm`, `.btp`, binding `.xml` |
 
 Each parser extracts:
 

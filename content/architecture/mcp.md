@@ -24,9 +24,12 @@ On-demand access to Apache Camel component catalogs, EIP patterns, data formats,
 
 Hybrid semantic search over **166,973 indexed documents** — Apache Camel documentation, guides, CVE advisories, and release notes.
 
-**2 tools:**
-- `hybrid_search` — 20% BM25 + 80% KNN Vector search
-- `lookup_component` — pure BM25 for exact component name matching
+**5 tools:**
+- `camel_docs_search` — hybrid semantic search (20% BM25 + 80% KNN vector)
+- `camel_docs_component_info` — component-specific documentation lookup
+- `camel_docs_cve_search` — CVE and security advisory search
+- `camel_docs_release_info` — release notes and version information
+- `camel_docs_jira_lookup` — Jira issue and bug report search
 
 **Embedding model:** granite-embedding-small-english-r2 (384-dim, Q8 quantized)
 

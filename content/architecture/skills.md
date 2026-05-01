@@ -10,7 +10,7 @@ Camel-Kit's skills are **composable Markdown instructions** that guide AI agents
 ## 11 Skills in Three Categories
 
 {{< tabs id="skills-categories" >}}
-<!--tab User-Invocable (8)-->
+<!--tab User-Invocable (9)-->
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
@@ -18,6 +18,7 @@ Camel-Kit's skills are **composable Markdown instructions** that guide AI agents
 | **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
 | **execute** | `/camel-execute` | Wave-based code generation with two-stage review |
 | **verify** | `/camel-verify` | 5-phase runtime verification loop |
+| **ship** | `/camel-ship` | Autonomous pipeline (brainstorm → plan → execute → verify) |
 | **flow** | `/camel-flow` | Greenfield shortcut into brainstorm |
 | **migrate** | `/camel-migrate` | Migration shortcut into brainstorm |
 | **validate** | `/camel-validate` | Standalone route validation |
@@ -35,9 +36,9 @@ Loaded automatically by `/camel-execute` — not user-invocable:
 
 These are **composition primitives** — building blocks that the execute orchestrator assembles.
 
-<!--tab Shared Guides (79)-->
+<!--tab Shared Guides (97)-->
 
-**2,412 lines** of shared utilities under `skills/shared/`:
+**~18,649 lines** of shared utilities under `skills/shared/`:
 
 | Guide | Purpose |
 |-------|---------|
@@ -47,7 +48,11 @@ These are **composition primitives** — building blocks that the execute orches
 | `datamapper-canonicalize.md` | Pre-compute XPaths for XSLT |
 | `flow-test-data.md` | Test data generation patterns |
 | `yaml-structure.md` | YAML DSL structure rules |
+| `yaml-components.md` | Component URI syntax and parameter rules |
 | `yaml-examples.md` | Component-specific YAML examples |
+| `patterns-foundational.md` | Foundational EIP patterns (routing, splitting, aggregation) |
+| `patterns-error-handling.md` | Error handling patterns (DLC, retry, circuit breaker) |
+| `patterns-deployment.md` | Deployment patterns (health checks, graceful shutdown) |
 
 One guide, many skills — **reusability** without duplication.
 
@@ -178,6 +183,18 @@ Stored in `camel-kit-core/src/main/resources/skills/`
 | `OpenCodeGenerator` | OpenCode | `AGENTS.md` + permission profiles |
 
 {{< /before-after >}}
+
+## Agent Traits
+
+In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-specific instruction fragments appended to shared skill files during `camel-kit init`. Traits bridge the gap between the equalization layer (identical skills) and agent-specific capabilities.
+
+**How it works:** `DefaultGenerator.applyTraits()` reads `.append.md` files from `templates/traits/{agent}/` and appends them to the corresponding skill files with idempotent HTML comment sentinels. Re-running `init` does not duplicate trait content.
+
+**Two levels:**
+- **SKILL.md traits** (strategy) — e.g., Claude's `camel-execute.append.md` adds parallel subagent dispatch via the `Agent` tool
+- **Guide traits** (tactics) — e.g., Claude's `implementer-context.append.md` adds `run_in_background: true` guidance for wave-based execution
+
+Each agent gets different trait content tailored to its capabilities: Claude traits reference `Agent`, `ScheduleWakeup`, `EnterWorktree`; Gemini traits reference `save_memory`, `read_many_files`; Bob traits reference `switch_mode`, `insert_content`.
 
 ## Next Steps
 

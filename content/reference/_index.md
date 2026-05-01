@@ -19,6 +19,9 @@ See [Commands](commands) for the full reference. Summary of available commands:
 - `/camel-flow` — Greenfield shortcut into brainstorm
 - `/camel-migrate` — Migration shortcut into brainstorm
 
+**Autonomous:**
+- `/camel-ship` — Autonomous pipeline (brainstorm → plan → execute → verify in one command)
+
 **Standalone:**
 - `/camel-verify` — Runtime verification loop (build → start → test → fix)
 - `/camel-validate` — Route validation against catalog and constitution
