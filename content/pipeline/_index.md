@@ -1,13 +1,18 @@
 ---
 title: "Pipeline"
 weight: 2
-description: "The three-phase design-to-code pipeline"
+description: "The design-to-code pipeline — manual or autonomous"
 toc: false
 ---
 
 ## Overview
 
-The Camel-Kit pipeline transforms integration requirements into working code through a three-phase orchestrated workflow. Each phase has a specific responsibility, and explicit approval gates ensure you maintain control.
+The Camel-Kit pipeline transforms integration requirements into working code through an orchestrated workflow. You can run it two ways:
+
+- **Manual (3-phase):** Invoke `/camel-brainstorm` and approve each phase transition. Full control at every step.
+- **Autonomous (`/camel-ship`):** Run the entire pipeline in one command with configurable oversight — from `--ask always` (approve everything) to `--ask never` (fully autonomous).
+
+Both modes execute the same phases and enforce the same Iron Laws.
 
 ## The Three Phases
 
@@ -214,6 +219,31 @@ AI: /camel-verify
 
 {{< /tabs >}}
 
+## Autonomous Mode: `/camel-ship`
+
+For hands-off execution, `/camel-ship` chains all four phases with configurable oversight:
+
+```bash
+# Smart oversight (default) — pauses only on ambiguity
+/camel-ship requirements.md
+
+# Fully autonomous — pauses only on blockers, creates PR at the end
+/camel-ship requirements.md --ask never --create-pr
+
+# Resume interrupted pipeline
+/camel-ship --resume
+```
+
+Three oversight levels control when the pipeline pauses:
+
+| Level | Behavior |
+|-------|----------|
+| `always` | Pause for approval at every stage |
+| `smart` | Auto-proceed when clear, pause on ambiguity |
+| `never` | Fully autonomous — only stop on blockers |
+
+See [/camel-ship](./ship/) for the full autonomous pipeline documentation.
+
 ## What's Next
 
 Dive into each phase:
@@ -222,3 +252,4 @@ Dive into each phase:
 - [/camel-plan](./plan/) — Phase 2: Task decomposition
 - [/camel-execute](./execute/) — Phase 3: Code generation
 - [/camel-verify](./verify/) — Runtime verification loop
+- [/camel-ship](./ship/) — Autonomous pipeline with configurable oversight
