@@ -214,6 +214,7 @@ my-integration/
       camel-plan.md
       camel-execute.md
       camel-verify.md
+      camel-ship.md
       camel-flow.md
       camel-validate.md
       camel-migrate.md
