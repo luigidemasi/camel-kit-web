@@ -171,7 +171,7 @@ Every error discovered during probing or verification is classified and routed. 
 The probe and verify loop use an **"assume mechanical, promote on failure"** rule:
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
-  <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.25rem;">
+  <div style="background: var(--color-card-bg); border: 1px solid var(--color-accent); border-radius: 12px; padding: 1.25rem;">
     <div style="font-weight: 700; color: var(--color-accent); margin-bottom: 0.5rem; font-size: 0.95rem;">Mechanical Errors</div>
     <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 0.75rem;">Fixable without changing the plan</div>
     <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
@@ -181,7 +181,7 @@ The probe and verify loop use an **"assume mechanical, promote on failure"** rul
       <li>Docker image tag not found</li>
       <li>Incorrect property key</li>
     </ul>
-    <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(46, 204, 113, 0.1); border-radius: 8px; font-size: 0.8rem;">
+    <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(243, 156, 18, 0.15); border-radius: 8px; font-size: 0.8rem;">
       <strong>Action:</strong> auto-fix and re-probe/re-verify
     </div>
   </div>
