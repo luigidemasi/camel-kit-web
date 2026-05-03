@@ -134,14 +134,16 @@ The system decides *when* to re-plan based on how experienced developers think a
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Verify</div>
       </div>
     </div>
-    <!-- Re-plan feedback arrow -->
-    <div style="display: flex; justify-content: center; margin-top: 0.5rem;">
-      <div style="width: 68%; border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
-        <div style="position: absolute; left: -1px; top: -8px; color: #e74c3c; font-size: 0.7rem;">&#9664;</div>
+    <!-- Re-plan feedback arrow: from center of Verify back to center of Plan -->
+    <!-- The 5 boxes + "You approve" badge span the row. Plan is box 3, Verify is box 5. -->
+    <!-- margin-left offsets to start under Plan center, width spans to Verify center -->
+    <div style="position: relative; margin: 0.5rem auto 0; width: 90%; padding-left: 22%;">
+      <div style="width: 78%; border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
+        <div style="position: absolute; left: -2px; top: -8px; color: #e74c3c; font-size: 0.7rem;">&#9664;</div>
       </div>
     </div>
     <!-- Re-plan label below the dashed line -->
-    <div style="text-align: center; margin-top: 0.25rem;">
+    <div style="text-align: center; margin-top: 0.25rem; padding-left: 22%;">
       <span style="font-size: 0.8rem; font-weight: 600; color: #e74c3c;">re-plan if architectural failure</span>
     </div>
   </div>
