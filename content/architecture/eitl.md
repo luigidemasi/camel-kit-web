@@ -104,45 +104,53 @@ The system decides *when* to re-plan based on how experienced developers think a
 ## The Closed Loop
 
 <div style="margin: 2rem 0; overflow-x: auto;">
-  <div style="min-width: 750px; position: relative; padding: 2rem 0 3.5rem 0;">
-    <!-- Main flow -->
-    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: nowrap;">
-      <div style="background: var(--color-card-bg); border: 2px solid var(--color-accent); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+  <div style="min-width: 750px;">
+    <!-- Grid: 11 columns = Design, arrow, Badge, arrow, Plan, arrow, Probe, arrow, Implement, arrow, Verify -->
+    <div style="display: grid; grid-template-columns: 100px 30px auto 30px 100px 30px 100px 30px 100px 30px 100px; align-items: center; justify-items: center; gap: 0;">
+      <!-- Row 1: boxes and arrows -->
+      <div style="background: var(--color-card-bg); border: 2px solid var(--color-accent); border-radius: 12px; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128161;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Design</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-accent); color: white; border-radius: 20px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600; text-align: center; white-space: nowrap;">You approve</div>
+      <div style="background: var(--color-accent); color: white; border-radius: 20px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">You approve</div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128203;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Plan</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 2px dashed var(--color-accent); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="background: var(--color-card-bg); border: 2px dashed var(--color-accent); border-radius: 12px; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128269;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Probe</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#9881;&#65039;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Implement</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#9989;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Verify</div>
       </div>
     </div>
-    <!-- Re-plan feedback arrow: from center of Verify back to center of Plan -->
-    <div style="position: relative; margin: 0.5rem auto 0; width: 82%; margin-left: 17%;">
-      <div style="border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
-        <div style="position: absolute; left: -2px; top: -8px; color: #e74c3c; font-size: 0.7rem;">&#9664;</div>
+    <!-- Row 2: re-plan dashed line spanning from Plan (col 5) to Verify (col 11) -->
+    <div style="display: grid; grid-template-columns: 100px 30px auto 30px 100px 30px 100px 30px 100px 30px 100px; gap: 0;">
+      <!-- Cols 1-4 empty -->
+      <div style="grid-column: 1 / 5;"></div>
+      <!-- Cols 5-11: dashed U-shape from Plan center to Verify center -->
+      <div style="grid-column: 5 / 12; padding: 0 50px;">
+        <div style="border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
+          <div style="position: absolute; left: -2px; top: -8px; color: #e74c3c; font-size: 0.7rem;">&#9664;</div>
+        </div>
       </div>
     </div>
-    <!-- Re-plan label below the dashed line -->
-    <div style="text-align: center; margin-top: 0.25rem; margin-left: 17%;">
-      <span style="font-size: 0.8rem; font-weight: 600; color: #e74c3c;">re-plan if architectural failure</span>
+    <!-- Row 3: label -->
+    <div style="display: grid; grid-template-columns: 100px 30px auto 30px 100px 30px 100px 30px 100px 30px 100px; gap: 0;">
+      <div style="grid-column: 5 / 12; text-align: center; padding-top: 0.25rem;">
+        <span style="font-size: 0.8rem; font-weight: 600; color: #e74c3c;">re-plan if architectural failure</span>
+      </div>
     </div>
   </div>
 </div>
