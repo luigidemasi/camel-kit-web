@@ -57,25 +57,13 @@ Both modes execute the same phases and enforce the same Iron Laws.
 **Auto-invokes:** `/camel-verify` for runtime validation
 {{< /carousel >}}
 
-## Approval Gates
+## Approval Gate
 
-Each phase has a gate. The AI cannot proceed without your explicit approval. Toggle to see each gate:
+The design phase has an approval gate. After `/camel-brainstorm` completes, the AI presents the **Design Specification** with 7 sections (business purpose, flows, endpoints, data formats, error handling, technical requirements, observability).
 
-{{< before-after before="Gate 1: Design Approval" after="Gate 2: Plan Approval" id="gates" >}}
+You must explicitly approve before the pipeline continues. You can request changes — the AI revises and re-presents.
 
-After `/camel-brainstorm` completes, the AI presents the **Design Specification** with 7 sections (business purpose, flows, endpoints, data formats, error handling, technical requirements, observability).
-
-You must explicitly approve before `/camel-plan` begins. You can request changes — the AI revises and re-presents.
-
-<!--after-->
-
-After `/camel-plan` completes, the AI presents the **task breakdown** with wave analysis showing which tasks can run in parallel.
-
-You must explicitly approve before `/camel-execute` begins. Review task scope, acceptance criteria, and dependencies.
-
-{{< /before-after >}}
-
-**Verification: No approval needed.** After `/camel-execute` completes, `/camel-verify` runs automatically. It's non-destructive — builds, starts, tests, and reports. If it fails, the AI fixes and retries without asking.
+After design approval, planning and execution auto-proceed without additional approval gates. `/camel-plan` generates the task breakdown and automatically transitions to `/camel-execute`. `/camel-verify` then runs automatically after execution completes — it's non-destructive, building, starting, testing, and reporting. If it fails, the AI fixes and retries without asking.
 
 ## Iron Laws
 
@@ -107,9 +95,9 @@ Every generated route must comply with the **Constitution's 7 rules:**
 6. **External Configuration** — no hardcoded values
 7. **Supported Components** — only catalog-verified components
 
-<!--tab 3. No Code Without Spec-->
+<!--tab 3. No Code Without Design Approval-->
 
-The AI **cannot generate implementation code** until the Design Specification is explicitly approved. Prevents wasted effort — if the design is wrong, the implementation will be wrong.
+The AI **cannot generate implementation code** until the Design Specification is explicitly approved. After design approval, planning and execution auto-proceed without additional gates. Prevents wasted effort — if the design is wrong, the implementation will be wrong.
 
 `/camel-execute` checks for approved design spec before starting. If none found: *"Please run /camel-brainstorm first."*
 
@@ -166,11 +154,11 @@ You: I need to build an order processing integration
 AI: /camel-brainstorm → Interview → Design Spec
     (You approve)
 AI: /camel-plan → Task decomposition → Plan
-    (You approve)
+    (Auto-proceeds)
 AI: /camel-execute → Wave-based generation → Code
-AI: /camel-verify → Build → Start → Test → Report
+AI: /camel-verify → Build → Test → Report
 
-Total: 1 command, 2 approvals, 4 phases
+Total: 1 command, 1 approval, 4 phases
 ```
 
 <!--tab Migration-->
@@ -181,7 +169,7 @@ You: Migrate my MuleSoft/BizTalk flows to Camel
 AI: /camel-migrate → Detect → Parse → Graph → Design
     (You approve flow 1 design)
 AI: /camel-plan → Task decomposition
-    (You approve)
+    (Auto-proceeds)
 AI: /camel-execute → Generate migrated code
 AI: /camel-verify → Verify migrated flow
 

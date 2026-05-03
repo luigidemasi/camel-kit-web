@@ -583,50 +583,32 @@ Validates the implementation against the Constitution:
 If Stage 1 fails, regenerate the route. Don't proceed to Stage 2 until the route meets the spec.
 
 
-<!--step Approval Gate Process-->
+<!--step Auto-Transition to Execution-->
 
-## Approval Gate
+## Auto-Transition to Execution
 
-After generating the Implementation Plan, the AI presents it for review:
+After generating the Implementation Plan, the pipeline automatically transitions to `/camel-execute`. There is no separate plan approval gate — the design approval (from `/camel-brainstorm`) is the single approval gate in the pipeline.
 
 ```
-Implementation Plan is ready for your review.
+Implementation Plan generated.
 
 The plan contains 8 tasks organized into 5 execution waves.
 4 tasks can run in parallel (Waves 1 and 5).
 
-Each task has:
-- Clear acceptance criteria
-- Component requirements
-- Two-stage review specification
-
-Do you approve this plan? Reply "approved" to proceed to 
-execution, or request changes.
-```
-
-### Approval
-
-If you approve:
-```
-You: Approved, let's implement it!
-
-AI: Auto-invoking /camel-execute to implement the plan...
+Auto-transitioning to /camel-execute...
 ```
 
 The AI saves the Implementation Plan to `.camel-kit/implementation-plan.md` and auto-invokes Phase 3.
 
-### Requesting Changes
+### Refining the Plan
 
-If you need changes:
-```
-You: Can we merge Tasks 5, 6, and 7 into a single Kafka 
-     publisher task with conditional routing?
+If you want to review or refine the plan before execution begins, agents that support approval mode selection allow you to do so:
 
-AI: (Regenerates plan with merged task)
-    (Presents revised plan)
-```
+- **Claude Code:** presents auto-accept, manual, or refine options via ExitPlanMode
+- **Gemini CLI:** use Shift+Tab to switch approval mode
+- **Qwen Code:** use `/approval-mode` to adjust
 
-The AI iterates until you approve.
+In the default flow, however, the plan proceeds directly to execution without pausing.
 
 
 <!--step Plan Reuse and Resume-->
@@ -739,7 +721,7 @@ One task splits, parallel processing, then joins.
 3. **Component Listing** - Required Camel components per task
 4. **Wave Analysis** - Dependency graph and parallel execution plan
 5. **Two-Stage Review** - Spec compliance + code quality per task
-6. **Approval Gate** - Explicit user approval before code generation
+6. **Auto-Transition** - Automatic progression to code generation after planning completes
 
 The Implementation Plan is the recipe for `/camel-execute`. It specifies what to build, not how to build it.
 

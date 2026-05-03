@@ -70,16 +70,20 @@ The AI decomposes the approved design into implementation tasks with acceptance 
 
 | Level | When complete | When gaps found |
 |-------|--------------|----------------|
-| `always` | Pause for approval | Pause |
+| `always` | Auto-proceed | Pause for input |
 | `smart` | Auto-proceed | Pause for input |
 | `never` | Auto-proceed | Auto-fill gaps |
+
+The plan stage auto-proceeds for all oversight levels once the plan is complete. There is no separate plan approval gate — the design approval from Stage 0 is the single approval gate in the pipeline.
 
 <!--step Stage 2: Execute-->
 ## Stage 2: Execute
 
 **Invokes:** `/camel-execute`
 
-The AI implements each task from the plan: generates YAML routes, properties, Docker Compose, DataMapper files, and Citrus tests. Each task gets two-stage review (spec compliance + code quality).
+Execution begins with an **environment probe** that validates the target environment (Java version, Maven availability, project structure, required dependencies) before dispatching implementers. This catches feasibility issues early, before any code generation begins.
+
+The AI then implements each task from the plan: generates YAML routes, properties, Docker Compose, DataMapper files, and Citrus tests. Each task gets two-stage review (spec compliance + code quality).
 
 **Output:** Complete Maven project with all artifacts
 
@@ -98,7 +102,7 @@ This is the longest stage. Agent traits optimize it significantly — for exampl
 
 **Invokes:** `/camel-verify`
 
-The AI runs the 5-phase verification loop: environment setup, build, start, behavioral testing, report generation.
+The AI runs the 3-phase verification loop: build, test (via `camel test run`), and report generation.
 
 **Output:** `docs/verification-report.md`
 
@@ -140,20 +144,19 @@ The `--ask` flag controls how much the pipeline pauses for human input:
 
 **Best for:** First-time users, critical integrations, learning how the pipeline works.
 
-The pipeline pauses after every stage for explicit approval. You see every artifact before the next stage begins.
+The pipeline pauses at the design gate and after each execution task for explicit approval. The plan stage auto-proceeds once complete. You see every artifact before the next stage begins.
 
 ```
 Stage 0: Brainstorm → "Here's the design spec. Approve?"
   (You approve)
-Stage 1: Plan → "Here's the task breakdown. Approve?"
-  (You approve)
+Stage 1: Plan → Plan complete → auto-proceed
 Stage 2: Execute → "Task 1 complete. Continue?"
   (You approve each task)
 Stage 3: Verify → "Here's the verification report."
   (You approve)
 Stamp → Done!
 
-Total approvals: 4+ (depends on task count)
+Total approvals: 3+ (depends on task count)
 ```
 
 **When to use:** When you want the same control as the manual pipeline but with automatic skill invocation between phases.

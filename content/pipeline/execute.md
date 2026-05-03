@@ -14,11 +14,13 @@ The output is a complete Maven project with YAML routes, Citrus tests, applicati
 
 Invoke `/camel-execute` when you:
 
-- Have an approved Implementation Plan from `/camel-plan`
+- Have an Implementation Plan from `/camel-plan`
 - Want to generate code based on the task breakdown
 - Need to implement the entire integration in one orchestrated run
 
-**Auto-invocation:** After you approve the Implementation Plan in `/camel-plan`, the AI automatically invokes `/camel-execute`. You rarely need to invoke it manually.
+**Auto-invocation:** After `/camel-plan` completes the Implementation Plan, the AI automatically invokes `/camel-execute`. There is no separate plan approval gate — the design approval covers all downstream work. You rarely need to invoke `/camel-execute` manually.
+
+**Environment Probe:** Before dispatching any implementers, `/camel-execute` runs an environment probe — generating a throwaway skeleton project to verify that dependencies resolve, Docker services start, and the runtime boots. This catches feasibility issues before any code is generated. If the probe finds an architectural problem (e.g., a component doesn't exist for the target runtime), it triggers automatic re-planning to adjust the affected design documents.
 
 ## Input: Implementation Plan
 
