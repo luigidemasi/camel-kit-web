@@ -138,3 +138,4 @@ By combining progressive disclosure and MCP on-demand queries, Camel-Kit avoids 
 - [Skills System](skills) — Deep dive into the 11 skills and 97 guides
 - [MCP Integration](mcp) — How catalog verification and knowledge search work
 - [Graph Intelligence](graph) — Property graph analysis with 9 parsers
+- [Environment-in-the-Loop](eitl) — How the execution environment drives code refinement
