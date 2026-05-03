@@ -6,7 +6,7 @@ description: "/camel-verify — Runtime verification feedback loop"
 
 ## Overview
 
-`/camel-verify` is the runtime verification orchestrator that validates generated integrations actually work. Through a 5-phase feedback loop with error classification and automated fixes, the AI ensures your integration builds, starts, passes behavioral tests, and handles failures gracefully.
+`/camel-verify` is the runtime verification orchestrator that validates generated integrations actually work. Through a 3-phase feedback loop with error classification and automated fixes, the AI ensures your integration builds, passes integration tests, and handles failures gracefully.
 
 The output is a verified, working integration ready for deployment.
 
@@ -21,129 +21,13 @@ Invoke `/camel-verify` when you:
 
 **Auto-invocation:** After `/camel-execute` completes, the AI automatically invokes `/camel-verify`. You can also invoke it standalone for troubleshooting.
 
-## The Five-Phase Loop
+## The Verification Loop
 
-The verification process runs five phases in sequence. If any phase fails, the AI classifies the error, fixes it, and retries (up to 15 attempts per phase).
+The verification process runs three phases in sequence. If any phase fails, the AI classifies the error, fixes it, and retries (up to 15 attempts per phase). An environment probe runs before verification (as the first step of `camel-execute`) to catch dependency, service, and startup issues before code is generated.
 
 {{< carousel id="verify-phases" >}}
-<!--step Phase 1: Environment Setup-->
-## Phase 1: Environment Setup
-
-**Goal:** Ensure all external dependencies (databases, message brokers, etc.) are running and accessible.
-
-### What Happens
-
-The AI analyzes the Design Specification (Section 3: Systems and Endpoints) and `docker-compose.yaml` to identify required services.
-
-**Example Discovery:**
-```
-Design Specification requires:
-- PostgreSQL database
-- Kafka broker
-- SMTP server (for error alerts)
-
-Found docker-compose.yaml with services:
-- postgres
-- kafka
-- zookeeper
-
-Starting Docker Compose environment...
-```
-
-The AI runs:
-```bash
-docker-compose up -d
-```
-
-### Verification
-
-After starting services, the AI verifies they're ready:
-
-**PostgreSQL:**
-```bash
-docker exec postgres pg_isready -U orderuser
-```
-
-**Kafka:**
-```bash
-docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092
-```
-
-**Wait Loop:**
-
-If a service isn't ready, the AI waits and retries:
-```
-PostgreSQL not ready (attempt 1/15)...
-Waiting 5 seconds...
-
-PostgreSQL not ready (attempt 2/15)...
-Waiting 5 seconds...
-
-PostgreSQL ready!
-```
-
-### Error Classification
-
-If environment setup fails:
-
-**Error Type:** `ENVIRONMENT_ERROR`
-
-**Common Causes:**
-- Docker not running
-- Port conflicts (5432, 9092 already in use)
-- Missing Docker images
-- docker-compose.yaml syntax errors
-
-**Auto-Fixes:**
-
-1. **Docker not running:**
-```
-Error: Cannot connect to Docker daemon
-
-Fix: Starting Docker daemon...
-  sudo systemctl start docker
-```
-
-2. **Port conflict:**
-```
-Error: Port 5432 already in use
-
-Fix: Updating docker-compose.yaml to use port 5433...
-  ports:
-    - "5433:5432"
-    
-Fix: Updating application.properties...
-  spring.datasource.url=jdbc:postgresql://localhost:5433/orders
-```
-
-3. **Missing image:**
-```
-Error: Image postgres:15 not found
-
-Fix: Pulling image...
-  docker pull postgres:15
-```
-
-### Graceful Degradation
-
-If Docker is unavailable and auto-fix fails:
-
-```
-Warning: Docker is not available on this system.
-
-Skipping environment setup phase.
-
-Note: Integration tests that require external services will fail.
-Consider running on a system with Docker installed, or manually
-start required services (PostgreSQL on port 5432, Kafka on 9092).
-
-Proceeding to build phase...
-```
-
-The AI continues but warns that tests will likely fail.
-
-<!--step Phase 2: Build-->
-## Phase 2: Build
+<!--step Phase 1: Build-->
+## Phase 1: Build
 
 **Goal:** Compile the integration and resolve all Maven dependencies.
 
@@ -155,7 +39,7 @@ The AI runs the Maven build:
 ./mvnw clean package -DskipTests
 ```
 
-**Why skip tests?** We're verifying the build compiles. Tests run in Phase 4.
+**Why skip tests?** We're verifying the build compiles. Tests run in Phase 2. For JBang-based integrations, this phase is skipped entirely since JBang handles compilation on the fly.
 
 ### Verification
 
@@ -271,159 +155,20 @@ Build attempt 3: PASS
 Build phase complete (3 attempts)
 ```
 
-<!--step Phase 3: Start Integration-->
-## Phase 3: Start Integration
+<!--step Phase 2: Test Verification-->
+## Phase 2: Test Verification
 
-**Goal:** Launch the Camel application and verify all routes start successfully.
-
-### What Happens
-
-The AI starts the integration in the background:
-
-```bash
-./mvnw camel:run &
-```
-
-**Alternative:** If using Spring Boot:
-```bash
-./mvnw spring-boot:run &
-```
-
-### Verification
-
-The AI monitors the startup logs for route status:
-
-**Success Pattern:**
-```
-[main] INFO  org.apache.camel.main.MainSupport - Apache Camel 4.14.4 (camel-1) started in 2s142ms
-[main] INFO  org.apache.camel.impl.engine.AbstractCamelContext - Route: order-reception-rest started
-[main] INFO  org.apache.camel.impl.engine.AbstractCamelContext - Route: order-validation started
-[main] INFO  org.apache.camel.impl.engine.AbstractCamelContext - Route: customer-credit-lookup started
-[main] INFO  org.apache.camel.impl.engine.AbstractCamelContext - Route: routing-decision started
-[main] INFO  org.apache.camel.impl.engine.AbstractCamelContext - Total 8 routes, of which 8 are started
-
-Start: PASS
-```
-
-**Failure Pattern:**
-```
-[main] ERROR org.apache.camel.impl.engine.AbstractCamelContext - Failed to start route: customer-credit-lookup
-java.sql.SQLException: Connection refused to postgresql://localhost:5432/orders
-
-Start: FAIL
-Error type: RUNTIME_ERROR
-```
-
-### Error Classification
-
-**Error Type:** `RUNTIME_ERROR`
-
-**Common Causes:**
-- Database connection failures
-- Kafka broker unreachable
-- Port conflicts (REST endpoint port already in use)
-- Missing configuration values
-- Component initialization failures
-
-### Auto-Fixes
-
-#### 1. Database Connection Failure
-
-```
-Error: Connection refused to postgresql://localhost:5432/orders
-
-Diagnosis: PostgreSQL not accessible
-
-Fix: Checking environment phase...
-  PostgreSQL container status: running
-  PostgreSQL port: 5432 → accessible
-  
-Issue: Database 'orders' doesn't exist
-
-Fix: Creating database...
-  docker exec postgres psql -U orderuser -c "CREATE DATABASE orders;"
-  
-Retrying start...
-```
-
-#### 2. Kafka Broker Unreachable
-
-```
-Error: Failed to connect to Kafka broker at localhost:9092
-
-Diagnosis: Kafka not accessible
-
-Fix: Restarting Kafka container...
-  docker-compose restart kafka
-  
-Waiting for Kafka to be ready...
-Kafka ready.
-
-Retrying start...
-```
-
-#### 3. Port Conflict
-
-```
-Error: Address already in use: bind on port 8080
-
-Diagnosis: REST endpoint port conflict
-
-Fix: Updating application.properties...
-  rest.port=8081
-  
-Retrying start...
-```
-
-#### 4. Missing Configuration
-
-```
-Error: Property '${kafka.brokers}' not found
-
-Diagnosis: Missing required configuration property
-
-Fix: Adding to application.properties...
-  kafka.brokers=localhost:9092
-  
-Retrying start...
-```
-
-### Health Check
-
-After routes start, the AI verifies health endpoints:
-
-```bash
-curl http://localhost:8080/actuator/health
-```
-
-**Expected:**
-```json
-{
-  "status": "UP",
-  "components": {
-    "camel": {
-      "status": "UP",
-      "details": {
-        "contextStatus": "Started",
-        "routes": 8
-      }
-    }
-  }
-}
-```
-
-<!--step Phase 4: Behavioral Testing-->
-## Phase 4: Behavioral Testing
-
-**Goal:** Execute Citrus integration tests to verify the integration behaves correctly.
+**Goal:** Execute Citrus YAML integration tests to verify the integration builds, starts, and behaves correctly.
 
 ### What Happens
 
-The AI runs the Citrus test suite:
+The AI runs Citrus integration tests using the Camel JBang test plugin:
 
 ```bash
-./mvnw test -Dtest=OrderProcessingIT
+camel test run *.it.yaml
 ```
+
+These tests are self-contained: Testcontainers automatically start external services (databases, message brokers), `camel:jbang:run` starts the application, and send/receive actions validate behavior. There is no need for a separate startup or environment setup phase.
 
 ### Verification
 
@@ -439,7 +184,7 @@ Test Results:
   ✓ testDatabaseFailureRetry - PASS
   ✓ testKafkaPublish - PASS
 
-Behavioral Testing: PASS
+Test Verification: PASS
 ```
 
 **Failure:**
@@ -454,7 +199,7 @@ Test Results:
   ✓ testDatabaseFailureRetry - PASS
   ✓ testKafkaPublish - PASS
 
-Behavioral Testing: FAIL
+Test Verification: FAIL
 Error type: TEST_ERROR
 ```
 
@@ -466,7 +211,8 @@ Error type: TEST_ERROR
 - Routes don't produce expected output
 - Timing issues (race conditions)
 - Test assumptions incorrect
-- Missing test data setup
+- Testcontainers failing to start services
+- Application startup failures (detected by Citrus)
 
 ### Auto-Fixes
 
@@ -488,7 +234,6 @@ Fix: Reviewing acceptance criteria for Task 2...
 Fix: Invoking camel-implement to regenerate route...
   (Regenerates order-validation.camel.yaml with invalid routing)
   
-Rebuilding and restarting...
 Retrying tests...
 ```
 
@@ -500,43 +245,52 @@ Error: Timeout waiting for Kafka message
 
 Diagnosis: Test timeout too short for async processing
 
-Fix: Increasing test timeout...
-  @CitrusTest(timeout = 10000) // was 5000
+Fix: Increasing test timeout in Citrus YAML test...
   
 Retrying tests...
 ```
 
-#### 3. Missing Test Data
+#### 3. Test Re-generation
 
 ```
 Test: testDatabaseFailureRetry
-Error: Customer CUST-67890 not found in database
+Error: Test expectations don't match actual behavior
 
-Diagnosis: Test database not initialized
+Diagnosis: Test assumptions are incorrect — the test needs updating
 
-Fix: Adding test data setup...
-  @BeforeAll
-  void setupTestData() {
-    jdbcTemplate.execute(
-      "INSERT INTO customers (id, credit_status, warehouse_location) " +
-      "VALUES ('CUST-67890', 'ACTIVE', 'WH-EAST')"
-    );
-  }
+Fix: Invoking camel-test to regenerate test...
+  (Regenerates the Citrus YAML test with corrected expectations)
   
 Retrying tests...
+```
+
+#### 4. Persistent Architectural Failure (Re-plan)
+
+```
+Test: testValidOrderProcessing
+Error: Route architecture cannot satisfy the acceptance criteria
+
+Diagnosis: Persistent failure across multiple fix attempts —
+  the TDD plan itself needs modification
+
+Fix: Triggering re-plan to modify the TDD structure...
+  (Automatically adjusts the task decomposition and test expectations)
+  
+Retrying from Phase 1...
 ```
 
 ### Fix Routing
 
-Based on error classification, the AI routes fixes to the appropriate skill:
+Based on error classification, the AI routes fixes to the appropriate target:
 
 - **Route logic errors** → `camel-implement` (regenerate route)
-- **Test code errors** → `camel-test` (fix test)
+- **Test code errors** → `camel-test` (test re-generation)
+- **Persistent architectural failures** → `re-plan` (automatic TDD modification)
 - **Configuration errors** → Update `application.properties`
-- **Environment errors** → Restart services
+- **Unrecoverable errors** → `escalate` (report to user)
 
-<!--step Phase 5: Report Generation-->
-## Phase 5: Report Generation
+<!--step Phase 3: Report Generation-->
+## Phase 3: Report Generation
 
 **Goal:** Summarize verification results and provide actionable insights.
 
@@ -554,16 +308,8 @@ After all phases pass (or max retries exhausted), the AI generates a verificatio
 
 ## Summary
 
-- Environment Setup: ✓ PASS (1 attempt)
 - Build: ✓ PASS (2 attempts)
-- Start Integration: ✓ PASS (1 attempt)
-- Behavioral Testing: ✓ PASS (1 attempt)
-
-## Environment
-
-- PostgreSQL: Running on port 5432
-- Kafka: Running on port 9092
-- Zookeeper: Running on port 2181
+- Test Verification: ✓ PASS (1 attempt)
 
 ## Build
 
@@ -572,18 +318,13 @@ After all phases pass (or max retries exhausted), the AI generates a verificatio
 - Camel version: 4.14.0
 - Build time: 45.3s
 
-## Runtime
-
-- Routes started: 8/8
-- Startup time: 2.1s
-- Health status: UP
-
 ## Tests
 
 - Total tests: 4
 - Passed: 4
 - Failed: 0
 - Coverage: 100% of acceptance criteria
+- Services managed by: Testcontainers
 
 ### Test Details
 
@@ -630,36 +371,29 @@ If verification fails after 15 retries per phase:
 
 ## Summary
 
-- Environment Setup: ✓ PASS (1 attempt)
 - Build: ✓ PASS (2 attempts)
-- Start Integration: ✗ FAIL (15 attempts)
+- Test Verification: ✗ FAIL (15 attempts)
 
 ## Error Details
 
-**Phase:** Start Integration
-**Error Type:** RUNTIME_ERROR
-**Error Message:** Connection refused to postgresql://localhost:5432/orders
+**Phase:** Test Verification
+**Error Type:** TEST_ERROR
+**Error Message:** testInvalidOrderHandling — route logic does not match acceptance criteria
 
 **Attempted Fixes:**
-1. Restarted PostgreSQL container (attempt 1)
-2. Recreated database (attempt 3)
-3. Updated connection URL (attempt 5)
-4. Checked network connectivity (attempt 7)
+1. Regenerated route via camel-implement (attempt 1)
+2. Regenerated test via camel-test (attempt 5)
+3. Triggered re-plan for TDD modification (attempt 10)
 ...
 
 **Root Cause:**
-PostgreSQL container fails to start due to volume mount permission error.
+Acceptance criterion conflicts with the actual data model — the test expects
+a field that does not exist in the source schema.
 
 **Manual Fix Required:**
 
-```bash
-# Fix volume permissions
-sudo chown -R 999:999 ./postgres-data
-
-# Restart Docker Compose
-docker-compose down
-docker-compose up -d
-```
+Review the Design Specification acceptance criteria and update the
+data model or test expectations accordingly.
 
 After applying the manual fix, run:
 ```
@@ -669,20 +403,19 @@ After applying the manual fix, run:
 ## Partial Results
 
 - Build: Successful
-- Environment: PostgreSQL issue, Kafka running
-- Tests: Not executed (integration didn't start)
+- Tests: 3/4 passing, 1 failing
 
 ## Recommendations
 
-1. Fix PostgreSQL volume permissions (see above)
-2. Consider using named volumes instead of bind mounts
-3. Add health checks to docker-compose.yaml
+1. Review the acceptance criteria for order validation
+2. Verify the source schema includes all expected fields
+3. Consider running `/camel-test` to regenerate tests after schema updates
 ```
 {{< /carousel >}}
 
 ## Error Classification System
 
-The AI classifies every error into one of four categories:
+The AI classifies every error into one of four categories and routes fixes to the appropriate target:
 
 ### 1. BUILD_ERROR
 
@@ -703,16 +436,16 @@ The AI classifies every error into one of four categories:
 ### 2. RUNTIME_ERROR
 
 **Indicators:**
-- Routes fail to start
+- Application fails to start (detected by Citrus test runner)
 - Connection refused errors
 - Port conflicts
 - Configuration errors
 
 **Fix Strategy:**
-- Restart services
 - Update configuration properties
+- Fix route startup issues
 - Change ports
-- Create missing resources (databases, topics)
+- Verify Testcontainers service configuration
 
 **Routed To:** `camel-implement` skill (route fixes), configuration manager
 
@@ -722,31 +455,32 @@ The AI classifies every error into one of four categories:
 - Test failures
 - Assertion errors
 - Timeouts in tests
-- Missing test data
+- Testcontainers startup failures
 
 **Fix Strategy:**
-- Regenerate routes if logic wrong
-- Fix test code if assumptions wrong
+- Regenerate routes if logic wrong (`camel-implement`)
+- Regenerate tests if assumptions wrong (`camel-test`)
+- Modify the TDD plan for persistent architectural failures (`re-plan`)
 - Increase timeouts
-- Add test data setup
+- Fix Testcontainers configuration
 
-**Routed To:** `camel-implement` (route logic), `camel-test` (test code)
+**Routed To:** `camel-implement` (route logic), `camel-test` (test re-generation), `re-plan` (TDD modification)
 
 ### 4. ENVIRONMENT_ERROR
 
 **Indicators:**
-- Docker not running
-- Container failures
+- Docker not running (required for Testcontainers)
+- Testcontainers unable to start services
 - Port conflicts
 - Image pull errors
 
 **Fix Strategy:**
-- Start Docker daemon
-- Pull missing images
-- Restart containers
+- Start Docker daemon (required for Testcontainers)
+- Fix Testcontainers service configuration
 - Change conflicting ports
+- Pull missing images
 
-**Routed To:** Docker/environment manager
+**Routed To:** Environment manager, Testcontainers configuration
 
 ## Retry Budget
 
@@ -785,50 +519,52 @@ You can invoke `/camel-verify` standalone for troubleshooting:
 
 /camel-verify
 
-→ Runs full 5-phase verification
+→ Runs full 3-phase verification
 → Reports if your changes broke anything
 ```
 
-### Use Case 2: Environment Issues
+### Use Case 2: Test Failures
 
 ```
-You: My integration used to work but now fails to start
+You: My integration used to work but now tests fail
 
 /camel-verify
 
-→ Phase 1: Checks environment (finds PostgreSQL container stopped)
-→ Fix: Restarts PostgreSQL
-→ Phases 2-5: Verify everything works again
+→ Phase 1: Rebuild (detects updated code)
+→ Phase 2: Runs tests (identifies failure)
+→ Fix: Regenerates route or test as needed
+→ Phase 3: Reports results
 ```
 
 ### Use Case 3: New Test Scenarios
 
 ```
-(You add a new Citrus test)
+(You add a new Citrus YAML test)
 
-/camel-verify --phase=4
+/camel-verify --phase=2
 
-→ Skips phases 1-3 (already verified)
-→ Runs only Phase 4 (Behavioral Testing)
+→ Skips Phase 1 (already built)
+→ Runs only Phase 2 (Test Verification via camel test run)
 → Reports test results
 ```
 
 ## Environment-in-the-Loop Concept
 
-`/camel-verify` is "environment-in-the-loop" verification: it doesn't just check code, it actually runs the integration with real databases, message brokers, and HTTP endpoints.
+`/camel-verify` is "environment-in-the-loop" verification: it doesn't just check code, it actually runs the integration with real databases, message brokers, and HTTP endpoints via Testcontainers.
 
 **Why This Matters:**
 
 - **Catches real issues:** Code might compile but fail at runtime
 - **Validates integrations:** Endpoints actually connect, messages actually flow
-- **Tests behavior:** Not just unit tests, but full integration tests
+- **Tests behavior:** Not just unit tests, but full integration tests with real services
 - **Prevents surprises:** Find issues now, not in production
+- **Self-contained:** Testcontainers manage the service lifecycle -- no manual Docker Compose setup needed
 
 **Contrast with traditional testing:**
 - Unit tests: Mock everything (no environment)
-- Integration tests: Run against real services (environment-in-the-loop)
+- Integration tests: Run against real services managed by Testcontainers (environment-in-the-loop)
 
-Camel-Kit uses integration tests for verification because integrations are, by definition, about connecting systems.
+Camel-Kit uses Citrus YAML integration tests with Testcontainers for verification because integrations are, by definition, about connecting systems. Docker Compose files are still generated as user artifacts for local development, but they are not used during the verification loop.
 
 ## Graceful Degradation
 
@@ -837,29 +573,41 @@ If tools are unavailable, the AI adapts:
 ### No Docker
 
 ```
-Warning: Docker not available. Skipping environment setup.
+Warning: Docker not available.
 
-Assuming external services are already running:
-- PostgreSQL at localhost:5432
-- Kafka at localhost:9092
+Skipping test verification phase (Testcontainers requires Docker).
 
-Proceeding to build phase...
+Note: Without Docker, integration tests cannot start external services.
+Consider running on a system with Docker installed.
+
+Proceeding to report phase with partial results...
 ```
 
 ### No Maven Wrapper
 
 ```
-Warning: ./mvnw not found. Using system Maven...
+Warning: ./mvnw not found. Skipping build verification phase.
 
-mvn clean package
+Proceeding to test verification...
+```
+
+### No Camel Test CLI
+
+```
+Warning: camel test command not available.
+
+Skipping test verification phase.
+
+Note: Without the Camel JBang test plugin, we cannot run integration tests.
+Consider installing Camel JBang: https://camel.apache.org/manual/camel-jbang.html
 ```
 
 ### No Citrus Tests
 
 ```
-Warning: No Citrus tests found in src/test/java/
+Warning: No Citrus YAML tests found (*.it.yaml)
 
-Skipping behavioral testing phase.
+Skipping test verification phase.
 
 Note: Without tests, we cannot verify integration behavior.
 Consider generating tests with /camel-test skill.
@@ -869,19 +617,17 @@ The AI continues with available tools, warning about limitations.
 
 ## Summary
 
-`/camel-verify` validates integrations through a 5-phase feedback loop:
+`/camel-verify` validates integrations through a 3-phase feedback loop:
 
-1. **Environment Setup** - Start and verify external dependencies
-2. **Build** - Compile and resolve dependencies
-3. **Start Integration** - Launch Camel and verify routes start
-4. **Behavioral Testing** - Run Citrus tests against real services
-5. **Report Generation** - Summarize results and provide insights
+1. **Build** - Compile and resolve dependencies (skipped for JBang)
+2. **Test Verification** - Run Citrus YAML tests via `camel test run` with Testcontainers
+3. **Report Generation** - Summarize results and provide insights
 
 **Key Features:**
 - **Error Classification** - BUILD, RUNTIME, TEST, ENVIRONMENT errors
 - **Auto-Fixes** - 15 retry attempts with intelligent fixes
-- **Fix Routing** - Errors routed to appropriate skills for fixes
-- **Environment-in-the-Loop** - Tests against real databases and brokers
+- **Fix Routing** - Errors routed to `camel-implement`, `camel-test`, `re-plan`, or escalated to user
+- **Environment-in-the-Loop** - Testcontainers manage real databases and brokers
 - **Graceful Degradation** - Works even when tools unavailable
 - **Standalone Invocation** - Use for troubleshooting existing integrations
 

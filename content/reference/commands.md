@@ -35,7 +35,7 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 2. Decomposes into implementation tasks with acceptance criteria
 3. Runs wave analysis to identify parallelizable tasks
 4. Specifies two-stage review per task (spec compliance then quality)
-5. After user approval, automatically invokes `/camel-execute`
+5. After the plan is complete, automatically invokes `/camel-execute`
 
 **Output:** `docs/implementation-plan.md`
 
@@ -44,7 +44,7 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 
 <!--step /camel-execute — Execution Phase-->
 
-Execute the approved implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline, auto-invoked by `/camel-plan` after plan approval.
+Execute the implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline, auto-invoked by `/camel-plan` after the plan is complete.
 
 **Process:**
 
@@ -101,13 +101,11 @@ Shortcut into `/camel-brainstorm` for migration projects.
 
 Runtime verification feedback loop. Builds, starts, tests, classifies errors, applies fixes, and retries until the application works.
 
-**5-phase loop:**
+**3-phase loop:**
 
-1. **Environment** — prepare Docker containers
-2. **Build** — Maven/Gradle compilation
-3. **Start** — route startup with health checks
-4. **Behavioral** — send test data, verify output
-5. **Report** — structured summary of findings and fixes
+1. **Build** — Maven/Gradle compilation
+2. **Test** — run `camel test run` for route verification
+3. **Report** — structured summary of findings and fixes
 
 Can be invoked standalone for troubleshooting or auto-invoked by `/camel-execute`.
 
