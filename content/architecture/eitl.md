@@ -104,42 +104,45 @@ The system decides *when* to re-plan based on how experienced developers think a
 ## The Closed Loop
 
 <div style="margin: 2rem 0; overflow-x: auto;">
-  <div style="min-width: 700px; position: relative; padding: 2rem 0;">
+  <div style="min-width: 750px; position: relative; padding: 2rem 0 3.5rem 0;">
     <!-- Main flow -->
     <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: nowrap;">
-      <div style="background: var(--color-card-bg); border: 2px solid var(--color-accent); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 90px;">
+      <div style="background: var(--color-card-bg); border: 2px solid var(--color-accent); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128161;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Design</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-accent); color: white; border-radius: 20px; padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 600; text-align: center; white-space: nowrap;">You approve</div>
+      <div style="background: var(--color-accent); color: white; border-radius: 20px; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600; text-align: center; white-space: nowrap;">You approve</div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 70px;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128203;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Plan</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 2px dashed var(--color-accent); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 70px;">
+      <div style="background: var(--color-card-bg); border: 2px dashed var(--color-accent); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#128269;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Probe</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 90px;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#9881;&#65039;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Implement</div>
       </div>
       <div style="color: var(--color-accent); font-weight: bold;">&rarr;</div>
-      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 1rem; text-align: center; min-width: 70px;">
+      <div style="background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 0.75rem 0.5rem; text-align: center; width: 100px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="font-size: 1.2rem;">&#9989;</div>
         <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-text-heading);">Verify</div>
       </div>
     </div>
     <!-- Re-plan feedback arrow -->
-    <div style="display: flex; justify-content: center; margin-top: 0.75rem;">
-      <div style="width: 75%; border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 40px; position: relative;">
-        <div style="position: absolute; left: 0; top: -8px; transform: rotate(180deg); color: #e74c3c; font-size: 1rem;">&#9654;</div>
-        <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--color-bg); padding: 0 0.5rem; font-size: 0.75rem; font-weight: 600; color: #e74c3c; white-space: nowrap;">re-plan if architectural failure</div>
+    <div style="display: flex; justify-content: center; margin-top: 0.5rem;">
+      <div style="width: 68%; border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
+        <div style="position: absolute; left: -1px; top: -8px; color: #e74c3c; font-size: 0.7rem;">&#9664;</div>
       </div>
+    </div>
+    <!-- Re-plan label below the dashed line -->
+    <div style="text-align: center; margin-top: 0.25rem;">
+      <span style="font-size: 0.8rem; font-weight: 600; color: #e74c3c;">re-plan if architectural failure</span>
     </div>
   </div>
 </div>
