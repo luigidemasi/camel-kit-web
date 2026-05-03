@@ -140,7 +140,7 @@ The system decides *when* to re-plan based on how experienced developers think a
       <div style="grid-column: 5 / 12; padding: 0 50px;">
         <div style="border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
           <!-- Arrow: upward triangle, tip touches bottom of Plan box -->
-          <div style="position: absolute; left: -6px; top: -16px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c;"></div>
+          <div style="position: absolute; left: -6px; top: -8px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c;"></div>
         </div>
       </div>
     </div>
