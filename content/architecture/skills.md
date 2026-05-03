@@ -17,7 +17,7 @@ Camel-Kit's skills are **composable Markdown instructions** that guide AI agents
 | **brainstorm** | `/camel-brainstorm` | Design interview → Design Specification |
 | **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
 | **execute** | `/camel-execute` | Wave-based code generation with two-stage review |
-| **verify** | `/camel-verify` | 5-phase runtime verification loop |
+| **verify** | `/camel-verify` | 3-phase runtime verification loop (build, Citrus tests, report) |
 | **ship** | `/camel-ship` | Autonomous pipeline (brainstorm → plan → execute → verify) |
 | **flow** | `/camel-flow` | Greenfield shortcut into brainstorm |
 | **migrate** | `/camel-migrate` | Migration shortcut into brainstorm |
