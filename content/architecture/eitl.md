@@ -135,12 +135,12 @@ The system decides *when* to re-plan based on how experienced developers think a
       </div>
     </div>
     <!-- Row 2: re-plan dashed line from Plan center to Verify center -->
-    <div style="display: grid; grid-template-columns: 100px 24px 100px 24px 100px 24px 100px 24px 100px 24px 100px; gap: 0; justify-content: center;">
+    <div style="display: grid; grid-template-columns: 100px 24px 100px 24px 100px 24px 100px 24px 100px 24px 100px; gap: 0; justify-content: center; margin-top: 8px;">
       <div style="grid-column: 1 / 5;"></div>
       <div style="grid-column: 5 / 12; padding: 0 50px;">
         <div style="border: 2px dashed #e74c3c; border-top: none; border-radius: 0 0 16px 16px; height: 36px; position: relative;">
-          <!-- Arrow: CSS border triangle pointing up, tip touches Plan box bottom -->
-          <div style="position: absolute; left: -6px; top: -10px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c;"></div>
+          <!-- Arrow: upward triangle, tip touches bottom of Plan box -->
+          <div style="position: absolute; left: -6px; top: -16px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c;"></div>
         </div>
       </div>
     </div>
