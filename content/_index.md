@@ -19,7 +19,7 @@ Same skills, same quality across Claude Code, IBM Bob, Gemini CLI, Qwen, and Ope
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}
-9 parsers build a queryable property graph of your codebase — dead code detection, dependency impact, route topology.
+9 parsers + 2 post-processors build a DI-aware property graph — dependency injection tracking, interface-consumer expansion, structured migration context, dead code detection.
 {{< /feature-card >}}
 
 {{< feature-card title="Runtime Verification" icon="✅" >}}
