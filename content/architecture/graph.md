@@ -32,7 +32,7 @@ The graph is built in three phases: PomParser runs first (provides dependency da
 | **PomParser** | Maven dependencies and properties | `pom.xml` (runs first, synchronously) |
 | **JavaGraphParser** | Java classes, DI annotations, Camel routes in Java DSL | `**/*.java` |
 | **XmlRouteParser** | Camel XML routes | `**/*.xml` (with Camel namespace) |
-| **YamlRouteParser** | Camel YAML DSL routes | `**/*.camel.yaml` |
+| **YamlRouteParser** | Camel YAML DSL routes | `**/*.yaml`, `**/*.yml` (excluding `application*`) |
 | **ConfigParser** | All application properties | `application.properties`, `application-*.properties` |
 | **GroovyGraphParser** | Groovy scripts and classes | `**/*.groovy` |
 | **MuleXmlFlowParser** | Mule 3.x/4.x flows | `**/*.xml` (with MuleSoft namespace) |
@@ -89,7 +89,7 @@ The graph layer is exposed via a CLI with 15 subcommands:
 
 | Command | Purpose |
 |---------|---------|
-| **generate** | Generate migration templates or boilerplate code |
+| **generate** | Generate or rebuild the project graph from source files |
 | **visualize** | Export graph as GraphML, DOT, or JSON for visualization |
 
 
@@ -260,7 +260,7 @@ The `JavaGraphParser` understands dependency injection patterns across three fra
 
 **Injection annotations** — `@Inject` (CDI), `@Autowired` (Spring) create `USES_TYPE` edges marking injected dependencies. The graph knows *who depends on what service through which interface*.
 
-**Bean annotations** — `@Component`, `@Service`, `@Repository`, `@Controller` (Spring), `@Named`, `@Singleton`, `@ApplicationScoped` (CDI) mark classes as managed beans, making them discoverable in the graph.
+**Bean annotations** — `@Component`, `@Service`, `@Repository`, `@Controller` (Spring), `@Named`, `@Singleton`, `@ApplicationScoped`, `@RequestScoped` (CDI) mark classes as managed beans, making them discoverable in the graph.
 
 **Config injection** — `@Value("${key}")` (Spring), `@ConfigProperty(name="key")` (MicroProfile/Quarkus) create `INJECTS_INTO` edges linking configuration properties to the Java fields that consume them.
 
@@ -289,7 +289,7 @@ class OrderRoute extends RouteBuilder {
 
 <!--step Research: Selective DKB Adoption-->
 
-The graph intelligence enhancements are inspired by the research paper [Chinthareddy, "Reliable Graph-RAG for Codebases: AST-Derived Graphs vs LLM-Extracted Knowledge Graphs"](https://arxiv.org/pdf/2601.08773) (January 2026). The paper benchmarks three retrieval approaches for code understanding on Java codebases:
+The graph intelligence enhancements are inspired by the research paper [Chinthareddy, "Reliable Graph-RAG for Codebases: AST-Derived Graphs vs LLM-Extracted Knowledge Graphs"](https://arxiv.org/abs/2601.08773) (January 2026). The paper benchmarks three retrieval approaches for code understanding on Java codebases:
 
 | Approach | Correctness (45 Qs) | Cost |
 |----------|---------------------|------|
@@ -330,6 +330,10 @@ The `PropertyBindingParser` understands Camel's `PropertyBindingSupport` syntax 
 
 **Auto-wiring** — `#autowired` creates a `REFERENCES_BEAN` edge to a synthetic node, flagging that type-based bean discovery happens at runtime.
 
+**Type-based lookup** — `#type:com.foo.Type` creates a `REFERENCES_BEAN` edge, finding a singleton bean by fully qualified class name.
+
+**Property cross-references** — `#property:otherKey` creates a `REFERENCES_PROPERTY` edge linking one configuration property to another.
+
 **Convention-based detection** — Recognizes framework-specific patterns:
 - Spring Boot: `spring.datasource.*` → synthetic DataSource bean
 - Quarkus: `quarkus.datasource.*` → synthetic DataSource bean
@@ -348,6 +352,8 @@ The `migration-context` command produces a **structured JSON analysis** of a rou
 ```bash
 camel-kit graph migration-context <routeId> [--depth N]
 ```
+
+(the route ID without the `route:` prefix)
 
 **What it collects** (using interface-aware BFS expansion):
 
