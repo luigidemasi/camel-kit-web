@@ -239,6 +239,7 @@ camel-kit graph dead-code                       # Detect unused code
 camel-kit graph project-norms                   # Get project norms for validation
 camel-kit graph project-context                 # Get context for implementation
 camel-kit graph route-context <route-id>        # Get context for testing
+camel-kit graph migration-context <route-id>    # Structured migration context (JSON)
 camel-kit graph visualize                       # Generate interactive HTML visualization
 camel-kit plan analyze <plan-file>              # Analyze plan for parallel execution waves
 ```

@@ -66,22 +66,23 @@ Significant context reduction — metadata loaded upfront, MCP queried on demand
 
 <!--step Layer 4: Graph CLI (Optional)-->
 
-Code intelligence via a property graph built from **9 parsers** (Camel YAML, Camel XML, Maven POM, Java, MuleSoft XML, DataWeave, Properties, Groovy, BizTalk).
+Code intelligence via a property graph built from **9 content parsers and 2 post-processors** (Camel YAML, Camel XML, Maven POM, Java with DI annotations, MuleSoft XML, DataWeave, Properties, Groovy, BizTalk + CrossLinker and PropertyBindingParser).
 
 **Optional** — all skills work without it. When available:
-- Dead code detection
-- Impact analysis
+- DI-aware dependency tracking (who injects what, through which interface)
+- Dead code detection and impact analysis
+- Structured migration context for route-by-route analysis
 - Dynamic validation thresholds
 
-**14 CLI subcommands** including `stats`, `find`, `dead-code`, `visualize`.
+**15 CLI subcommands** including `stats`, `find`, `dead-code`, `migration-context`, `visualize`.
 
 [Learn more →](graph)
 {{< /carousel >}}
 
-**Graph CLI has 14 subcommands:**
+**Graph CLI has 15 subcommands:**
 - **Analysis:** stats, find, neighbors, path, subgraph
 - **Camel-specific:** route-flow, impact, route-topology, dead-code
-- **Normalization:** project-norms, project-context, route-context
+- **Context:** project-norms, project-context, route-context, migration-context
 - **Output:** generate, visualize
 
 [Learn more about graph intelligence →](graph)

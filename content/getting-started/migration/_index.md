@@ -120,6 +120,9 @@ Topological sort (migration order):
 - **Incremental verification** — test each flow as soon as its dependencies are migrated
 - **Parallel migration** — independent flows can be migrated simultaneously
 - **Impact analysis** — understand which flows are affected by changes
+- **Service wiring** — DI-aware analysis traces dependencies through `@Inject`/`@Autowired` annotations and across interface boundaries, catching service chains that route-level analysis alone would miss
+
+The `migration-context` command produces a structured JSON summary of each route's full dependency chain — components, services, Maven artifacts, configuration properties, and warnings — which the migration skill uses to query the Knowledge MCP for targeted documentation lookup.
 
 If circular dependencies are detected, the AI prompts you to break the cycle (see Troubleshooting below).
 
