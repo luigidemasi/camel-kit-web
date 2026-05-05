@@ -180,9 +180,19 @@ camel-kit init --here [options]
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
 | `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `biztalk`, `fuse`, `camel`, `auto` |
+| `--force` | `false` | Overwrite existing project without prompting |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
 | `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.20.0`) |
 | `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
+| `-V`, `--version` | - | Print camel-kit version and exit |
+
+**Prerequisite check:**
+
+On startup, `init` verifies that required tools are installed and reports their status. Missing tools produce warnings but don't block initialization — design and planning work without Camel JBang.
+
+**Overwrite detection:**
+
+If the target directory already contains `AGENTS.md` or `.camel-kit/`, init warns and exits. Use `--force` to overwrite an existing project.
 
 **Examples:**
 
@@ -198,6 +208,12 @@ camel-kit init --here --ai claude
 
 # Explicitly declare MuleSoft source platform
 camel-kit init my-integration --ai claude --source-platform mulesoft
+
+# Overwrite an existing project
+camel-kit init my-integration --ai claude --force
+
+# Check version
+camel-kit --version
 ```
 
 **Output structure:**

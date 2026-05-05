@@ -74,6 +74,8 @@ camel-kit init my-project --ai claude
 cd my-project
 ```
 
+The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel test plugin) and reports their status. If the directory already contains a camel-kit project, it warns and exits — use `--force` to overwrite.
+
 **What gets created:**
 
 - `AGENTS.md` - Routing table for AI agents
