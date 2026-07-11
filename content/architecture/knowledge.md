@@ -221,7 +221,7 @@ The index module has **no Java code** — it's a pure resource artifact containi
 **Rebuild the index:**
 
 ```bash
-mvn package -pl camel-kit-knowledge/index -Prebuild-index -Drevision=$(date +%Y%m%d%H%M) -am
+./mvnw package -pl camel-kit-knowledge/index -Prebuild-index -Drevision=$(date +%Y%m%d%H%M) -am
 ```
 
 This triggers the indexer to re-crawl Apache Camel documentation, re-embed with the Granite model, and write new Lucene segments.
@@ -248,7 +248,7 @@ The `/camel-knowledge` slash command is a **prescriptive Q&A layer** over the Kn
 | "What changed in Camel 4.18?" | `camel_docs_release_info` |
 | "Was CAMEL-22784 fixed?" | `camel_docs_jira_lookup` |
 
-The skill works identically across all 5 AI agents — entirely MCP-driven, no agent-specific logic.
+The skill works identically across supported AI targets — entirely MCP-driven, with no agent-specific logic.
 
 ## Next Steps
 

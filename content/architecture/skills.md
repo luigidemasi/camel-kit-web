@@ -7,44 +7,47 @@ toc: false
 
 Camel-Kit's skills are **composable Markdown instructions** that guide AI agents through complex integration tasks. Built on **progressive disclosure** — only load what you need, when you need it.
 
-## 11 Skills in Three Categories
+## 13 Skills in Four Tiers
 
 {{< tabs id="skills-categories" >}}
-<!--tab User-Invocable (9)-->
+<!--tab Routed Commands (9)-->
 
-| Skill | Command | Purpose |
-|-------|---------|---------|
-| **brainstorm** | `/camel-brainstorm` | Design interview → Design Specification |
-| **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
-| **execute** | `/camel-execute` | Wave-based code generation with two-stage review |
-| **verify** | `/camel-verify` | 3-phase runtime verification loop (build, Citrus tests, report) |
-| **ship** | `/camel-ship` | Autonomous pipeline (brainstorm → plan → execute → verify) |
-| **flow** | `/camel-flow` | Greenfield shortcut into brainstorm |
-| **migrate** | `/camel-migrate` | Migration shortcut into brainstorm |
-| **validate** | `/camel-validate` | Standalone route validation |
-| **knowledge** | `/camel-knowledge` | Apache Camel documentation queries |
+| Tier | Skill | Command | Purpose |
+|------|-------|---------|---------|
+| Entry | **start** | `/camel-start` | Route a request to the right skill |
+| Pipeline | **brainstorm** | `/camel-brainstorm` | Design interview → Design Specification |
+| Pipeline | **migrate** | `/camel-migrate` | Migration discovery → Design Specification |
+| Pipeline | **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
+| Pipeline | **execute** | `/camel-execute` | Wave-based code generation with staged review |
+| Pipeline | **validate** | `/camel-validate` | Static route quality validation |
+| Utility | **ship** | `/camel-ship` | Autonomous end-to-end pipeline |
+| Utility | **knowledge** | `/camel-knowledge` | Apache Camel documentation queries |
+| Utility | **debug** | `/camel-debug` | Ad-hoc broken-route troubleshooting |
 
-<!--tab Internal (3)-->
+<!--tab Internal (4)-->
 
-Loaded automatically by `/camel-execute` — not user-invocable:
+Loaded by pipeline skills — not exposed as command stubs:
 
 | Skill | Purpose |
 |-------|---------|
 | **implement** | Generate Camel YAML routes and DataMapper transformations |
 | **test** | Generate Citrus integration tests with Testcontainers |
 | **design** | Component selection, EIP catalog, interview guides |
+| **verify** | Build, test, diagnose, and repair the application at runtime |
 
-These are **composition primitives** — building blocks that the execute orchestrator assembles.
+These are **composition primitives** — building blocks assembled by the pipeline stages.
 
-<!--tab Shared Guides (97)-->
+<!--tab Shared Guides-->
 
-**~18,649 lines** of shared utilities under `skills/shared/`:
+Reusable utilities under `skills/shared/`:
 
 | Guide | Purpose |
 |-------|---------|
-| `iron-laws.md` | 4 non-negotiable pipeline rules |
+| `iron-laws.md` | 6 non-negotiable pipeline rules |
 | `mcp-setup.md` | MCP version mapping and fallback policy |
+| `forage.md` | Infrastructure configuration ladder and catalog queries |
 | `graph-availability.md` | Graph CLI detection and fallback |
+| `pipeline-infrastructure.md` | Pipeline IDs, state, provenance, and staleness |
 | `datamapper-canonicalize.md` | Pre-compute XPaths for XSLT |
 | `flow-test-data.md` | Test data generation patterns |
 | `yaml-structure.md` | YAML DSL structure rules |
@@ -82,12 +85,12 @@ Each SKILL.md starts with YAML frontmatter:
 ```yaml
 ---
 name: camel-brainstorm
-description: Use when the user wants to create a new Camel integration
-user_invocable: true
+description: Design and plan Camel integrations through collaborative dialogue.
+user_invocable: false
 ---
 ```
 
-This is **always loaded** (~50 tokens) to help agents decide which skill to invoke.
+`camel-start` is the auto-discovered router. It loads the matching skill only when needed.
 
 <!--step SKILL.md Body-->
 
@@ -103,7 +106,7 @@ Determine if greenfield or migration...
 Read guides/greenfield-interview.md...
 
 ## Step 3: MCP Verification
-For each component, call camel_catalog_component...
+For each component, call camel_catalog_component_doc...
 ```
 
 Loaded **only when invoked** (~500-2000 tokens).
@@ -112,18 +115,14 @@ Loaded **only when invoked** (~500-2000 tokens).
 ## Progressive Disclosure
 
 {{< carousel id="progressive-disclosure" >}}
-<!--step Tier 1: Frontmatter (Always Loaded)-->
+<!--step Router Metadata (Always Loaded)-->
 
-**~550 tokens** (50 tokens × 11 skills)
+Only the small routing surface is loaded initially.
 
-The agent always sees skill names and descriptions — enough to route user requests to the right skill.
+The agent initially sees `camel-start` and its routing decision tree, which is enough to select the next skill.
 
 ```
-Skills Available:
-- /camel-brainstorm — Design interview
-- /camel-plan — Task decomposition
-- /camel-execute — Code generation
-...
+Request → /camel-start → matching pipeline stage or utility
 ```
 
 <!--step Tier 2: SKILL.md (On Trigger)-->
@@ -155,7 +154,7 @@ Total for a typical invocation: **1,000-3,000 tokens**.
 
 ## Multi-Agent Parity
 
-One set of skills works across **5 AI agents** via agent-specific generators:
+One set of skills works across all eight current AI targets via agent-specific generators:
 
 {{< before-after before="Same Skill Source" after="Agent-Specific Output" id="multi-agent" >}}
 
@@ -172,14 +171,17 @@ Stored in `camel-kit-core/src/main/resources/skills/`
 
 <!--after-->
 
-**5 generators** produce agent-specific formats:
+Agent-specific generators produce each platform's native format:
 
 | Generator | Agent | Output |
 |-----------|-------|--------|
 | `ClaudeGenerator` | Claude Code | `.claude/commands/` + subagent dispatch |
-| `BobGenerator` | IBM Bob | `.bob/gates/` + mode switching |
+| `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` |
+| `BobGenerator` | IBM Bob 1 (legacy) | `.bob/gates/` + mode switching |
 | `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies |
-| `QwenGenerator` | Qwen | `.qwen/agents/` + auto-delegation |
+| `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents and hooks |
+| `PiGenerator` | Pi | `.pi/skills/` + prompt templates and guard hooks |
+| `QwenGenerator` | Qwen Code | `.qwen/agents/` + fork dispatch |
 | `OpenCodeGenerator` | OpenCode | `AGENTS.md` + permission profiles |
 
 {{< /before-after >}}
@@ -194,10 +196,11 @@ In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-s
 - **SKILL.md traits** (strategy) — e.g., Claude's `camel-execute.append.md` adds parallel subagent dispatch via the `Agent` tool
 - **Guide traits** (tactics) — e.g., Claude's `implementer-context.append.md` adds `run_in_background: true` guidance for wave-based execution
 
-Each agent gets different trait content tailored to its capabilities: Claude traits reference `Agent`, `ScheduleWakeup`, `EnterWorktree`; Gemini traits reference `save_memory`, `read_many_files`; Bob traits reference `switch_mode`, `insert_content`.
+Each agent gets trait content tailored to its capabilities. Bob 2 uses `spawn_subagent` with `explore` for read-only work and `general` for implementation, test, and fix tasks; independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Bob 1 retains its legacy mode-switching gates.
 
 ## Next Steps
 
 - [MCP Integration](../mcp/) — How skills invoke MCP tools for catalog verification
+- [Forage Catalog](../forage/) — How infrastructure properties are selected and verified
 - [Architecture Overview](../) — Four-layer architecture
 - [Commands Reference](../../reference/commands/) — Full command list

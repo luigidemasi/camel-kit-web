@@ -1,24 +1,25 @@
 ---
 title: "MCP Integration"
 weight: 2
-description: "Real-time catalog verification and knowledge search"
+description: "Real-time Camel verification, Citrus test guidance, and knowledge search"
 toc: false
 ---
 
-Camel-Kit uses the **Model Context Protocol (MCP)** to provide real-time catalog verification and knowledge search without pre-loading documentation into the agent's context.
+Camel-Kit uses the **Model Context Protocol (MCP)** to verify Camel configuration, guide Citrus test generation, and search documentation without pre-loading full catalogs into the agent's context.
 
-## Two MCP Servers
+## Three MCP Servers
 
 {{< before-after before="Camel MCP — Catalog Verification" after="Knowledge MCP — Semantic Search" id="mcp-servers" >}}
 
 On-demand access to Apache Camel component catalogs, EIP patterns, data formats, and languages.
 
-**5 tools:**
-- `camel_catalog_component` — component details, URI format, properties
-- `camel_catalog_eip` — EIP patterns (choice, split, aggregate)
-- `camel_catalog_dataformat` — data formats (JSON, XML, CSV, Avro)
-- `camel_catalog_language` — expression languages (Simple, JSONPath, XPath)
+**Core tools:**
+- `camel_catalog_component_doc` — component details, URI format, and properties
+- `camel_catalog_eip_doc` — EIP configuration and YAML structure
+- `camel_catalog_dataformat_doc` — data format configuration
+- `camel_catalog_language_doc` — expression language documentation
 - `camel_validate_route` — YAML route syntax and structure validation
+- `camel_configuration_validate` — application property validation
 
 <!--after-->
 
@@ -35,10 +36,21 @@ Hybrid semantic search over **166,973 indexed documents** — Apache Camel docum
 
 {{< /before-after >}}
 
+### Citrus MCP — Test Generation
+
+Citrus MCP supplies the action catalog, endpoint catalog, YAML DSL schemas, and test-authoring guidance used by `camel-test`:
+
+- `citrus_catalog_actions` / `citrus_catalog_action` / `citrus_catalog_action_schema`
+- `citrus_catalog_endpoints` / `citrus_catalog_endpoint` / `citrus_catalog_endpoint_schema`
+- `citrus_docs_index` / `citrus_docs_page`
+- Resources such as `citrus://schema/dsl/yaml` and `citrus://docs/best-practices`
+
+The generated server coordinate and test dependencies currently use **5.0.0-M2**. Versioned MCP responses are authoritative only when `citrus.mcp.version` matches `citrus.version`; otherwise Camel-Kit uses the same-version cached quick reference.
+
 ## Catalog Tools in Action
 
 {{< carousel id="mcp-tools" >}}
-<!--step camel_catalog_component-->
+<!--step camel_catalog_component_doc-->
 
 Fetch component details — URI format, properties, supported options:
 
@@ -62,7 +74,7 @@ Fetch component details — URI format, properties, supported options:
 
 **Used by skills to verify** every component name before it enters a design spec or YAML route.
 
-<!--step camel_catalog_eip-->
+<!--step camel_catalog_eip_doc-->
 
 Fetch Enterprise Integration Pattern details with YAML examples:
 
@@ -103,7 +115,11 @@ Validates YAML route syntax, structure, and component references:
 
 **Checks:** valid YAML, correct DSL schema, components exist, required properties present.
 
-<!--step hybrid_search-->
+<!--step camel_configuration_validate-->
+
+After writing `application.properties`, Camel-Kit submits its non-Forage properties to `camel_configuration_validate` with the project runtime and full platform BOM. Generation is not complete until the validation passes or the documented manual fallback is recorded.
+
+<!--step camel_docs_search-->
 
 Semantic + keyword search over indexed documentation:
 
@@ -118,7 +134,7 @@ Semantic + keyword search over indexed documentation:
 
 Returns ranked chunks from component docs, guides, and CVE advisories.
 
-<!--step lookup_component-->
+<!--step camel_docs_component_info-->
 
 Pure BM25 search for exact component names — no semantic embedding.
 
@@ -137,7 +153,7 @@ The `/camel-knowledge` skill is a **prescriptive Q&A interface** over Knowledge 
 User: "How do I enable retries on the Kafka component?"
 
 Agent:
-1. Calls hybrid_search(query="Kafka retries", topK=5)
+1. Calls camel_docs_search(query="Kafka retries", topK=5)
 2. Receives relevant chunks
 3. Synthesizes answer with source citations
 ```
@@ -146,19 +162,19 @@ Agent:
 
 The skill routes questions to the appropriate tool:
 
-- **Component config** → `hybrid_search` + `camel_catalog_component`
-- **Error troubleshooting** → `hybrid_search` (includes CVE advisories)
-- **Best practices** → `hybrid_search` (includes best practice guides)
+- **Component config** → `camel_docs_component_info` + `camel_catalog_component_doc`
+- **Error troubleshooting** → `camel_docs_search` (includes CVE advisories)
+- **Best practices** → `camel_docs_search` (includes best practice guides)
 
 <!--after-->
 
 Entirely **MCP-driven** — no agent-specific logic:
 
 ```
-User question → hybrid_search() → ranked chunks → answer
+User question → camel_docs_search() → ranked chunks → answer
 ```
 
-Works identically on all 5 agents (Claude, Bob, Gemini, Qwen, OpenCode). Same questions, same results, regardless of which agent.
+Works identically across supported AI targets. Same questions, same results, regardless of which agent.
 
 {{< /before-after >}}
 

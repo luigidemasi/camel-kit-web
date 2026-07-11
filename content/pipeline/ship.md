@@ -6,7 +6,7 @@ description: "/camel-ship — End-to-end pipeline with configurable oversight"
 
 ## Overview
 
-`/camel-ship` is the autonomous pipeline orchestrator that chains all four phases (brainstorm, plan, execute, verify) in a single command with configurable human oversight. Instead of manually invoking each phase and approving transitions, you set an oversight level and let the pipeline run.
+`/camel-ship` is the autonomous pipeline orchestrator that chains all four stages (brainstorm, plan, execute, validate) in a single command with configurable human oversight. Execute includes internal runtime verification before validation. Instead of manually invoking each stage, you set an oversight level and let the pipeline run.
 
 The result is a fully generated, verified integration — from requirements to working code — with exactly the level of human involvement you choose.
 
@@ -19,12 +19,12 @@ Invoke `/camel-ship` when you:
 - Need to resume an interrupted pipeline run
 - Want to skip phases whose artifacts already exist
 
-**Manual alternative:** If you prefer step-by-step control, use `/camel-brainstorm` directly. The three-phase pipeline with explicit approval gates gives you full control at every transition.
+**Manual alternative:** If you prefer step-by-step control, enter through `/camel-start` or invoke a known stage directly. The four-stage pipeline gives you control at each transition.
 
 ## Arguments
 
 ```
-/camel-ship [input-file] [--ask always|smart|never] [--resume] [--start-from <stage>] [--create-pr]
+/camel-ship [input-file] [--ask always|smart|never] [--resume] [--start-from <stage>]
 ```
 
 | Argument | Default | Description |
@@ -32,12 +32,11 @@ Invoke `/camel-ship` when you:
 | `[input-file]` | none | Requirements document, design spec, or brainstorm notes |
 | `--ask` | `smart` | Oversight level (see below) |
 | `--resume` | `false` | Continue from last saved state |
-| `--start-from` | none | Skip to: `brainstorm`, `plan`, `execute`, or `verify` |
-| `--create-pr` | `false` | Auto-create a GitHub PR on successful completion |
+| `--start-from` | none | Skip to: `brainstorm`, `plan`, `execute`, or `validate` |
 
 ## The Pipeline
 
-`/camel-ship` executes five stages in sequence, with oversight decisions at each transition:
+`/camel-ship` executes four pipeline stages followed by a stamp gate, with oversight decisions after each stage:
 
 {{< carousel id="ship-stages" >}}
 <!--step Stage 0: Brainstorm-->
@@ -47,7 +46,7 @@ Invoke `/camel-ship` when you:
 
 The AI conducts the design interview (Socratic questioning about systems, data formats, processing, error handling). If an `[input-file]` is provided, it uses the file as context for the interview.
 
-**Output:** `docs/design-spec.md`
+**Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
 
 **Oversight behavior:**
 
@@ -64,7 +63,7 @@ The AI conducts the design interview (Socratic questioning about systems, data f
 
 The AI decomposes the approved design into implementation tasks with acceptance criteria, dependencies, and wave analysis for parallel execution.
 
-**Output:** `docs/implementation-plan.md`
+**Output:** `docs/camel-kit/<pipeline-id>/implementation-plan.md`
 
 **Oversight behavior:**
 
@@ -91,30 +90,30 @@ The AI then implements each task from the plan: generates YAML routes, propertie
 
 | Level | When tests pass | When tests fail |
 |-------|-----------------|----------------|
-| `always` | Pause after each task | Pause |
-| `smart` | Auto-proceed | Pause for decision |
+| `always` | Pause after execution and present the report | Pause |
+| `smart` | Pause after execution and present the report | Pause for decision |
 | `never` | Auto-proceed | Auto-fix (up to 3 rounds) |
 
 This is the longest stage. Agent traits optimize it significantly — for example, Claude Code dispatches independent tasks in parallel via background agents.
 
-<!--step Stage 3: Verify-->
-## Stage 3: Verify
+<!--step Stage 3: Validate-->
+## Stage 3: Validate
 
-**Invokes:** `/camel-verify`
+**Invokes:** `/camel-validate`
 
-The AI runs the 3-phase verification loop: build, test (via `camel test run`), and report generation.
+After execute's internal runtime verification passes, the AI runs static route validation for configuration, security, quality, anti-patterns, project norms, and constitution compliance.
 
-**Output:** `docs/verification-report.md`
+**Output:** `docs/camel-kit/<pipeline-id>/validation-report.md`
 
 **Oversight behavior:**
 
-| Level | When all checks pass | When checks fail |
-|-------|---------------------|-----------------|
-| `always` | Pause (present report) | Pause |
-| `smart` | Pause (present report) | Pause |
-| `never` | Auto-proceed to stamp | Auto-fix (up to 3 rounds) |
+| Level | No Critical findings | Critical findings |
+|-------|----------------------|-------------------|
+| `always` | Pause and present the report | Pause |
+| `smart` | Auto-proceed to stamp | Pause |
+| `never` | Auto-proceed to stamp | Pause (blocker) |
 
-Both `always` and `smart` pause after verification to present the report — you always see what was generated before the pipeline declares success.
+Validation is read-only, so `smart` and `never` proceed when it has no Critical findings. All oversight levels stop on a Critical finding.
 
 <!--step Stage 4: Stamp-->
 ## Stage 4: Stamp Gate
@@ -122,15 +121,13 @@ Both `always` and `smart` pause after verification to present the report — you
 **Final quality check** before declaring success.
 
 The stamp gate verifies:
-- Build passes (`mvn verify`)
+- Build passes (`./mvnw verify`)
 - No Iron Law violations in generated routes
-- Constitution compliance (all 7 rules)
+- Constitution compliance (all 8 rules)
 - No unexpected uncommitted files
 - All acceptance criteria from the design spec are addressed
 
-**If all checks pass:**
-- With `--create-pr`: creates a GitHub PR with a summary
-- Without: reports "Pipeline complete. All checks passed."
+**If all checks pass:** reports "Pipeline complete. All checks passed."
 
 **If any check fails:** Pauses regardless of `--ask` level. Stamp gate failures are always blockers.
 {{< /carousel >}}
@@ -144,19 +141,19 @@ The `--ask` flag controls how much the pipeline pauses for human input:
 
 **Best for:** First-time users, critical integrations, learning how the pipeline works.
 
-The pipeline pauses at the design gate and after each execution task for explicit approval. The plan stage auto-proceeds once complete. You see every artifact before the next stage begins.
+The pipeline pauses at the design gate, after execution completes, and after validation. The plan stage auto-proceeds once complete.
 
 ```
 Stage 0: Brainstorm → "Here's the design spec. Approve?"
   (You approve)
 Stage 1: Plan → Plan complete → auto-proceed
-Stage 2: Execute → "Task 1 complete. Continue?"
-  (You approve each task)
-Stage 3: Verify → "Here's the verification report."
+Stage 2: Execute → "Execution complete. Here's the report. Continue?"
+  (You approve)
+Stage 3: Validate → "Here's the validation report."
   (You approve)
 Stamp → Done!
 
-Total approvals: 3+ (depends on task count)
+Total approvals: 3 for a successful, unambiguous run
 ```
 
 **When to use:** When you want the same control as the manual pipeline but with automatic skill invocation between phases.
@@ -165,18 +162,17 @@ Total approvals: 3+ (depends on task count)
 
 **Best for:** Experienced users, standard integrations, day-to-day use.
 
-The pipeline auto-proceeds when outcomes are clear (design spec is complete, tests pass) but pauses when something needs human judgment (open questions, test failures, ambiguous findings).
+The pipeline auto-proceeds through a clear design and complete plan, then always pauses after execution because that stage writes code. Validation auto-proceeds when it has no Critical findings; ambiguity, execution failures, and Critical findings pause for human judgment.
 
 ```
 Stage 0: Brainstorm → Design complete, no open questions → auto-proceed
 Stage 1: Plan → Plan complete and consistent → auto-proceed
-Stage 2: Execute → Task 1 tests pass → auto-proceed
-                   Task 3 tests fail → "Tests failing. Auto-fix / Manual fix / Skip?"
-Stage 3: Verify → "Here's the verification report."
-  (You review)
+Stage 2: Execute → Verification passes → "Here's the execution report. Continue?"
+  (You approve)
+Stage 3: Validate → No Critical findings → auto-proceed
 Stamp → Done!
 
-Total approvals: 1-3 (depends on issues found)
+Total approvals: 1 for a successful, unambiguous run
 ```
 
 **When to use:** Most of the time. You stay in control of decisions that matter while the pipeline handles the routine transitions.
@@ -185,20 +181,20 @@ Total approvals: 1-3 (depends on issues found)
 
 **Best for:** Batch generation, CI/CD integration, well-understood integration patterns.
 
-The pipeline runs end-to-end without pausing. When issues arise, it auto-fixes up to 3 rounds. Only blocker-level failures (3 failed auto-fix rounds, stamp gate failure) cause a pause.
+The pipeline runs end-to-end without pausing on successful outcomes. It auto-fixes eligible execution failures for up to 3 rounds. Critical validation findings, exhausted fixes, and stamp-gate failures cause a pause.
 
 ```
 Stage 0: Brainstorm → auto-proceed (pick defaults for open questions)
 Stage 1: Plan → auto-proceed (fill gaps)
 Stage 2: Execute → Task 3 tests fail → auto-fix round 1 → still failing
                    → auto-fix round 2 → tests pass → auto-proceed
-Stage 3: Verify → all checks pass → auto-proceed
-Stamp → auto-create PR
+Stage 3: Validate → all checks pass → auto-proceed
+Stamp → report pipeline complete
 
 Total approvals: 0 (unless blocker)
 ```
 
-**When to use:** When you trust the pipeline and want hands-off generation. Combine with `--create-pr` to get a reviewable PR at the end.
+**When to use:** When you trust the pipeline and want hands-off generation.
 
 {{< /tabs >}}
 
@@ -218,8 +214,7 @@ Every finding is categorized:
 | **Important** | Violates rules | Iron Law violation, Constitution non-compliance, test failure |
 | **Suggestion** | Improvement | Code quality, performance, style |
 
-`--ask smart` auto-fixes Critical and Important, pauses on Suggestion.
-`--ask never` auto-fixes all categories.
+`--ask never` can auto-fix eligible execution failures. `always` and `smart` pause on execution failures, and every level pauses on Critical validation findings.
 
 <!--step Fix Attempt-->
 ## Step 2: Fix
@@ -227,7 +222,7 @@ Every finding is categorized:
 Based on the category:
 
 - **Compilation error** — read the error, locate the source, fix syntax/types
-- **Missing dependency** — add to pom.xml, re-run `mvn compile`
+- **Missing dependency** — add to pom.xml, re-run `./mvnw compile`
 - **Iron Law violation** — re-verify via MCP catalog, correct the usage
 - **Test failure** — read test output, identify the failed assertion, fix route or test
 
@@ -235,8 +230,8 @@ Based on the category:
 ## Step 3: Re-Verify
 
 After fixing, re-run the specific check that failed:
-- Build error: `mvn compile`
-- Test failure: `mvn test`
+- Build error: `./mvnw compile`
+- Test failure: `./mvnw test`
 - Iron Law: re-scan the YAML file
 
 If the check passes, the finding is resolved. If not, loop back.
@@ -262,16 +257,18 @@ Three failed auto-fixes is always a blocker. The user always has final say.
 
 ## State Persistence & Resume
 
-Pipeline state is saved to `.camel-kit/ship-state.json` after each stage:
+Pipeline state is saved to `.camel-kit/pipeline.json` after each stage:
 
 ```json
 {
+  "activePipeline": "001-order-processing",
+  "mode": "ship",
   "started": "2026-04-30T14:32:00Z",
   "ask": "smart",
   "currentStage": 2,
   "stageResults": {
-    "0": { "status": "completed", "artifact": "docs/design-spec.md" },
-    "1": { "status": "completed", "artifact": "docs/implementation-plan.md" },
+    "0": { "status": "completed", "artifact": "docs/camel-kit/001-order-processing/design-spec.md" },
+    "1": { "status": "completed", "artifact": "docs/camel-kit/001-order-processing/implementation-plan.md" },
     "2": { "status": "in_progress", "tasksCompleted": 3, "totalTasks": 5 }
   }
 }
@@ -285,7 +282,7 @@ If the pipeline is interrupted (session closes, network failure), resume from wh
 /camel-ship --resume
 ```
 
-The pipeline reads the state file and continues from `currentStage`.
+The pipeline reads the state file, runs `camel-kit doc check` on each pipeline artifact, and continues from `currentStage` only when the artifacts are fresh. If an artifact is stale, it restarts from the earliest affected stage and regenerates downstream outputs.
 
 ### Skip to a specific stage
 
@@ -310,7 +307,7 @@ If you already have artifacts from earlier stages:
 
 - **Worktree isolation:** `EnterWorktree` at pipeline start isolates all generated artifacts
 - **Parallel dispatch:** Independent tasks run as background agents via `run_in_background`
-- **Build monitoring:** `CronCreate` schedules periodic `mvn compile` during execution
+- **Build monitoring:** `CronCreate` schedules periodic `./mvnw compile` during execution
 - **Smart pacing:** `ScheduleWakeup` avoids busy-polling between stages
 - **Structured oversight:** `AskUserQuestion` with multiple-choice options at pause points
 
@@ -321,7 +318,14 @@ If you already have artifacts from earlier stages:
 - **Batch loading:** `read_many_files` loads all artifacts from previous stages in one call
 - **State persistence:** `save_memory` provides backup state alongside the JSON file
 
-<!--tab IBM Bob-->
+<!--tab IBM Bob 2-->
+
+- **Native subagents:** `spawn_subagent` uses `explore` for research/review and `general` for implementation, testing, and fixes
+- **Parallel waves:** Independent tasks are spawned in the same parent turn after `camel-kit plan analyze`
+- **Clean context:** `fork_context` is enabled only when a task needs earlier conversation decisions
+- **Mode restrictions:** Bob custom modes still constrain tools while shared skills define pipeline behavior
+
+<!--tab IBM Bob 1 (legacy)-->
 
 - **Mode-based pipeline:** `switch_mode` transitions between brainstorm, plan, implement, and validate custom modes
 - **Gate-based oversight:** Existing gate files (`.bob/gates/`) map directly to oversight levels — gates ARE the oversight mechanism
@@ -336,7 +340,7 @@ If you already have artifacts from earlier stages:
 <!--tab OpenCode-->
 
 - **Step-limited stages:** `steps` limits per stage prevent runaway execution (200 for brainstorm, 500 for execute)
-- **Agent type mapping:** `Plan` agent for brainstorm, `Build` agent for execute, `General` for verify
+- **Agent type mapping:** `Plan` agent for brainstorm, `Build` agent for execute, and `General` for validation
 {{< /tabs >}}
 
 ## Usage Examples
@@ -350,27 +354,23 @@ If you already have artifacts from earlier stages:
 
 → Stage 0: Brainstorm (auto-proceeds — design complete)
 → Stage 1: Plan (auto-proceeds — plan consistent)
-→ Stage 2: Execute (pauses on test failure in task 3)
-  You: "Auto-fix"
-→ Stage 2: Execute (auto-fix succeeds, continues)
-→ Stage 3: Verify (presents report)
-  You: "Looks good"
+→ Stage 2: Execute (verification passes, presents report)
+  You: "Continue"
+→ Stage 3: Validate (no Critical findings, auto-proceeds)
 → Stamp: All gates pass
 
 Pipeline complete. All checks passed.
 ```
 
-<!--tab Autonomous with PR-->
+<!--tab Fully Autonomous-->
 
 ```
-# Fully autonomous, create PR at the end
-/camel-ship requirements.md --ask never --create-pr
+# Fully autonomous
+/camel-ship requirements.md --ask never
 
 → Runs all 4 stages autonomously
 → Auto-fixes any issues (up to 3 rounds each)
-→ Creates GitHub PR with summary
-
-Created PR #42: "Add order processing integration"
+→ Reports the final stamp-gate result
 ```
 
 <!--tab Resume after interruption-->
@@ -380,7 +380,7 @@ Created PR #42: "Add order processing integration"
 
 /camel-ship --resume
 
-Reading pipeline state from .camel-kit/ship-state.json...
+Reading pipeline state from .camel-kit/pipeline.json...
   Stage 0 (Brainstorm): completed
   Stage 1 (Plan): completed
   Stage 2 (Execute): in_progress (3/5 tasks done)
@@ -395,7 +395,7 @@ Resuming from Stage 2, task 4...
 /camel-ship --start-from plan --ask always
 
 Verifying prerequisites...
-  docs/design-spec.md: found
+  docs/camel-kit/001-order-processing/design-spec.md: found
 
 Starting from Stage 1 (Plan)...
 ```
@@ -406,17 +406,17 @@ Starting from Stage 1 (Plan)...
 
 | Aspect | Manual Pipeline | `/camel-ship --ask smart` | `/camel-ship --ask never` |
 |--------|----------------|--------------------------|--------------------------|
-| **Entry point** | `/camel-brainstorm` | `/camel-ship` | `/camel-ship` |
-| **Phase transitions** | Manual invocation | Automatic | Automatic |
-| **Approval gates** | Every phase | Only on ambiguity | Only on blockers |
-| **Auto-fix** | No | On failures | On everything |
+| **Entry point** | `/camel-start` or a known stage | `/camel-ship` | `/camel-ship` |
+| **Stage transitions** | Manual invocation | Automatic | Automatic |
+| **Approval gates** | Chosen by the user | After execution, plus ambiguity or blockers | Only on blockers |
+| **Auto-fix** | No | No | Eligible execution failures, up to 3 rounds |
 | **Resume** | No | Yes (`--resume`) | Yes (`--resume`) |
-| **PR creation** | Manual | Optional (`--create-pr`) | Optional (`--create-pr`) |
 | **Best for** | Learning, exploration | Day-to-day use | Batch generation, CI/CD |
 
 ## What's Next
 
 - [/camel-brainstorm](../brainstorm/) — Phase 1: Design interview (what `/camel-ship` invokes first)
-- [/camel-verify](../verify/) — Runtime verification (what `/camel-ship` invokes last)
+- [Runtime Verification](../verify/) — Internal feedback loop within execute
+- `/camel-validate` — Final static quality stage
 - [Skills System](../../architecture/skills/) — How traits customize the pipeline per agent
 - [Command Reference](../../reference/commands/) — Full argument list

@@ -30,35 +30,36 @@ Camel-Kit is built on a **4-layer architecture** designed for AI agent composabi
 {{< carousel id="four-layers" >}}
 <!--step Layer 1: AGENTS.md Routing-->
 
-Cross-agent routing specification shared across **5 agents** (Claude, Bob, Gemini, Qwen, OpenCode).
+Cross-agent routing specification shared across every supported AI target.
 
 `AGENTS.md` contains:
 - **Skill routing table** — maps user intents to the correct command
 - **Iron Laws** — non-negotiable pipeline rules
-- **MCP setup** — catalog and knowledge server configuration
+- **MCP setup** — Camel, Knowledge, and Citrus server configuration
 
 This ensures **multi-agent parity** — same experience regardless of which AI agent.
 
 <!--step Layer 2: Skills-->
 
-**11 skills**, **97 guides**, **~18,649 lines** of composable Markdown instructions.
+**13 skills** organized into entry, pipeline, utility, and internal tiers, plus reusable shared guides.
 
 Skills are not code — they are structured prompts with step-by-step procedures, MCP tool invocations, conditionals, and shared guide imports.
 
-- 8 user-invocable commands
-- 3 internal composition primitives
+- 9 routed command stubs
+- 4 internal composition primitives
 - Progressive disclosure (load only what's needed)
 
 [Learn more →](skills)
 
 <!--step Layer 3: MCP Servers-->
 
-**Two MCP servers** for real-time verification and knowledge search:
+**Three MCP servers** for real-time verification, test generation, and knowledge search:
 
 | Server | Purpose | Content |
 |--------|---------|---------|
 | **Camel MCP** | Catalog verification, route validation | Component catalog |
 | **Knowledge MCP** | Hybrid semantic search | 166,973 indexed documents |
+| **Citrus MCP** | Test action and endpoint verification | Citrus catalogs, schemas, and guidance |
 
 Significant context reduction — metadata loaded upfront, MCP queried on demand.
 
@@ -116,11 +117,10 @@ Example flow:
 
 ```
 User: "Create a Camel project for order processing"
-  → Agent sees "start a new Camel project" in AGENTS.md
-  → Agent loads /camel-project/SKILL.md
-  → SKILL.md references {{GUIDE:shared/camel-constitution.md}}
-  → Agent loads constitution guide
-  → Agent generates project requirements
+  → Agent loads /camel-start
+  → /camel-start routes new work to /camel-brainstorm
+  → /camel-brainstorm loads only its required interview guides
+  → Agent produces a design specification
 ```
 
 This progressive loading keeps context usage minimal while maintaining full catalog coverage.
@@ -136,7 +136,8 @@ By combining progressive disclosure and MCP on-demand queries, Camel-Kit avoids 
 
 ## Next Steps
 
-- [Skills System](skills) — Deep dive into the 11 skills and 97 guides
-- [MCP Integration](mcp) — How catalog verification and knowledge search work
+- [Skills System](skills) — Skill tiers, progressive loading, and agent generators
+- [MCP Integration](mcp) — Camel, Knowledge, and Citrus verification
+- [Forage Catalog](forage) — Configuration-driven infrastructure beans
 - [Graph Intelligence](graph) — Property graph analysis with 9 parsers
 - [Environment-in-the-Loop](eitl) — How the execution environment drives code refinement

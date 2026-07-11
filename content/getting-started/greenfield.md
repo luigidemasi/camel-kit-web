@@ -198,21 +198,19 @@ All routes follow the constitution:
 
 <!--step Runtime Verification-->
 
-The AI automatically invokes `/camel-verify` after implementation:
+During `/camel-execute`, the AI dispatches internal `camel-verify` after implementation:
 
 ```
-Auto-invoking /camel-verify to validate the integration...
+Dispatching camel-verify to validate the integration...
 ```
 
-The verification loop runs five phases:
+The verification loop runs three phases after execute's environment probe:
 
 | Phase | What happens | Output |
 |-------|-------------|--------|
-| **1. Environment** | Docker Compose starts PostgreSQL + Kafka | Containers ready |
-| **2. Build** | `./mvnw clean package` | Build successful |
-| **3. Start** | Launch Camel application | All routes started |
-| **4. Test** | Citrus integration tests (valid order, invalid, edge cases) | 4/4 passed |
-| **5. Report** | Summary of all phases | ✅ Integration ready |
+| **1. Build** | `./mvnw clean package` | Build successful |
+| **2. Test** | Citrus integration tests with Testcontainers | 4/4 passed |
+| **3. Report** | Summary of checks and fixes | ✅ Integration ready |
 
 If any phase fails, the AI classifies the error (build/runtime/test/config), fixes it, and retries — up to 15 times per phase.
 
@@ -229,7 +227,7 @@ In one session, without writing code directly, you created:
 - Error handling and dead letter queue
 - Observability with metrics and logging
 
-All code follows the constitution's 7 architecture rules and passed two-stage review per task.
+All code follows the constitution's 8 architecture rules and passed two-stage review per task.
 
 ## Next Steps
 
@@ -258,7 +256,7 @@ order-processing/
   pom.xml
 {{< /filetree >}}
 
-All routes follow the constitution's 7 rules and passed two-stage review.
+All routes follow the constitution's 8 rules and passed two-stage review.
 
 <!--step Customize & Deploy-->
 
@@ -279,11 +277,11 @@ Now that your integration is working:
 
 <!--step Troubleshooting-->
 
-**Verification fails?** Run `/camel-verify` standalone — it auto-diagnoses, fixes, and retries.
+**A route breaks later?** Run `/camel-debug` for structured diagnosis. Failures during `/camel-execute` are handled by its internal verification loop.
 
 **Design changes after approval?** Run `/camel-brainstorm` again with the new requirements.
 
-**Constitution rules too strict?** Edit `.camel-kit/constitution.md` before running the pipeline. The 7 rules are customizable per team.
+**Constitution rules too strict?** Edit `docs/constitution.md` before running the pipeline. The 8 rules are customizable per team.
 {{< /carousel >}}
 
 ## Summary
@@ -293,6 +291,6 @@ The greenfield workflow transforms requirements into working integrations throug
 1. **/camel-brainstorm** - Socratic interview → Design Specification
 2. **/camel-plan** - Task decomposition → Implementation Plan
 3. **/camel-execute** - Wave-based execution → Camel YAML routes
-4. **/camel-verify** - Runtime validation → Verified integration
+4. **/camel-validate** - Static quality analysis → Validation report
 
-Each gate requires your explicit approval, ensuring you stay in control while the AI handles the mechanical work of implementation.
+Runtime verification runs internally during execute. The design approval remains the pipeline's required human gate while the AI handles implementation mechanics.
