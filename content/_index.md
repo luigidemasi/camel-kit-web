@@ -15,7 +15,7 @@ Real-time catalog verification via MCP servers — every component and property 
 {{< /feature-card >}}
 
 {{< feature-card title="Multi-Agent Parity" icon="🤖" >}}
-Same skills and quality across IBM Bob 2, IBM Bob 1, Claude Code, Gemini CLI, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode.
+Same skills and quality across IBM Bob 2, IBM Bob 1, Claude Code, OpenAI Codex CLI, Gemini CLI, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode.
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}

@@ -3,7 +3,7 @@ title: Command Reference
 weight: 1
 ---
 
-Camel-Kit provides both CLI commands for project initialization and commands for use within your AI coding assistant. `/camel-start` routes work through Design → Plan → Execute → Validate or directly to the required stage.
+Camel-Kit provides both CLI commands for project initialization and skills for use within your AI coding assistant. `/camel-start` is the generated entry point on slash-command targets; OpenAI Codex CLI invokes the same router as `$camel-start` from `/skills`.
 
 ## Pipeline Commands
 
@@ -167,7 +167,7 @@ camel-kit init --here [options]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--ai`, `-a` | `bob2` | AI target: `bob2`, `bob` (legacy), `gemini`, `claude`, `copilot`, `pi`, `qwen`, or `opencode` |
+| `--ai`, `-a` | `bob2` | AI target: `bob2`, `bob` (legacy), `gemini`, `claude`, `codex`, `copilot`, `pi`, `qwen`, or `opencode` |
 | `--citrus-version` | `5.0.0-M2` | Citrus Framework version for test schemas and generated test dependencies |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
@@ -192,6 +192,12 @@ If the target directory already contains `AGENTS.md` or `.camel-kit/`, init warn
 # Create new project for Claude Code
 camel-kit init my-integration --ai claude
 
+# Create a project for OpenAI Codex CLI
+camel-kit init my-integration --ai codex
+
+# The Camel JBang plugin accepts the same target
+camel kit init my-integration --ai codex
+
 # Create a project with the default IBM Bob 2 target
 camel-kit init my-integration
 
@@ -208,7 +214,7 @@ camel-kit init my-integration --ai claude --force
 camel-kit --version
 ```
 
-**Output structure:**
+**Output structure (Claude Code example):**
 
 {{< filetree >}}
 my-integration/
@@ -235,6 +241,23 @@ my-integration/
     .cache/ # Cached catalogs and schemas
 {{< /filetree >}}
 
+Codex uses repository-native skills and TOML configuration instead of command stubs:
+
+{{< filetree >}}
+my-integration/
+  AGENTS.md # Codex project instructions and routing
+  .agents/
+    skills/ # All Camel-Kit skills; start with $camel-start
+  .codex/
+    config.toml # Camel, Camel Knowledge, and Citrus MCP servers
+    agents/ # Seven Camel-Kit custom agents
+  docs/
+    constitution.md
+  .camel-kit/
+{{< /filetree >}}
+
+No `.codex/commands/` directory is generated. See [OpenAI Codex CLI setup](../../getting-started/codex/) for repository trust, `/skills`, `/mcp`, approvals, and sandbox behavior.
+
 
 <!--step camel-kit doctor-->
 
@@ -245,7 +268,7 @@ camel-kit doctor [--project-dir <path>] [--json]
 camel kit doctor [--project-dir <path>] [--json]
 ```
 
-Doctor checks generated configuration, command stubs, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
+Doctor checks generated configuration, target-native entry points, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
 
 
 <!--step camel-kit doc-->
@@ -288,6 +311,7 @@ camel-kit plan analyze <plan-file>              # Analyze plan for parallel exec
 ```bash
 # CLI
 camel-kit init my-project --ai claude           # Create project
+camel-kit init my-project --ai codex            # Create a Codex project
 camel-kit doctor                                # Validate generated workspace
 camel-kit doc check docs/camel-kit/001-order-processing/design-spec.md  # Check artifact staleness
 camel-kit graph stats                           # Check graph availability
@@ -310,4 +334,9 @@ camel-kit plan analyze docs/camel-kit/001-order-processing/implementation-plan.m
 # Standalone
 /camel-knowledge                 # Documentation lookup
 /camel-debug                     # Ad-hoc route troubleshooting
+
+# Codex project skills
+/skills                          # Inspect installed project skills
+$camel-start                     # Route Camel-Kit work in Codex
+/mcp                             # Verify the three configured MCP servers
 ```
