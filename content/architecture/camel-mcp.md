@@ -164,12 +164,15 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 | IBM Bob 2 | `.bob/mcp.json` | JSON |
 | IBM Bob 1 | `.bob/mcp.json` | JSON |
 | Gemini CLI | `.gemini/settings.json` | JSON |
+| OpenAI Codex CLI | `.codex/config.toml` | TOML under `mcp_servers` |
 | GitHub Copilot CLI | `.github/mcp.json` | JSON |
 | Pi | `.mcp.json` | JSON with direct tool allowlists |
 | Qwen Code | `.qwen/settings.json` | JSON |
 | OpenCode | `opencode.json` | JSON |
 
 All configurations point to the same JBang-launched Camel MCP server — same tools, same catalog, different config file format.
+
+The Codex configuration is repository-scoped and loads only after the repository is trusted; Codex also skips any user-added project hooks until trust, and Camel-Kit generates none. It declares the exact Camel workflow tool allowlist through `enabled_tools` and uses `default_tools_approval_mode = "prompt"`; Camel-Kit does not edit global Codex configuration or relax the active sandbox.
 
 ## Version Alignment
 
