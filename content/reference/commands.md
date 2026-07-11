@@ -3,14 +3,14 @@ title: Command Reference
 weight: 1
 ---
 
-Camel-Kit provides both CLI commands for project initialization and slash commands for use within your AI coding assistant. The slash commands follow a 3-phase orchestrated flow: Design → Plan → Execute.
+Camel-Kit provides both CLI commands for project initialization and commands for use within your AI coding assistant. `/camel-start` routes work through Design → Plan → Execute → Validate or directly to the required stage.
 
 ## Pipeline Commands
 
 {{< carousel id="pipeline-cmds" >}}
-<!--step /camel-brainstorm — Design Phase-->
+<!--step /camel-brainstorm — Design Stage-->
 
-Design an integration through an AI-guided interview. This is **Phase 1** of the pipeline and the primary entry point for all camel-kit work.
+Design an integration through an AI-guided interview. This is **Stage 1** of the greenfield pipeline; `/camel-start` is the routing entry point for Camel-Kit work.
 
 **When to use:** Any new integration, connecting systems, building data pipelines, or starting migration projects.
 
@@ -20,14 +20,14 @@ Design an integration through an AI-guided interview. This is **Phase 1** of the
 2. Runs a Socratic interview: business purpose, systems, data formats, processing, error handling, performance
 3. Verifies all components via MCP catalog (Iron Law 1)
 4. Produces a formal Design Specification
-5. After user approval, automatically invokes `/camel-plan`
+5. Stops after approval when invoked directly, or returns control to the orchestrator
 
-**Output:** `docs/design-spec.md`
+**Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
 
 
-<!--step /camel-plan — Planning Phase-->
+<!--step /camel-plan — Planning Stage-->
 
-Generate an implementation plan from an approved design spec. This is **Phase 2** of the pipeline, auto-invoked by `/camel-brainstorm` after spec approval.
+Generate an implementation plan from an approved design spec. This is **Stage 2** of the pipeline.
 
 **Process:**
 
@@ -35,23 +35,23 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 2. Decomposes into implementation tasks with acceptance criteria
 3. Runs wave analysis to identify parallelizable tasks
 4. Specifies two-stage review per task (spec compliance then quality)
-5. After the plan is complete, automatically invokes `/camel-execute`
+5. Continues to `/camel-execute` when running inside an orchestrated pipeline
 
-**Output:** `docs/implementation-plan.md`
+**Output:** `docs/camel-kit/<pipeline-id>/implementation-plan.md`
 
 **Key rule:** The plan is a recipe, not the meal — it describes WHAT to generate, not the generated code itself.
 
 
-<!--step /camel-execute — Execution Phase-->
+<!--step /camel-execute — Execution Stage-->
 
-Execute the implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline, auto-invoked by `/camel-plan` after the plan is complete.
+Execute the implementation plan with orchestrated task dispatch. This is **Stage 3** of the pipeline.
 
 **Process:**
 
 1. Analyzes plan for parallel execution waves
 2. For each task: implement → spec compliance review → code quality review
-3. Loads internal skills as needed (camel-implement, camel-test, camel-validate)
-4. After all tasks complete, auto-invokes `/camel-verify`
+3. Loads internal skills as needed (`camel-implement`, `camel-test`, `camel-verify`)
+4. Runs internal runtime verification, then transitions to `/camel-validate`
 
 **Generated artifacts:**
 - `.camel.yaml` routes
@@ -59,23 +59,37 @@ Execute the implementation plan with orchestrated task dispatch. This is **Phase
 - `docker-compose.yaml`
 - DataMapper files (XSLT/Groovy)
 - Citrus test definitions
-- Validation report
+- Execution report
+
+
+<!--step /camel-validate — Validation Stage-->
+
+Run static quality analysis after execution. This final pipeline stage validates routes for correctness, security, and constitution compliance and produces a timestamped report.
+
+**Validation categories:**
+- Schema and endpoint verification
+- Configuration validation
+- Quality and anti-pattern checks
+- Security analysis
+- Constitution compliance (all 8 rules)
+
+**Output:** `docs/camel-kit/<pipeline-id>/validation-report.md`
 
 {{< /carousel >}}
 
 ## Entry Point Commands
 
 {{< carousel id="entry-cmds" >}}
-<!--step /camel-flow — Greenfield-->
+<!--step /camel-start — Skill Router-->
 
-Shortcut into `/camel-brainstorm` for greenfield projects. Use when creating a new integration from scratch.
+The single entry point for integration work. It inspects the request and routes to the right pipeline stage or utility.
 
-Immediately starts the design interview process optimized for new integrations.
+Use `/camel-start` when you are unsure which skill to invoke. New work routes to `/camel-brainstorm`; migrations, approved designs, approved plans, validation, and debugging route directly to their matching skills.
 
 
 <!--step /camel-migrate — Migration-->
 
-Shortcut into `/camel-brainstorm` for migration projects.
+Migration-specific discovery and design for existing integrations.
 
 **Supported source platforms:**
 
@@ -97,34 +111,6 @@ Shortcut into `/camel-brainstorm` for migration projects.
 ## Standalone Commands
 
 {{< carousel id="standalone-cmds" >}}
-<!--step /camel-verify — Verification-->
-
-Runtime verification feedback loop. Builds, starts, tests, classifies errors, applies fixes, and retries until the application works.
-
-**3-phase loop:**
-
-1. **Build** — Maven/Gradle compilation
-2. **Test** — run `camel test run` for route verification
-3. **Report** — structured summary of findings and fixes
-
-Can be invoked standalone for troubleshooting or auto-invoked by `/camel-execute`.
-
-
-<!--step /camel-validate — Validation-->
-
-Validate Camel routes for correctness, security, and constitution compliance. Produces timestamped validation reports.
-
-**Validation categories:**
-- Schema validation
-- Endpoint verification
-- Quality checks
-- Security analysis
-- Anti-pattern detection
-- Constitution compliance (all 7 rules)
-
-**Output:** `docs/validation-report-YYYY-MM-DD_HH-mm.md`
-
-
 <!--step /camel-knowledge — Docs-->
 
 Look up Apache Camel documentation, component details, CVEs, migration guides, release notes, and JIRA issues via MCP tools.
@@ -136,24 +122,30 @@ Look up Apache Camel documentation, component details, CVEs, migration guides, r
 - `camel_docs_release_info` — release notes
 - `camel_docs_jira_lookup` — JIRA issue lookup
 
+<!--step /camel-debug — Troubleshooting-->
+
+Diagnose and repair broken routes outside an active pipeline run with a strict **STOP → PRESERVE → DIAGNOSE → FIX → GUARD** sequence.
+
+Use it for startup failures, runtime exceptions, or incorrect behavior. Build and test failures during pipeline execution remain part of the internal `camel-verify` loop.
+
 <!--step /camel-ship — Autonomous Pipeline-->
 
-Autonomous pipeline orchestrator that chains all four phases (brainstorm → plan → execute → verify) in a single command with configurable oversight.
+Autonomous pipeline orchestrator that chains all four stages (brainstorm → plan → execute → validate) in a single command with configurable oversight. Execute includes internal runtime verification.
 
 **Process:**
 
 1. **Brainstorm** — Design interview with the user
 2. **Plan** — Task decomposition from approved design
 3. **Execute** — Code generation with two-stage review
-4. **Verify** — Runtime verification loop
+4. **Validate** — Static quality analysis and final validation report
 
 **Oversight levels (`--ask`):**
 
 | Level | Behavior |
 |-------|----------|
-| `always` | Pause for user approval at every stage transition |
-| `smart` | Auto-approve when all criteria pass, pause on ambiguity |
-| `never` | Fully autonomous — only stop on blocking errors |
+| `always` | Pause after design, execution, and validation reports |
+| `smart` | Auto-proceed through clear design and planning, pause after execution, and stop on ambiguity or Critical findings |
+| `never` | Auto-proceed and repair eligible execution failures; stop on blockers |
 
 {{< /carousel >}}
 
@@ -175,14 +167,14 @@ camel-kit init --here [options]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--ai`, `-a` | `bob` | AI coding assistant to configure (bob, gemini, claude, qwen, opencode) |
-| `--citrus-version` | `4.9.2` | Citrus Framework version for test schemas |
+| `--ai`, `-a` | `bob2` | AI target: `bob2`, `bob` (legacy), `gemini`, `claude`, `copilot`, `pi`, `qwen`, or `opencode` |
+| `--citrus-version` | `5.0.0-M2` | Citrus Framework version for test schemas and generated test dependencies |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
 | `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `biztalk`, `fuse`, `camel`, `auto` |
 | `--force` | `false` | Overwrite existing project without prompting |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
-| `-p` | - | Override a single configuration property (e.g., `-p camelVersion=4.20.0`) |
+| `-p` | - | Override a single distribution property (e.g., `-p camel.main.version=4.21.0`) |
 | `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
 | `-V`, `--version` | - | Print camel-kit version and exit |
 
@@ -200,8 +192,8 @@ If the target directory already contains `AGENTS.md` or `.camel-kit/`, init warn
 # Create new project for Claude Code
 camel-kit init my-integration --ai claude
 
-# Create new project for IBM Project Bob
-camel-kit init my-integration --ai bob
+# Create a project with the default IBM Bob 2 target
+camel-kit init my-integration
 
 # Initialize in current directory
 camel-kit init --here --ai claude
@@ -224,21 +216,50 @@ my-integration/
   CLAUDE.md # Agent-specific configuration (or GEMINI.md / QWEN.md)
   .claude/
     commands/ # Slash commands (Claude Code)
+      camel-start.md
       camel-brainstorm.md
+      camel-migrate.md
       camel-plan.md
       camel-execute.md
-      camel-verify.md
-      camel-ship.md
-      camel-flow.md
       camel-validate.md
-      camel-migrate.md
+      camel-ship.md
       camel-knowledge.md
+      camel-debug.md
     skills/ # Skill files with guides
   .mcp.json # MCP server configuration
+  docs/
+    constitution.md # Best practices (8 rules)
   .camel-kit/
     config.properties # Project configuration
-    constitution.md # Best practices (7 rules)
+    templates/ # Generated route, validation, and build templates
+    .cache/ # Cached catalogs and schemas
 {{< /filetree >}}
+
+
+<!--step camel-kit doctor-->
+
+Validate a generated Camel-Kit workspace. Use `camel-kit doctor` for the standalone CLI or `camel kit doctor` for the Camel JBang plugin.
+
+```bash
+camel-kit doctor [--project-dir <path>] [--json]
+camel kit doctor [--project-dir <path>] [--json]
+```
+
+Doctor checks generated configuration, command stubs, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
+
+
+<!--step camel-kit doc-->
+
+Track pipeline artifact provenance and staleness in YAML frontmatter.
+
+```bash
+camel-kit doc init --by camel-plan --from design-spec.md <file>
+camel-kit doc check <file>
+camel-kit doc stale --reason "design changed" --cascade <file>
+camel-kit doc unstale <file>
+```
+
+`--cascade` follows each document's `generated.from` chain and marks downstream artifacts stale. Regenerated artifacts are cleared with `doc unstale`.
 
 
 <!--step camel-kit graph-->
@@ -267,24 +288,26 @@ camel-kit plan analyze <plan-file>              # Analyze plan for parallel exec
 ```bash
 # CLI
 camel-kit init my-project --ai claude           # Create project
+camel-kit doctor                                # Validate generated workspace
+camel-kit doc check docs/camel-kit/001-order-processing/design-spec.md  # Check artifact staleness
 camel-kit graph stats                           # Check graph availability
 camel-kit graph visualize                       # Interactive graph HTML
-camel-kit plan analyze docs/implementation-plan.md  # Wave analysis
+camel-kit plan analyze docs/camel-kit/001-order-processing/implementation-plan.md  # Wave analysis
 
-# 3-Phase Pipeline (in AI assistant)
+# Routed Pipeline (in AI assistant)
 /camel-brainstorm                # Phase 1: Design interview → design-spec.md
 /camel-plan                      # Phase 2: Task decomposition → implementation-plan.md
-/camel-execute                   # Phase 3: Generate code + tests + validation
+/camel-execute                   # Phase 3: Generate code + tests + runtime verification
+/camel-validate                  # Phase 4: Static quality analysis
 
 # Entry Points
-/camel-flow                      # Greenfield shortcut → brainstorm
-/camel-migrate                   # Migration shortcut → brainstorm
+/camel-start                     # Route a request to the right skill
+/camel-migrate                   # Migration discovery and design
 
 # Autonomous
-/camel-ship                      # Full pipeline: brainstorm → plan → execute → verify
+/camel-ship                      # Full pipeline: brainstorm → plan → execute → validate
 
 # Standalone
-/camel-verify                    # Runtime verification loop
-/camel-validate                  # Route quality check
 /camel-knowledge                 # Documentation lookup
+/camel-debug                     # Ad-hoc route troubleshooting
 ```

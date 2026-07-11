@@ -9,12 +9,12 @@ toc: false
 
 The Camel-Kit pipeline transforms integration requirements into working code through an orchestrated workflow. You can run it two ways:
 
-- **Manual (3-phase):** Invoke `/camel-brainstorm` and approve each phase transition. Full control at every step.
+- **Manual:** Enter through `/camel-start` or invoke a known stage directly. Full control at each transition.
 - **Autonomous (`/camel-ship`):** Run the entire pipeline in one command with configurable oversight — from `--ask always` (approve everything) to `--ask never` (fully autonomous).
 
 Both modes execute the same phases and enforce the same Iron Laws.
 
-## The Three Phases
+## The Four Pipeline Stages
 
 {{< carousel id="pipeline-phases" >}}
 <!--step Phase 1: Design-->
@@ -54,7 +54,18 @@ Both modes execute the same phases and enforce the same Iron Laws.
 
 **Output:** Complete Maven project with verified artifacts
 
-**Auto-invokes:** `/camel-verify` for runtime validation
+**Includes:** Internal `camel-verify` runtime validation
+
+<!--step Phase 4: Validate-->
+## ✅ /camel-validate
+
+**Goal:** Run static quality analysis after execution
+
+- Validate endpoints and configuration against MCP catalogs
+- Check security, anti-patterns, project norms, and all constitution rules
+- Produce the final validation report
+
+**Output:** Static validation report for the generated routes
 {{< /carousel >}}
 
 ## Approval Gate
@@ -63,11 +74,11 @@ The design phase has an approval gate. After `/camel-brainstorm` completes, the 
 
 You must explicitly approve before the pipeline continues. You can request changes — the AI revises and re-presents.
 
-After design approval, planning and execution auto-proceed without additional approval gates. `/camel-plan` generates the task breakdown and automatically transitions to `/camel-execute`. `/camel-verify` then runs automatically after execution completes — it's non-destructive, building, starting, testing, and reporting. If it fails, the AI fixes and retries without asking.
+After design approval, planning and execution auto-proceed without additional approval gates. `/camel-plan` generates the task breakdown and transitions to `/camel-execute`; execute dispatches internal runtime verification, then continues to `/camel-validate` for static quality analysis.
 
 ## Iron Laws
 
-Four non-negotiable rules enforced across all phases:
+Six non-negotiable rules enforced across all phases:
 
 {{< tabs id="iron-laws" >}}
 <!--tab 1. MCP Verification-->
@@ -85,7 +96,7 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 
 <!--tab 2. Constitution-->
 
-Every generated route must comply with the **Constitution's 7 rules:**
+Every generated route must comply with the **Constitution's 8 rules:**
 
 1. **Route Structure** — from → process → to
 2. **Single Responsibility** — one route = one business capability
@@ -94,6 +105,7 @@ Every generated route must comply with the **Constitution's 7 rules:**
 5. **Observability** — metrics, logging, tracing
 6. **External Configuration** — no hardcoded values
 7. **Supported Components** — only catalog-verified components
+8. **Infrastructure via Forage** — prefer catalog-verified `forage.*` configuration over hand-wired beans
 
 <!--tab 3. No Code Without Design Approval-->
 
@@ -110,13 +122,25 @@ Every artifact must pass **spec compliance review before code quality review**. 
 
 If stage 1 fails, regenerate without running stage 2.
 
+<!--tab 5. Adversarial Review-->
+
+Every generated code artifact passes a fresh-context adversarial review before spec compliance and quality review. Specialized critics look for route architecture, security, performance, boundary, and behavioral-equivalence failures.
+
+<!--tab 6. Surgical Changes-->
+
+Implementation touches only what the approved task requires. Adjacent refactors, cleanup, and unrelated TODO work are outside the task boundary.
+
 {{< /tabs >}}
 
 ## Internal Skills
 
-Three skills are loaded by `/camel-execute` — not user-invocable:
+Four internal skills are dispatched by pipeline stages as needed; they are not exposed as command stubs:
 
 {{< tabs id="internal-skills" >}}
+<!--tab camel-design-->
+
+Provides component selection, integration patterns, and design-assembly guidance during discovery.
+
 <!--tab camel-implement-->
 
 Generates Camel YAML route definitions from task specifications. Uses templates and follows the constitution.
@@ -133,13 +157,13 @@ Creates Citrus integration tests for behavioral verification with Testcontainers
 - **Output:** Citrus Java test class
 - **Loaded by:** `/camel-execute` during test generation tasks
 
-<!--tab camel-validate-->
+<!--tab camel-verify-->
 
-Validates component names against the MCP catalog and checks YAML syntax, constitution compliance, and security.
+Builds, tests, diagnoses, and repairs the generated application in a runtime feedback loop.
 
-- **Input:** Route YAML file
-- **Output:** Timestamped validation report
-- **Loaded by:** `/camel-execute` during spec compliance review
+- **Input:** Generated application and Citrus tests
+- **Output:** Runtime verification report
+- **Loaded by:** `/camel-execute` after implementation
 
 {{< /tabs >}}
 
@@ -156,7 +180,8 @@ AI: /camel-brainstorm → Interview → Design Spec
 AI: /camel-plan → Task decomposition → Plan
     (Auto-proceeds)
 AI: /camel-execute → Wave-based generation → Code
-AI: /camel-verify → Build → Test → Report
+    → internal camel-verify → Build → Test → Report
+AI: /camel-validate → Static quality report
 
 Total: 1 command, 1 approval, 4 phases
 ```
@@ -171,7 +196,8 @@ AI: /camel-migrate → Detect → Parse → Graph → Design
 AI: /camel-plan → Task decomposition
     (Auto-proceeds)
 AI: /camel-execute → Generate migrated code
-AI: /camel-verify → Verify migrated flow
+    → internal camel-verify → Verify migrated flow
+AI: /camel-validate → Static quality report
 
 Flow 1 complete! Ready for flow 2?
 ```
@@ -189,34 +215,34 @@ AI: (Revises design spec)
 
 You: Approved
 
-AI: /camel-plan → /camel-execute → /camel-verify
+AI: /camel-plan → /camel-execute → /camel-validate
 ```
 
 <!--tab Troubleshooting-->
 
 ```
-You: The build is failing with a dependency error
+You: A previously working route now fails to build
 
-AI: /camel-verify
+AI: /camel-debug
     → Classifies as build error
     → Fixes POM dependency
     → Retries build
     → Build succeeds
-    → Continues to runtime tests...
+    → Reports the verified fix and a recurrence guard
 ```
 
 {{< /tabs >}}
 
 ## Autonomous Mode: `/camel-ship`
 
-For hands-off execution, `/camel-ship` chains all four phases with configurable oversight:
+For orchestrated execution, `/camel-ship` chains all four stages with configurable oversight:
 
 ```bash
-# Smart oversight (default) — pauses only on ambiguity
+# Smart oversight (default) — pauses after execution and when judgment is needed
 /camel-ship requirements.md
 
-# Fully autonomous — pauses only on blockers, creates PR at the end
-/camel-ship requirements.md --ask never --create-pr
+# Fully autonomous — pauses only on blockers
+/camel-ship requirements.md --ask never
 
 # Resume interrupted pipeline
 /camel-ship --resume
@@ -226,18 +252,19 @@ Three oversight levels control when the pipeline pauses:
 
 | Level | Behavior |
 |-------|----------|
-| `always` | Pause for approval at every stage |
-| `smart` | Auto-proceed when clear, pause on ambiguity |
+| `always` | Pause after design, execution, and validation reports |
+| `smart` | Auto-proceed through clear design and planning, then pause after execution or when judgment is needed |
 | `never` | Fully autonomous — only stop on blockers |
 
 See [/camel-ship](./ship/) for the full autonomous pipeline documentation.
 
 ## What's Next
 
-Dive into each phase:
+Dive into each stage:
 
-- [/camel-brainstorm](./brainstorm/) — Phase 1: Design interview
-- [/camel-plan](./plan/) — Phase 2: Task decomposition
-- [/camel-execute](./execute/) — Phase 3: Code generation
-- [/camel-verify](./verify/) — Runtime verification loop
+- [/camel-brainstorm](./brainstorm/) — Stage 1: Design interview
+- [/camel-plan](./plan/) — Stage 2: Task decomposition
+- [/camel-execute](./execute/) — Stage 3: Code generation
+- [Runtime Verification](./verify/) — Internal build/test feedback loop
+- `/camel-validate` — Stage 4: Static quality analysis
 - [/camel-ship](./ship/) — Autonomous pipeline with configurable oversight

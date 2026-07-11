@@ -41,10 +41,12 @@ camel-kit init --here --ai claude --source-platform <platform>
   - **AGENTS.md** # New: AI routing table
   - **.claude/**
     - **commands/**
+      - **camel-start.md** # New: Skill router
       - **camel-migrate.md** # New: Migration orchestrator
       - **camel-plan.md**
       - **camel-execute.md**
-      - **camel-verify.md**
+      - **camel-validate.md**
+      - **camel-debug.md**
     - **skills/**
   - **.camel-kit/**
 {{< /filetree >}}
@@ -157,38 +159,32 @@ With the BRD and TDD in hand, the AI automatically invokes the planning and exec
 ```
 Planning migration for: customer-lookup-flow
   → /camel-plan
-  → Plan created: .camel-kit/plans/customer-lookup-flow.json
+  → Plan created: docs/camel-kit/<pipeline-id>/implementation-plan.md
 
 Executing migration...
   → /camel-execute
   → Generated: src/main/resources/camel/customer-lookup.camel.yaml
-  → Generated: src/test/java/CustomerLookupTest.java
+  → Generated: src/test/resources/customer-lookup.camel.it.yaml
   → Tests: 5 passed, 0 failed
 ```
 
 **What happens:**
 1. `/camel-plan` creates a detailed implementation plan from the TDD
-2. `/camel-execute` generates Camel YAML route + unit tests
-3. Unit tests validate transformation logic and error handling
+2. `/camel-execute` generates the Camel YAML route and Citrus integration tests
+3. Citrus tests validate transformation logic and error handling
 4. Process repeats for each flow in topological order
 
-Once all flows are migrated, proceed to runtime verification.
+During execution, internal runtime verification checks each migrated flow before the pipeline continues to static validation.
 
 <!--step Runtime Verification-->
 
-The final step validates the migrated integration end-to-end:
+`camel-verify` runs internally as part of `/camel-execute`:
 
-```bash
-/camel-verify
-```
+**Runtime verification:**
 
-**5-phase verification:**
-
-1. **Environment Check** — validate JDK, Maven, dependencies
-2. **Build Verification** — `mvn clean verify` (compile + unit tests)
-3. **Startup Test** — launch Camel context, verify route registration
-4. **Behavioral Tests** — end-to-end scenarios (HTTP calls, message flows, transformations)
-5. **Migration Report** — coverage summary, delta analysis, recommendations
+1. **Build Verification** — compile and resolve dependencies
+2. **Behavioral Tests** — run Citrus end-to-end scenarios with Testcontainers
+3. **Report** — summarize results, fixes, and remaining limitations
 
 **Example output:**
 
@@ -365,11 +361,11 @@ Verification failed: Behavioral test failure
 **Debugging steps:**
 
 ```bash
-# Run verification with detailed logging
-/camel-verify --log-level DEBUG
+# In your AI agent, diagnose the broken migrated route
+/camel-debug
 
 # Run a single test in isolation
-mvn test -Dtest=OrderValidationFlowTest
+./mvnw test -Dtest=OrderValidationFlowTest
 
 # Inspect Camel route definitions
 cat src/main/resources/camel/order-validation.camel.yaml

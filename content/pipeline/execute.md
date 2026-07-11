@@ -8,7 +8,7 @@ description: "/camel-execute — Phase 3: Orchestrated execution with two-stage 
 
 `/camel-execute` is the Phase 3 orchestrator that transforms the approved Implementation Plan into working code. Through wave-based execution, internal skill loading, and two-stage review, the AI generates Camel routes, tests, and configuration files.
 
-The output is a complete Maven project with YAML routes, Citrus tests, application properties, Docker Compose environment, and validation reports.
+The output is a complete Maven project with YAML routes, Citrus tests, application properties, a Docker Compose environment, and `docs/camel-kit/<pipeline-id>/execution-report.md`.
 
 ## When to Use
 
@@ -24,7 +24,7 @@ Invoke `/camel-execute` when you:
 
 ## Input: Implementation Plan
 
-`/camel-execute` reads the Implementation Plan from `.camel-kit/implementation-plan.md` (created by `/camel-plan`).
+`/camel-execute` reads the Implementation Plan from `docs/camel-kit/<pipeline-id>/implementation-plan.md` (created by `/camel-plan`).
 
 The executor analyzes:
 - **Task list** - What to implement
@@ -91,9 +91,9 @@ Execute Wave 5 (Tasks 5 + 6 + 7 in parallel)
   → Wait for all to complete
 ```
 
-### Step 2: Internal Skills Loading
+### Step 2: Internal Skill Composition
 
-Before starting task execution, the executor loads three internal skills:
+During execution, the orchestrator composes three internal skills:
 
 **camel-implement.md** - Route generation skill
 - Generates Camel YAML routes from task specifications
@@ -105,12 +105,12 @@ Before starting task execution, the executor loads three internal skills:
 - Generates test scenarios from acceptance criteria
 - Handles mocking and assertions
 
-**camel-validate.md** - Validation skill
-- Validates component names against MCP catalog
-- Checks YAML syntax
-- Verifies route structure
+**camel-verify.md** - Runtime verification skill
+- Builds the generated application
+- Runs Citrus integration tests
+- Classifies failures and routes targeted fixes
 
-These skills are **not** user-invocable. They exist only for `/camel-execute` to call.
+These skills are internal and have no generated command stubs. Static quality validation is the next public pipeline stage, `/camel-validate`.
 
 ### Generated Route Example
 
@@ -269,9 +269,9 @@ src/
       OrderProcessingIT.java
 {{< /filetree >}}
 
-**Validation Report:**
+**Execution Report:**
 ```
-.camel-kit/validation-report.md
+docs/camel-kit/<pipeline-id>/execution-report.md
 ```
 
 ### Maven Project Structure
@@ -290,7 +290,7 @@ The executor ensures the Maven project structure exists:
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-bom</artifactId>
-        <version>4.14.0</version>
+        <version>4.21.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -333,7 +333,7 @@ The executor ensures the Maven project structure exists:
 ```
 
 **Version Management:**
-- Camel version: `4.14.0` (Apache Camel)
+- Camel version: `4.21.0` (Apache Camel)
 - All components use the BOM for version consistency
 - No version numbers on individual dependencies
 {{< /tabs >}}
@@ -544,24 +544,24 @@ public void testInvalidOrderHandling() {
 }
 ```
 
-### Validation Report
+### Execution Report
 
-Summary of MCP catalog verification:
+Summary of generated artifacts, staged reviews, and runtime verification:
 
-**`.camel-kit/validation-report.md`:**
+**`docs/camel-kit/<pipeline-id>/execution-report.md`:**
 ```markdown
-# Validation Report: Order Processing Integration
+# Execution Report: Order Processing Integration
 
 ## Component Verification
 
 | Component | Status | Version |
 |-----------|--------|---------|
-| camel-rest | ✓ Supported | 4.14.0 |
-| camel-jackson | ✓ Supported | 4.14.0 |
-| camel-seda | ✓ Supported | 4.14.0 |
-| camel-kafka | ✓ Supported | 4.14.0 |
-| camel-sql | ✓ Supported | 4.14.0 |
-| camel-mail | ✓ Supported | 4.14.0 |
+| camel-rest | ✓ Supported | 4.21.0 |
+| camel-jackson | ✓ Supported | 4.21.0 |
+| camel-seda | ✓ Supported | 4.21.0 |
+| camel-kafka | ✓ Supported | 4.21.0 |
+| camel-sql | ✓ Supported | 4.21.0 |
+| camel-mail | ✓ Supported | 4.21.0 |
 
 ## YAML Syntax Check
 
@@ -734,12 +734,13 @@ The `camel-implement` skill generates:
 `/camel-execute` transforms Implementation Plans into working code through:
 
 1. **Wave Analysis** - Parallel and sequential task execution
-2. **Internal Skills** - camel-implement, camel-test, camel-validate
+2. **Internal Skills** - camel-implement, camel-test, camel-verify
 3. **Per-Task Loop** - Implement → Spec Compliance → Code Quality
 4. **Two-Stage Review** - Acceptance criteria validation, Constitution validation
 5. **Artifact Generation** - YAML routes, tests, config, Docker Compose
-6. **Auto-Verification** - Invokes `/camel-verify` after completion
+6. **Runtime Verification** - Dispatches internal `camel-verify`
+7. **Pipeline Transition** - Continues to `/camel-validate`
 
 The result is a Maven project with verified routes.
 
-Next: [/camel-verify](../verify/) to learn how runtime verification works.
+Next: [Runtime Verification](../verify/) explains the internal feedback loop before the pipeline continues to `/camel-validate`.

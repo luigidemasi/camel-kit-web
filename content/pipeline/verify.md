@@ -1,25 +1,24 @@
 ---
 title: "Runtime Verification"
 weight: 4
-description: "/camel-verify — Runtime verification feedback loop"
+description: "Internal runtime verification feedback loop"
 ---
 
 ## Overview
 
-`/camel-verify` is the runtime verification orchestrator that validates generated integrations actually work. Through a 3-phase feedback loop with error classification and automated fixes, the AI ensures your integration builds, passes integration tests, and handles failures gracefully.
+`camel-verify` is the internal runtime verification skill that checks whether generated integrations actually work. Through a 3-phase feedback loop with error classification and automated fixes, it ensures the application builds, passes integration tests, and handles failures gracefully.
 
 The output is a verified, working integration ready for deployment.
 
-## When to Use
+## When It Runs
 
-Invoke `/camel-verify` when you:
+`/camel-execute` dispatches `camel-verify` when generated code is ready for runtime checks. It handles:
 
 - Want to validate a generated integration works at runtime
 - Encounter build failures, runtime errors, or test failures
-- Need to troubleshoot an existing integration
 - Want automated diagnosis and fixing of common issues
 
-**Auto-invocation:** After `/camel-execute` completes, the AI automatically invokes `/camel-verify`. You can also invoke it standalone for troubleshooting.
+It is not exposed as a command stub. Use `/camel-debug` for ad-hoc troubleshooting outside an active pipeline run.
 
 ## The Verification Loop
 
@@ -103,7 +102,7 @@ Fix: Enforcing version via BOM...
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-bom</artifactId>
-      <version>4.14.0</version>
+      <version>4.21.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -296,11 +295,11 @@ Based on error classification, the AI routes fixes to the appropriate target:
 
 ### What Happens
 
-After all phases pass (or max retries exhausted), the AI generates a verification report.
+After all phases pass (or max retries are exhausted), the subagent returns a structured verification report to `/camel-execute` and appends the iteration to `.camel-kit/verify-log.md`.
 
 ### Success Report
 
-**`.camel-kit/verification-report.md`:**
+**Returned to the execute orchestrator:**
 ```markdown
 # Verification Report: Order Processing Integration
 
@@ -315,7 +314,7 @@ After all phases pass (or max retries exhausted), the AI generates a verificatio
 
 - Maven version: 3.9.5
 - Java version: 21.0.2
-- Camel version: 4.14.0
+- Camel version: 4.21.0
 - Build time: 45.3s
 
 ## Tests
@@ -395,9 +394,9 @@ a field that does not exist in the source schema.
 Review the Design Specification acceptance criteria and update the
 data model or test expectations accordingly.
 
-After applying the manual fix, run:
+After applying the manual fix, resume execution so runtime verification is dispatched again:
 ```
-/camel-verify
+/camel-execute
 ```
 
 ## Partial Results
@@ -409,7 +408,7 @@ After applying the manual fix, run:
 
 1. Review the acceptance criteria for order validation
 2. Verify the source schema includes all expected fields
-3. Consider running `/camel-test` to regenerate tests after schema updates
+3. Resume `/camel-execute` to regenerate and verify tests after schema updates
 ```
 {{< /carousel >}}
 
@@ -508,49 +507,13 @@ Between retries, the AI waits:
 
 This gives external services time to recover.
 
-## Standalone Invocation
+## Pipeline Re-entry
 
-You can invoke `/camel-verify` standalone for troubleshooting:
-
-### Use Case 1: After Manual Code Changes
-
-```
-(You manually edit a route)
-
-/camel-verify
-
-→ Runs full 3-phase verification
-→ Reports if your changes broke anything
-```
-
-### Use Case 2: Test Failures
-
-```
-You: My integration used to work but now tests fail
-
-/camel-verify
-
-→ Phase 1: Rebuild (detects updated code)
-→ Phase 2: Runs tests (identifies failure)
-→ Fix: Regenerates route or test as needed
-→ Phase 3: Reports results
-```
-
-### Use Case 3: New Test Scenarios
-
-```
-(You add a new Citrus YAML test)
-
-/camel-verify --phase=2
-
-→ Skips Phase 1 (already built)
-→ Runs only Phase 2 (Test Verification via camel test run)
-→ Reports test results
-```
+Resume `/camel-execute` after an approved manual correction so it can dispatch runtime verification again. If a previously working route breaks outside the pipeline, use `/camel-debug`; it preserves local state, diagnoses the root cause, applies a targeted fix, and recommends a recurrence guard.
 
 ## Environment-in-the-Loop Concept
 
-`/camel-verify` is "environment-in-the-loop" verification: it doesn't just check code, it actually runs the integration with real databases, message brokers, and HTTP endpoints via Testcontainers.
+`camel-verify` is "environment-in-the-loop" verification: it doesn't just check code, it actually runs the integration with real databases, message brokers, and HTTP endpoints via Testcontainers.
 
 **Why This Matters:**
 
@@ -610,14 +573,14 @@ Warning: No Citrus YAML tests found (*.it.yaml)
 Skipping test verification phase.
 
 Note: Without tests, we cannot verify integration behavior.
-Consider generating tests with /camel-test skill.
+The execute orchestrator can dispatch `camel-test` to generate missing tests.
 ```
 
 The AI continues with available tools, warning about limitations.
 
 ## Summary
 
-`/camel-verify` validates integrations through a 3-phase feedback loop:
+`camel-verify` validates integrations through a 3-phase feedback loop:
 
 1. **Build** - Compile and resolve dependencies (skipped for JBang)
 2. **Test Verification** - Run Citrus YAML tests via `camel test run` with Testcontainers
@@ -629,8 +592,8 @@ The AI continues with available tools, warning about limitations.
 - **Fix Routing** - Errors routed to `camel-implement`, `camel-test`, `re-plan`, or escalated to user
 - **Environment-in-the-Loop** - Testcontainers manage real databases and brokers
 - **Graceful Degradation** - Works even when tools unavailable
-- **Standalone Invocation** - Use for troubleshooting existing integrations
+- **Internal Dispatch** - Runs within `/camel-execute`; `/camel-debug` handles ad-hoc failures
 
 The result is confidence that your integration actually works, not just compiles.
 
-This completes the three-phase pipeline: Design → Plan → Execute → Verify.
+After runtime verification passes, the pipeline continues from Execute to `/camel-validate`.

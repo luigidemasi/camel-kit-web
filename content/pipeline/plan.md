@@ -22,7 +22,7 @@ Invoke `/camel-plan` when you:
 
 ## Input: Design Specification
 
-`/camel-plan` reads the Design Specification from `.camel-kit/design-spec.md` (created by `/camel-brainstorm`).
+`/camel-plan` reads the Design Specification from `docs/camel-kit/<pipeline-id>/design-spec.md` (created by `/camel-brainstorm`).
 
 The planner analyzes all seven sections:
 
@@ -598,7 +598,7 @@ The plan contains 8 tasks organized into 5 execution waves.
 Auto-transitioning to /camel-execute...
 ```
 
-The AI saves the Implementation Plan to `.camel-kit/implementation-plan.md` and auto-invokes Phase 3.
+The AI saves the Implementation Plan to `docs/camel-kit/<pipeline-id>/implementation-plan.md`. In a chained pipeline it proceeds to `/camel-execute`; when invoked with a pipeline ID in standalone mode, it stops and prints the next command.
 
 ### Refining the Plan
 

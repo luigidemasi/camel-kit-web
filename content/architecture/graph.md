@@ -146,7 +146,7 @@ The `dead-code` command analyzes the graph to find:
 
 **Example:**
 ```
-Unused dependency: org.apache.camel:camel-ftp:4.14.0
+Unused dependency: org.apache.camel:camel-ftp:4.21.0
   └─ No classes from this artifact are referenced
 ```
 
@@ -440,9 +440,8 @@ The graph is invoked by skills when:
 
 Skills that **don't use the graph**:
 
-- `/camel-project` — Pure user input
+- `/camel-start` — Routing metadata only
 - `/camel-knowledge` — Pure MCP search
-- `/camel-flow` — User interview + MCP verification
 
 ## Next Steps
 

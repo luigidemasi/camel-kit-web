@@ -79,18 +79,22 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 **What gets created:**
 
 - `AGENTS.md` - Routing table for AI agents
-- `.claude/commands/` - Pipeline phase slash commands
-- `.camel-kit/` - Governance documents (constitution, iron-laws)
+- `.claude/commands/` - Pipeline stage slash commands
+- `docs/constitution.md` - Generated architecture rules
+- `.camel-kit/` - Project configuration, cached catalogs, templates, and pipeline state
 - `.mcp.json` - Catalog integration config
 
 **Choose your AI agent:**
 
 | Agent | Flag |
 |-------|------|
-| Claude Code | `--ai claude` (recommended) |
-| IBM Bob | `--ai bob` |
+| IBM Bob 2 | `--ai bob2` (default) |
+| IBM Bob 1 | `--ai bob` (legacy) |
 | Gemini CLI | `--ai gemini` |
-| Qwen | `--ai qwen` |
+| Claude Code | `--ai claude` |
+| GitHub Copilot CLI | `--ai copilot` |
+| Pi | `--ai pi` |
+| Qwen Code | `--ai qwen` |
 | OpenCode | `--ai opencode` |
 
 <!--step First Command-->
@@ -104,7 +108,7 @@ Open your AI coding agent in the project directory and say:
 I want to build an integration that reads from Kafka and writes to a database
 ```
 
-The AI reads `AGENTS.md`, invokes `/camel-brainstorm`, and guides you through design.
+The AI reads `AGENTS.md`, uses `/camel-start` to route the request to `/camel-brainstorm`, and guides you through design.
 
 **For migration:**
 
@@ -126,7 +130,7 @@ The AI invokes `/camel-migrate` and handles the conversion.
 Now that you have Camel-Kit installed and a project initialized:
 
 **Learn the pipeline:**
-- Read the [Pipeline Overview](../pipeline/) to understand the three phases
+- Read the [Pipeline Overview](../pipeline/) to understand the four stages
 
 **Choose your workflow:**
 - [Greenfield Workflow](./greenfield/) - Build integrations from scratch

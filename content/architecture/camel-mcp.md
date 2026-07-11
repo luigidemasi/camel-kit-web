@@ -26,7 +26,7 @@ The Camel MCP is the official **Apache Camel JBang MCP server** (`camel-jbang-mc
 
 It runs as a **local process** — no external API calls, no cloud dependencies. The catalog data comes from the Apache Camel release artifacts on Maven Central.
 
-## 15 MCP Tools
+## Core Tool Groups
 
 {{< carousel id="camel-mcp-tools" >}}
 <!--step Component Tools-->
@@ -35,13 +35,13 @@ It runs as a **local process** — no external API calls, no cloud dependencies.
 
 | Tool | Purpose |
 |------|---------|
-| `camel_catalog_component` | Get a specific component by name |
 | `camel_catalog_components` | List all available components |
 | `camel_catalog_component_doc` | Get full component documentation |
+| `camel_catalog_component_maven` | Get component Maven coordinates |
 
 **Example:**
 ```
-camel_catalog_component(name="kafka")
+camel_catalog_component_doc(component="kafka", runtime="main", platformBom="org.apache.camel:camel-catalog:4.21.0")
 → URI syntax, producer/consumer options, default values
 ```
 
@@ -53,13 +53,12 @@ Used during `/camel-brainstorm` to verify every component mentioned in the desig
 
 | Tool | Purpose |
 |------|---------|
-| `camel_catalog_eip` | Get a specific EIP by name |
 | `camel_catalog_eips` | List all available EIPs |
 | `camel_catalog_eip_doc` | Get full EIP documentation |
 
 **Example:**
 ```
-camel_catalog_eip(name="choice")
+camel_catalog_eip_doc(eip="choice", runtime="main", platformBom="org.apache.camel:camel-catalog:4.21.0")
 → YAML DSL syntax, when/otherwise structure, examples
 ```
 
@@ -71,13 +70,12 @@ Used to verify patterns like `choice`, `split`, `aggregate`, `multicast` exist i
 
 | Tool | Purpose |
 |------|---------|
-| `camel_catalog_dataformat` | Get a specific data format |
 | `camel_catalog_dataformats` | List all data formats |
 | `camel_catalog_dataformat_doc` | Get full data format docs |
 
 **Example:**
 ```
-camel_catalog_dataformat(name="jackson")
+camel_catalog_dataformat_doc(dataformat="jackson", runtime="main", platformBom="org.apache.camel:camel-catalog:4.21.0")
 → Marshal/unmarshal options, objectMapper config, prettyPrint
 ```
 
@@ -89,13 +87,12 @@ Covers JSON (Jackson), XML (JAXB), CSV, Avro, Protobuf, and more.
 
 | Tool | Purpose |
 |------|---------|
-| `camel_catalog_language` | Get a specific language |
 | `camel_catalog_languages` | List all languages |
 | `camel_catalog_language_doc` | Get full language docs |
 
 **Example:**
 ```
-camel_catalog_language(name="simple")
+camel_catalog_language_doc(language="simple", runtime="main", platformBom="org.apache.camel:camel-catalog:4.21.0")
 → Simple expression syntax, operators, functions
 ```
 
@@ -108,6 +105,8 @@ Covers Simple, JSONPath, XPath, Header, Constant, and more.
 | Tool | Purpose |
 |------|---------|
 | `camel_validate_route` | Validate YAML route syntax and structure |
+| `camel_validate_yaml_dsl` | Validate Camel YAML DSL syntax |
+| `camel_configuration_validate` | Validate `application.properties` keys and values |
 | `camel_route_context` | Analyze route for test strategy |
 | `camel_route_harden_context` | Security analysis and hardening suggestions |
 
@@ -118,6 +117,8 @@ camel_validate_route(yaml="- route:\n    id: my-route\n    ...")
 ```
 
 Used by `/camel-execute` during spec compliance review and by `/camel-validate` for standalone validation.
+
+`camel_configuration_validate` is a mandatory generation gate after writing application property files. Calls include the project runtime and full platform BOM, and the echoed Camel version must match the resolved project version.
 {{< /carousel >}}
 
 ## How Camel-Kit Uses It
@@ -142,9 +143,9 @@ Every component is verified before it enters the design or code:
 
 ```
 AI: User mentioned "message queue"
-    → camel_catalog_component(name="jms") ✓ exists
-    → camel_catalog_component(name="amqp") ✓ exists
-    → camel_catalog_component(name="kafka") ✓ exists
+    → camel_catalog_component_doc(component="jms", ...) ✓ exists
+    → camel_catalog_component_doc(component="amqp", ...) ✓ exists
+    → camel_catalog_component_doc(component="kafka", ...) ✓ exists
     
 AI: "Which messaging system? JMS, AMQP, or Kafka?"
 ```
@@ -160,25 +161,28 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 | Agent | Config File | Format |
 |-------|------------|--------|
 | Claude Code | `.mcp.json` | JSON with `mcpServers` |
-| IBM Bob | `.bob/mcp.json` | JSON |
+| IBM Bob 2 | `.bob/mcp.json` | JSON |
+| IBM Bob 1 | `.bob/mcp.json` | JSON |
 | Gemini CLI | `.gemini/settings.json` | JSON |
-| Qwen | `.qwen/settings.json` | JSON |
+| GitHub Copilot CLI | `.github/mcp.json` | JSON |
+| Pi | `.mcp.json` | JSON with direct tool allowlists |
+| Qwen Code | `.qwen/settings.json` | JSON |
 | OpenCode | `opencode.json` | JSON |
 
 All configurations point to the same JBang-launched Camel MCP server — same tools, same catalog, different config file format.
 
 ## Version Alignment
 
-The Camel MCP server version matches the target Camel version:
+The server artifact follows the distribution's Camel Main stream; version-sensitive calls select the target runtime catalog explicitly:
 
 | Property | Current Value |
 |----------|--------------|
-| **Camel MCP version** | `4.20.0` |
-| **Camel Main default** | `4.20.0` |
-| **Camel Spring Boot** | `4.20.0` |
-| **Camel Quarkus** | `4.18.0` |
+| **Camel MCP version** | `4.21.0` |
+| **Camel Main default** | `4.21.0` |
+| **Camel Spring Boot** | `4.21.0` |
+| **Camel Quarkus** | `4.18.2` |
 
-When the user specifies a different Camel version via `camel-kit init -p camelVersion=4.14.0`, the MCP server loads the catalog for that specific version.
+Every version-sensitive catalog call passes the project runtime and full platform BOM. Camel-Kit rejects a response whose echoed Camel version does not match the resolved project version.
 
 ## Next Steps
 

@@ -57,7 +57,7 @@ The skeleton is deleted after the probe completes. The real implementation gener
 
 ### After Code Is Generated
 
-The verification loop (`/camel-verify`) runs [Citrus](https://citrusframework.org/) integration tests to validate the generated code against real infrastructure.
+The internal `camel-verify` loop runs [Citrus](https://citrusframework.org/) integration tests to validate the generated code against real infrastructure.
 
 **Three phases:**
 
@@ -201,7 +201,7 @@ The probe and verify loop use an **"assume mechanical, promote on failure"** rul
   </div>
 </div>
 
-The key insight: **MCP is the oracle** that distinguishes mechanical from architectural. When a dependency fails, the probe queries `camel_catalog_component` — if MCP confirms the component doesn't exist for this runtime/version, it's architectural. If MCP returns a valid artifact with a different name, it's mechanical.
+The key insight: **MCP is the oracle** that distinguishes mechanical from architectural. When a dependency fails, the probe queries `camel_catalog_component_doc` — if MCP confirms the component doesn't exist for this runtime/version, it's architectural. If MCP returns a valid artifact with a different name, it's mechanical.
 
 ### How Errors Promote
 
