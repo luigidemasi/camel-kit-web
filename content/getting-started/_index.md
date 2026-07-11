@@ -79,10 +79,10 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 **What gets created:**
 
 - `AGENTS.md` - Routing table for AI agents
-- `.claude/commands/` - Pipeline stage slash commands
+- Agent-native skills and entry points - for example, `.claude/commands/` for Claude Code or `.agents/skills/` for Codex
 - `docs/constitution.md` - Generated architecture rules
 - `.camel-kit/` - Project configuration, cached catalogs, templates, and pipeline state
-- `.mcp.json` - Catalog integration config
+- Agent-native MCP configuration - JSON for most targets, or `.codex/config.toml` for Codex
 
 **Choose your AI agent:**
 
@@ -92,6 +92,7 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 | IBM Bob 1 | `--ai bob` (legacy) |
 | Gemini CLI | `--ai gemini` |
 | Claude Code | `--ai claude` |
+| OpenAI Codex CLI | `--ai codex` |
 | GitHub Copilot CLI | `--ai copilot` |
 | Pi | `--ai pi` |
 | Qwen Code | `--ai qwen` |
@@ -109,6 +110,8 @@ I want to build an integration that reads from Kafka and writes to a database
 ```
 
 The AI reads `AGENTS.md`, uses `/camel-start` to route the request to `/camel-brainstorm`, and guides you through design.
+
+With OpenAI Codex CLI, run `/skills` and invoke `$camel-start` instead; Codex discovers `.agents/skills/` directly and does not use slash-command stubs. See the [Codex setup guide](./codex/).
 
 **For migration:**
 
@@ -135,6 +138,9 @@ Now that you have Camel-Kit installed and a project initialized:
 **Choose your workflow:**
 - [Greenfield Workflow](./greenfield/) - Build integrations from scratch
 - [Migration Workflow](./migration/) - Convert existing integrations
+
+**Configure your AI target:**
+- [OpenAI Codex CLI](./codex/) - Repository trust, skills, custom agents, MCP, approvals, and sandboxing
 
 **Explore features:**
 - [Graph CLI](../architecture/graph/) - Migration analysis tools

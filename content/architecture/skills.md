@@ -154,7 +154,7 @@ Total for a typical invocation: **1,000-3,000 tokens**.
 
 ## Multi-Agent Parity
 
-One set of skills works across all eight current AI targets via agent-specific generators:
+One set of skills works across all nine current AI targets via agent-specific generators:
 
 {{< before-after before="Same Skill Source" after="Agent-Specific Output" id="multi-agent" >}}
 
@@ -179,12 +179,15 @@ Agent-specific generators produce each platform's native format:
 | `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` |
 | `BobGenerator` | IBM Bob 1 (legacy) | `.bob/gates/` + mode switching |
 | `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies |
+| `CodexGenerator` | OpenAI Codex CLI | `AGENTS.md` + `.agents/skills/` + `.codex/agents/` |
 | `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents and hooks |
 | `PiGenerator` | Pi | `.pi/skills/` + prompt templates and guard hooks |
 | `QwenGenerator` | Qwen Code | `.qwen/agents/` + fork dispatch |
 | `OpenCodeGenerator` | OpenCode | `AGENTS.md` + permission profiles |
 
 {{< /before-after >}}
+
+Codex discovers the shared skills directly under `.agents/skills/`. Users inspect them with `/skills` and invoke the router as `$camel-start`; generated skill-to-skill references use native `$camel-*` mentions, and Camel-Kit does not generate `.codex/commands/` wrappers. Generated custom-agent roles support focused and parallel dispatch, with inline execution as the fallback when a role is unavailable.
 
 ## Agent Traits
 
