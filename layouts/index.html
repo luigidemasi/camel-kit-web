@@ -19,31 +19,28 @@
       </div>
       <div class="text-center max-w-[200px]">
         <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Agent-Agnostic</div>
-        <div class="text-xs" style="color: var(--color-text-secondary);">Same quality across Claude Code, OpenAI Codex CLI, IBM Bob, Gemini CLI, Qwen, OpenCode</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Same skills and quality across all nine supported AI targets</div>
       </div>
     </div>
-    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-10 mt-10 pt-8" style="border-top: 1px solid var(--color-border);">
-      <a href="https://claude.ai/claude-code" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 no-underline opacity-70 hover:opacity-100 transition-opacity">
-        <img src="{{ "images/agents/claude.svg" | relURL }}" alt="Claude Code" class="w-20 h-20">
-        <span class="text-xs" style="color: var(--color-text-secondary);">Claude Code</span>
-      </a>
-      <a href="https://bob.ibm.com" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 no-underline opacity-70 hover:opacity-100 transition-opacity">
-        <img src="{{ "images/agents/ibm-bob.svg" | relURL }}" alt="IBM Bob" class="h-20" style="max-width: 170px;">
-        <span class="text-xs" style="color: var(--color-text-secondary);">IBM Bob</span>
-      </a>
-      <a href="https://geminicli.com" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 no-underline opacity-70 hover:opacity-100 transition-opacity">
-        <img src="{{ "images/agents/gemini.svg" | relURL }}" alt="Gemini CLI" class="h-20" style="max-width: 170px;">
-        <span class="text-xs" style="color: var(--color-text-secondary);">Gemini CLI</span>
-      </a>
-      <a href="https://qwenlm.github.io/qwen-code-docs/" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 no-underline opacity-70 hover:opacity-100 transition-opacity">
-        <img src="{{ "images/agents/qwen.svg" | relURL }}" alt="Qwen Code" class="w-20 h-20">
-        <span class="text-xs" style="color: var(--color-text-secondary);">Qwen Code</span>
-      </a>
-      <a href="https://opencode.ai" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 no-underline opacity-70 hover:opacity-100 transition-opacity">
-        <img src="{{ "images/agents/opencode.svg" | relURL }}" alt="OpenCode" class="w-20 h-20 rounded">
-        <span class="text-xs" style="color: var(--color-text-secondary);">OpenCode</span>
-      </a>
-    </div>
+    {{ $agents := slice
+      (dict "name" "IBM Bob 2" "id" "bob2")
+      (dict "name" "IBM Bob 1 (legacy)" "id" "bob")
+      (dict "name" "Claude Code" "id" "claude")
+      (dict "name" "OpenAI Codex CLI" "id" "codex")
+      (dict "name" "GitHub Copilot CLI" "id" "copilot")
+      (dict "name" "Gemini CLI" "id" "gemini")
+      (dict "name" "Pi" "id" "pi")
+      (dict "name" "Qwen Code" "id" "qwen")
+      (dict "name" "OpenCode" "id" "opencode")
+    }}
+    <ul aria-label="Supported AI targets" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-10 pt-8 list-none" style="border-top: 1px solid var(--color-border);">
+      {{ range $agents }}
+      <li class="rounded-lg px-3 py-3" style="background-color: var(--color-bg-primary); border: 1px solid var(--color-border);">
+        <div class="text-sm font-semibold" style="color: var(--color-text-heading);">{{ .name }}</div>
+        <code class="text-xs" style="color: var(--color-accent);">--ai {{ .id }}</code>
+      </li>
+      {{ end }}
+    </ul>
   </div>
 </section>
 
