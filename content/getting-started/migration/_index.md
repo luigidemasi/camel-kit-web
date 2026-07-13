@@ -166,6 +166,12 @@ Executing migration...
   → Generated: src/main/resources/camel/customer-lookup.camel.yaml
   → Generated: src/test/resources/customer-lookup.camel.it.yaml
   → Tests: 5 passed, 0 failed
+
+All planned flows implemented and internally verified.
+
+Validating migration...
+  → /camel-validate
+  → Static quality report generated
 ```
 
 **What happens:**
@@ -174,7 +180,7 @@ Executing migration...
 3. Citrus tests validate transformation logic and error handling
 4. Process repeats for each flow in topological order
 
-During execution, internal runtime verification checks each migrated flow before the pipeline continues to static validation.
+After all planned tasks complete, `/camel-execute` runs one internal runtime verification pass across the generated routes before continuing to `/camel-validate` for final static quality analysis.
 
 <!--step Runtime Verification-->
 
@@ -383,7 +389,7 @@ The migration workflow automates platform conversion through six steps:
 2. **Detect** — discover artifacts and identify the source platform
 3. **Graph** — analyze dependencies and determine migration order
 4. **Design** — extract requirements from existing flows (BRD + TDD)
-5. **Implement** — generate Camel routes with unit tests (`/camel-plan` + `/camel-execute`)
-6. **Verify** — validate runtime behavior and produce migration report
+5. **Implement and verify** — generate Camel routes and Citrus tests through `/camel-plan` and `/camel-execute`, including one internal runtime verification pass after all planned tasks
+6. **Validate** — run `/camel-validate` for static quality analysis and the final validation report
 
 This workflow applies across all supported platforms. For platform-specific details (artifact formats, connector mappings, known limitations), see the platform pages below.
