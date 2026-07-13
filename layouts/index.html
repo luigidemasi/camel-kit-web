@@ -24,7 +24,6 @@
     </div>
     {{ $agents := slice
       (dict "name" "IBM Bob 2" "id" "bob2" "logo" "images/agents/ibm-bob.svg")
-      (dict "name" "IBM Bob 1 (legacy)" "id" "bob" "logo" "images/agents/ibm-bob.svg")
       (dict "name" "Claude Code" "id" "claude" "logo" "images/agents/claude.svg")
       (dict "name" "OpenAI Codex CLI" "id" "codex" "logo" "images/agents/codex.svg" "invert" true)
       (dict "name" "GitHub Copilot CLI" "id" "copilot" "logo" "images/agents/copilot.png")
@@ -32,6 +31,7 @@
       (dict "name" "Pi" "id" "pi" "logo" "images/agents/pi.svg")
       (dict "name" "Qwen Code" "id" "qwen" "logo" "images/agents/qwen.svg")
       (dict "name" "OpenCode" "id" "opencode" "logo" "images/agents/opencode.svg")
+      (dict "name" "IBM Bob 1 (legacy)" "id" "bob" "logo" "images/agents/ibm-bob.svg")
     }}
     <ul aria-label="Supported AI targets" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-10 pt-8 list-none" style="border-top: 1px solid var(--color-border);">
       {{ range $agents }}
