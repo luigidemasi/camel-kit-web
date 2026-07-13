@@ -166,12 +166,6 @@ Executing migration...
   → Generated: src/main/resources/camel/customer-lookup.camel.yaml
   → Generated: src/test/resources/customer-lookup.camel.it.yaml
   → Tests: 5 passed, 0 failed
-
-All planned flows implemented and internally verified.
-
-Validating migration...
-  → /camel-validate
-  → Static quality report generated
 ```
 
 **What happens:**
@@ -182,9 +176,9 @@ Validating migration...
 
 After all planned tasks complete, `/camel-execute` runs one internal runtime verification pass across the generated routes before continuing to `/camel-validate` for final static quality analysis.
 
-<!--step Runtime Verification-->
+<!--step Internal Verification and Validation-->
 
-`camel-verify` runs internally as part of `/camel-execute`:
+`camel-verify` runs internally as part of `/camel-execute`. Unlike the per-flow Citrus tests generated during implementation, this project-wide pass builds the complete migrated application, runs the full Citrus suite across all generated routes, and produces a verification report.
 
 **Runtime verification:**
 
@@ -208,6 +202,14 @@ Delta Analysis:
 Recommendations:
   - Review DataWeave → JsonPath transformations (manual validation suggested)
   - Configure connector credentials for production environment
+```
+
+After runtime verification completes, the pipeline invokes `/camel-validate`:
+
+```
+Validating migration...
+  → /camel-validate
+  → Static quality report generated
 ```
 
 {{< /carousel >}}
