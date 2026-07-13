@@ -23,19 +23,20 @@
       </div>
     </div>
     {{ $agents := slice
-      (dict "name" "IBM Bob 2" "id" "bob2")
-      (dict "name" "IBM Bob 1 (legacy)" "id" "bob")
-      (dict "name" "Claude Code" "id" "claude")
-      (dict "name" "OpenAI Codex CLI" "id" "codex")
-      (dict "name" "GitHub Copilot CLI" "id" "copilot")
-      (dict "name" "Gemini CLI" "id" "gemini")
-      (dict "name" "Pi" "id" "pi")
-      (dict "name" "Qwen Code" "id" "qwen")
-      (dict "name" "OpenCode" "id" "opencode")
+      (dict "name" "IBM Bob 2" "id" "bob2" "logo" "images/agents/ibm-bob.svg")
+      (dict "name" "IBM Bob 1 (legacy)" "id" "bob" "logo" "images/agents/ibm-bob.svg")
+      (dict "name" "Claude Code" "id" "claude" "logo" "images/agents/claude.svg")
+      (dict "name" "OpenAI Codex CLI" "id" "codex" "logo" "images/agents/codex.svg" "invert" true)
+      (dict "name" "GitHub Copilot CLI" "id" "copilot" "logo" "images/agents/copilot.png")
+      (dict "name" "Gemini CLI" "id" "gemini" "logo" "images/agents/gemini.svg")
+      (dict "name" "Pi" "id" "pi" "logo" "images/agents/pi.svg")
+      (dict "name" "Qwen Code" "id" "qwen" "logo" "images/agents/qwen.svg")
+      (dict "name" "OpenCode" "id" "opencode" "logo" "images/agents/opencode.svg")
     }}
     <ul aria-label="Supported AI targets" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-10 pt-8 list-none" style="border-top: 1px solid var(--color-border);">
       {{ range $agents }}
-      <li class="rounded-lg px-3 py-3" style="background-color: var(--color-bg-primary); border: 1px solid var(--color-border);">
+      <li class="rounded-lg px-3 py-4 flex flex-col items-center" style="background-color: var(--color-bg-primary); border: 1px solid var(--color-border);">
+        <img src="{{ .logo | relURL }}" alt="" width="160" height="64" class="h-16 w-full max-w-[10rem] object-contain mb-2"{{ if .invert }} style="filter: invert(1);"{{ end }}>
         <div class="text-sm font-semibold" style="color: var(--color-text-heading);">{{ .name }}</div>
         <code class="text-xs" style="color: var(--color-accent);">--ai {{ .id }}</code>
       </li>
