@@ -178,6 +178,8 @@ camel-kit init --here [options]
 | `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
 | `-V`, `--version` | - | Print camel-kit version and exit |
 
+The Citrus Framework and MCP runner have separate distribution properties. `citrus.version` defaults to `5.0.0-M2` for test schemas and generated dependencies, while `citrus.mcp.version` is temporarily pinned to the working `5.0.0-M1` runner. If the versions differ, Camel-Kit does not treat versioned MCP metadata as authoritative and uses its documented quick-reference fallback for the configured framework version.
+
 **Prerequisite check:**
 
 On startup, `init` verifies that required tools are installed and reports their status. Missing tools produce warnings but don't block initialization — design and planning work without Camel JBang.
