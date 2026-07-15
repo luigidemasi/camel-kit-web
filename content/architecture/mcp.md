@@ -36,7 +36,7 @@ Hybrid semantic search over **166,973 indexed documents** — Apache Camel docum
 
 {{< /before-after >}}
 
-### Citrus MCP — Test Generation
+### Citrus MCP version compatibility
 
 Citrus MCP supplies the action catalog, endpoint catalog, YAML DSL schemas, and test-authoring guidance used by `camel-test`:
 
@@ -45,7 +45,7 @@ Citrus MCP supplies the action catalog, endpoint catalog, YAML DSL schemas, and 
 - `citrus_docs_index` / `citrus_docs_page`
 - Resources such as `citrus://schema/dsl/yaml` and `citrus://docs/best-practices`
 
-Camel-Kit currently uses Citrus Framework **5.0.0-M2** for test schemas and generated dependencies, while the Citrus MCP runner is pinned to working version **5.0.0-M1**. Versioned MCP responses are authoritative only when `citrus.mcp.version` matches `citrus.version`; otherwise Camel-Kit uses its documented quick-reference fallback for the configured framework version.
+Camel-Kit currently uses Citrus Framework **5.0.0-M2** for test schemas and generated dependencies, while the Citrus MCP runner is pinned to working version **5.0.0-M1**. Versioned MCP responses are authoritative only when `citrus.mcp.version` matches `citrus.version`; otherwise Camel-Kit uses its quick-reference fallback for the configured framework version.
 
 ## Catalog Tools in Action
 
