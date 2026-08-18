@@ -20,9 +20,11 @@ Camel-Kit's skills are **composable Markdown instructions** that guide AI agents
 | Pipeline | **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
 | Pipeline | **execute** | `/camel-execute` | Wave-based code generation with staged review |
 | Pipeline | **validate** | `/camel-validate` | Static route quality validation |
-| Utility | **ship** | `/camel-ship` | Autonomous end-to-end pipeline |
+| Utility | **ship** | `/camel-ship` | Thin CLI delegate to the local Ship controller |
 | Utility | **knowledge** | `/camel-knowledge` | Apache Camel documentation queries |
 | Utility | **debug** | `/camel-debug` | Ad-hoc broken-route troubleshooting |
+
+`camel-ship` is the outlier in this tier: its `SKILL.md` is a short delegate that invokes the registered `camel-kit ship` (or `camel kit ship`) command once with the invocation's options. The CLI command owns validation, state, oversight, evidence, publication, and recovery — the skill does not follow the guide-based structure described below.
 
 <!--tab Internal (4)-->
 

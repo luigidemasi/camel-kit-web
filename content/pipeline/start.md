@@ -31,7 +31,7 @@ Greenfield: /camel-brainstorm → /camel-plan → /camel-execute → /camel-vali
 Migration:  /camel-migrate    → /camel-plan → /camel-execute → /camel-validate
 ```
 
-Runtime verification is handled internally by `camel-verify` during execution. `/camel-ship` can run the full pipeline with configurable oversight, while `/camel-knowledge` answers Camel documentation questions without changing pipeline state.
+Runtime verification is handled internally by `camel-verify` during execution. `/camel-ship` delegates to the local `camel-kit ship` controller, which runs its own workflow and never stores its run state in the manual pipeline file, while `/camel-knowledge` answers Camel documentation questions without changing pipeline state.
 
 ## When to Invoke a Skill Directly
 
