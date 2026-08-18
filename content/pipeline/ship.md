@@ -10,7 +10,7 @@ Ship is a local workflow controller. The command `camel-kit ship` (or `camel kit
 
 The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — are thin delegates. They forward your options to the registered CLI command once and return its output. The AI agent does not orchestrate the workflow: the local controller is the sole owner of stages, run state, oversight, evidence, publication, and recovery.
 
-Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process sandbox, or a release-attestation system. Provider credentials stay with the worker and provider tooling; Ship does not persist them or include them in command arguments, logs, reports, or project artifacts.
+Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process sandbox, or a release-attestation system. Provider credentials stay with the worker — the AI process the controller launches for each stage — and provider tooling; Ship does not persist them or include them in command arguments, logs, reports, or project artifacts.
 
 ## When to Use
 
