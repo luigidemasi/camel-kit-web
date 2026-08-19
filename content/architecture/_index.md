@@ -4,7 +4,7 @@ weight: 4
 description: "Internal architecture for contributors and extenders"
 ---
 
-Camel-Kit is built on a **4-layer architecture** designed for AI agent composability, cross-agent portability, and token efficiency. The system is designed around the principle: **"The prompt is the product"** — Camel-Kit ships instructions, not implementations.
+Camel-Kit is built on a **4-layer architecture** designed for AI agent composability, cross-agent portability, and token efficiency. The system is designed around the principle: **"The prompt is the product"** — Camel-Kit ships instructions, not implementations, with one deliberate exception (the Ship workflow, described below).
 
 ## Four Layers
 
@@ -97,6 +97,8 @@ Camel-Kit's architecture embodies a key principle: **the prompt is the product**
 - **Markdown guides** that instruct AI agents how to generate code
 - **MCP tool definitions** for real-time verification
 - **Graph parsers** for code analysis (optional)
+
+One deliberate exception: the Ship workflow. `/camel-ship` is a short delegate to the registered `camel-kit ship` command, and the workflow controller — stages, run state, oversight, evidence, and guarded publication — is compiled code in the Camel-Kit CLI, not a prompt. Every other routed command remains prompt-owned.
 
 This means:
 

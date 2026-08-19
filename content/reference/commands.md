@@ -128,24 +128,22 @@ Diagnose and repair broken routes outside an active pipeline run with a strict *
 
 Use it for startup failures, runtime exceptions, or incorrect behavior. Build and test failures during pipeline execution remain part of the internal `camel-verify` loop.
 
-<!--step /camel-ship — Autonomous Pipeline-->
+<!--step /camel-ship — Ship Delegate-->
 
-Autonomous pipeline orchestrator that chains all four stages (brainstorm → plan → execute → validate) in a single command with configurable oversight. Execute includes internal runtime verification.
+Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wrapper: it runs the registered `camel-kit ship` (or `camel kit ship`) command once with the options you supply, adds no defaults, and returns the command output. The local controller — not the agent — owns Ship stages, run state, oversight, evidence, and guarded publication. No harness command implements a second workflow.
 
-**Process:**
+**Per-harness surfaces:**
 
-1. **Brainstorm** — Design interview with the user
-2. **Plan** — Task decomposition from approved design
-3. **Execute** — Code generation with two-stage review
-4. **Validate** — Static quality analysis and final validation report
+| Harness | Surface |
+|---------|---------|
+| Claude Code, Gemini CLI, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
+| IBM Bob / Bob 2 | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
+| OpenAI Codex CLI, GitHub Copilot CLI | Native skills only (`$camel-ship`, `.github/skills/`) — no generated command files |
 
-**Oversight levels (`--ask`):**
+**Upgrading from the prompt-owned Ship:** earlier releases generated an agent-orchestrated Ship workflow. After upgrading, regenerate the workspace with `camel-kit init --here --ai <same-agent> --force` (or `camel kit init ...`); `--force` rewrites generated assets, so commit or back up customizations first. Re-initialization removes the obsolete Ship guides, harness traits, and Bob 2 Ship mode assets. A pre-controller `.camel-kit/ship-state.json` (or a non-manual `.camel-kit/pipeline.json`) makes Ship fail closed — archive it outside the project first.
 
-| Level | Behavior |
-|-------|----------|
-| `always` | Pause after design, execution, and validation reports |
-| `smart` | Auto-proceed through clear design and planning, pause after execution, and stop on ambiguity or Critical findings |
-| `never` | Auto-proceed and repair eligible execution failures; stop on blockers |
+See `camel-kit ship` under CLI Commands for the full option reference.
 
 {{< /carousel >}}
 
@@ -261,6 +259,54 @@ my-integration/
 No `.codex/commands/` directory is generated. See [OpenAI Codex CLI setup](../../getting-started/codex/) for repository trust, `/skills`, `/mcp`, approvals, and sandbox behavior.
 
 
+<!--step camel-kit ship-->
+
+Start, inspect, resume, or abort a local Camel Ship run. The controller performs discovery → design → plan → execute → validate and, after the configured approval and validation gates, publishes accepted changes to the project. The harness commands (`/camel-ship`, `$camel-ship`, `/skill:camel-ship`) are thin wrappers around this command.
+
+**Usage:**
+
+```bash
+camel-kit ship [options]
+camel kit ship [options]
+```
+
+A bare `camel-kit ship` starts a new run at discovery with a short discovery conversation. Initial context is optional: text, one or more documents, or both — a requirements document is never mandatory. Supplied material is included in discovery input before questions.
+
+**Options** (canonical descriptions, defaults, and prerequisites: [Command and Options](../../pipeline/ship/#command-and-options) on the Ship Workflow page):
+
+- **Context:** `--text TEXT` and `--document PATH`, both repeatable — valid when starting or resuming a run
+- **Oversight:** `--ask always|smart|never` (default `smart`) — valid when starting a run, including with `--start-from`; not with `--resume`, `--status`, or `--abort`
+- **Run operations:** `--resume RUN_ID`, `--status RUN_ID`, `--abort RUN_ID`, `--start-from discovery|design|plan` — mutually exclusive; `--start-from` prerequisites are listed on the Ship page
+- **Runtime and configuration:** `--pi PATH`, `--node PATH`, `--maven-repository PATH`, `--stage-timeout DURATION`, `--accept-experimental`, `-c`/`--config PATH`, `-p`/`--property KEY=VALUE` — valid when starting or resuming
+
+Configuration is loaded strictly: a missing or unreadable config file or a malformed override is an error, not a warning. Repeat the same `-c`/`-p` options when resuming a run.
+
+**Oversight (`--ask`):**
+
+- `always` — pauses after design, plan, execute, and validate, and on material ambiguity.
+- `smart` (default) — pauses after plan and execute and on material ambiguity; a fully passing validation proceeds to guarded publication without a further pause.
+- `never` — records reasonable defaults and does not pause, but the run still fails on failed mandatory validation checks, and publication remains controller-gated.
+
+**Run state and Stamp:** run state lives outside the project, under `$CAMEL_KIT_SHIP_STATE_HOME`, else `$XDG_STATE_HOME/camel-kit/ship`, else `~/.local/state/camel-kit/ship`. `.camel-kit/pipeline.json` remains a manual-mode pointer only; Ship never stores run state there. `--resume` re-reads recorded context and artifacts, compares digests, and restarts the earliest stale or incomplete stage. Validation produces a local Stamp whose pass/fail status is derived from the required checks; per check it records the executable, version, arguments with secrets redacted, exit status, and retained output. The Stamp describes checks performed on this machine and is not a signed release attestation.
+
+**Publication and recovery:** discovery, design, plan, and validate never modify application source; execute works in a controller-owned staging copy, and accepted changes are published to the live project only after the configured approval and validation gates. An interrupted process is recoverable with the run ID, but Ship is a local orchestrator — not a daemon, a hostile same-user sandbox, a credential broker, or a release-attestation system. Provider credentials remain with Pi and provider tooling; Ship does not persist them or include them in command arguments, logs, or reports.
+
+**Requirements and compatibility:** the first Ship worker runs on Linux only and needs Pi, Node, and Bubblewrap on a merged-/usr host. The maintained configuration is Pi 0.83.0 with Node 22.22.2; any other detected version is reported as experimental and runs only with `--accept-experimental`. The compatibility tiers and the current live-gate status are documented in [Worker Requirements and Support Tiers](../../pipeline/ship/#worker-requirements-and-support-tiers).
+
+**Examples:**
+
+```bash
+camel-kit ship
+camel-kit ship --text "Consume Kafka orders and send them to Salesforce"
+camel-kit ship --document requirements.md
+camel-kit ship --document requirements.md --text "Prefer YAML and Simple; no Java"
+camel-kit ship --resume <run-id>
+camel-kit ship --status <run-id>
+camel-kit ship --abort <run-id>
+camel-kit ship --start-from plan
+```
+
+
 <!--step camel-kit doctor-->
 
 Validate a generated Camel-Kit workspace. Use `camel-kit doctor` for the standalone CLI or `camel kit doctor` for the Camel JBang plugin.
@@ -330,8 +376,10 @@ camel-kit plan analyze docs/camel-kit/001-order-processing/implementation-plan.m
 /camel-start                     # Route a request to the right skill
 /camel-migrate                   # Migration discovery and design
 
-# Autonomous
-/camel-ship                      # Full pipeline: brainstorm → plan → execute → validate
+# Ship (local workflow controller)
+camel-kit ship --document requirements.md       # Start a controller-owned Ship run
+camel-kit ship --resume <run-id>                # Resume an interrupted run
+/camel-ship                      # Thin wrapper around camel-kit ship
 
 # Standalone
 /camel-knowledge                 # Documentation lookup

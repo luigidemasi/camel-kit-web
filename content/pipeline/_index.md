@@ -1,7 +1,7 @@
 ---
 title: "Pipeline"
 weight: 2
-description: "The design-to-code pipeline — manual or autonomous"
+description: "The design-to-code pipeline — manual stages, plus the controller-owned Ship workflow"
 toc: false
 ---
 
@@ -10,9 +10,9 @@ toc: false
 The Camel-Kit pipeline transforms integration requirements into working code through an orchestrated workflow. You can run it two ways:
 
 - **Manual:** Enter through `/camel-start` or invoke a known stage directly. Full control at each transition.
-- **Autonomous (`/camel-ship`):** Run the entire pipeline in one command with configurable oversight — from `--ask always` (approve everything) to `--ask never` (fully autonomous).
+- **Ship (`/camel-ship`):** Delegate to the local `camel-kit ship` controller, which runs its own workflow — discovery, design, plan, execute, validate — with configurable oversight (`--ask always|smart|never`).
 
-Both modes execute the same phases and enforce the same Iron Laws.
+The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship's stages, state, and gates are owned by the local controller.
 
 ## The Four Pipeline Stages
 
@@ -233,30 +233,30 @@ AI: /camel-debug
 
 {{< /tabs >}}
 
-## Autonomous Mode: `/camel-ship`
+## Ship Workflow: `/camel-ship`
 
-For orchestrated execution, `/camel-ship` chains all four stages with configurable oversight:
+`/camel-ship` is a thin delegate: it forwards your options to the registered `camel-kit ship` (or `camel kit ship`) command once. The local controller — not the AI agent — owns the run's stages, state, oversight, evidence, and publication:
 
 ```bash
-# Smart oversight (default) — pauses after execution and when judgment is needed
-/camel-ship requirements.md
+# Smart oversight (default) — pauses after plan and execute
+camel-kit ship --document requirements.md
 
-# Fully autonomous — pauses only on blockers
-/camel-ship requirements.md --ask never
+# Minimal pauses — records reasonable defaults
+camel-kit ship --document requirements.md --ask never
 
-# Resume interrupted pipeline
-/camel-ship --resume
+# Resume an interrupted run
+camel-kit ship --resume <run-id>
 ```
 
-Three oversight levels control when the pipeline pauses:
+Three oversight policies control where the controller pauses:
 
-| Level | Behavior |
-|-------|----------|
-| `always` | Pause after design, execution, and validation reports |
-| `smart` | Auto-proceed through clear design and planning, then pause after execution or when judgment is needed |
-| `never` | Fully autonomous — only stop on blockers |
+| Policy | Behavior |
+|--------|----------|
+| `always` | Pause for approval after design, plan, execute, and validate — including before publication |
+| `smart` | Pause after plan and execute, and on material ambiguity |
+| `never` | Record reasonable defaults instead of pausing, but still stop on missing tools, failed mandatory checks, or actions requiring authority you did not grant |
 
-See [/camel-ship](./ship/) for the full autonomous pipeline documentation.
+See [Ship Workflow](./ship/) for the full documentation.
 
 ## What's Next
 
@@ -267,4 +267,4 @@ Dive into each stage:
 - [/camel-execute](./execute/) — Stage 3: Code generation
 - [Runtime Verification](./verify/) — Internal build/test feedback loop
 - `/camel-validate` — Stage 4: Static quality analysis
-- [/camel-ship](./ship/) — Autonomous pipeline with configurable oversight
+- [Ship Workflow](./ship/) — Controller-owned run from requirements to published code

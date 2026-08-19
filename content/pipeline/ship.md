@@ -1,422 +1,304 @@
 ---
-title: "Autonomous Pipeline"
+title: "Ship Workflow"
 weight: 5
-description: "/camel-ship — End-to-end pipeline with configurable oversight"
+description: "camel-kit ship — a local controller-owned run from requirements to published code"
 ---
 
 ## Overview
 
-`/camel-ship` is the autonomous pipeline orchestrator that chains all four stages (brainstorm, plan, execute, validate) in a single command with configurable human oversight. Execute includes internal runtime verification before validation. Instead of manually invoking each stage, you set an oversight level and let the pipeline run.
+Ship is a local workflow controller. The command `camel-kit ship` (or `camel kit ship` when Camel-Kit is installed as a Camel JBang plugin) starts, inspects, resumes, or aborts a Ship run on your machine. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
-The result is a fully generated, verified integration — from requirements to working code — with exactly the level of human involvement you choose.
+The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — are thin delegates. They forward your options to the registered CLI command once and return its output. The AI agent does not orchestrate the workflow: the local controller is the sole owner of stages, run state, oversight, evidence, publication, and recovery.
+
+Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process sandbox, or a release-attestation system. Provider credentials stay with the worker — the AI process the controller launches for each stage — and provider tooling; Ship does not persist them or include them in command arguments, logs, reports, or project artifacts.
 
 ## When to Use
 
-Invoke `/camel-ship` when you:
+Run Ship when you:
 
-- Have requirements and want everything generated end-to-end
-- Want autonomous execution with configurable checkpoints
-- Need to resume an interrupted pipeline run
-- Want to skip phases whose artifacts already exist
+- Want one resumable run from requirements to validated, published code
+- Need to resume an interrupted run by its run ID
+- Already have validated design or plan artifacts and want to start from them
 
-**Manual alternative:** If you prefer step-by-step control, enter through `/camel-start` or invoke a known stage directly. The four-stage pipeline gives you control at each transition.
+During a normal Ship run you never invoke `/camel-brainstorm`, `/camel-plan`, `/camel-execute`, or `/camel-validate` yourself — the controller drives its own stages.
 
-## Arguments
+**Manual alternative:** If you prefer step-by-step control, enter through `/camel-start` or invoke a pipeline stage directly.
+
+## Command and Options
 
 ```
-/camel-ship [input-file] [--ask always|smart|never] [--resume] [--start-from <stage>]
+camel-kit ship [--text TEXT]... [--document PATH]... [--ask always|smart|never] [--start-from STAGE]
+camel-kit ship --resume RUN_ID | --status RUN_ID | --abort RUN_ID
 ```
 
-| Argument | Default | Description |
+Initial context is optional: a bare `camel-kit ship` starts a short discovery conversation. You can pass text, one or more documents, or both — a requirements document is never mandatory. Supplied material is included in discovery input before any questions, and the worker reports only grouped unresolved questions.
+
+### Context and lifecycle
+
+| Option | Description |
+|---|---|
+| `--text TEXT` | Add text context (repeatable) |
+| `--document PATH` | Add document context (repeatable) |
+| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid when starting a run, including with `--start-from` — not with `--resume`, `--status`, or `--abort` |
+| `--resume RUN_ID` | Resume an existing run |
+| `--status RUN_ID` | Show an existing run |
+| `--abort RUN_ID` | Abort an existing run |
+| `--start-from STAGE` | Start a new run at `discovery`, `design`, or `plan` |
+
+`--resume`, `--status`, `--abort`, and `--start-from` are mutually exclusive — at most one per invocation. `--text` and `--document` are valid when starting or resuming a run, not with `--status` or `--abort`.
+
+### Runtime and configuration
+
+| Option | Default | Description |
 |---|---|---|
-| `[input-file]` | none | Requirements document, design spec, or brainstorm notes |
-| `--ask` | `smart` | Oversight level (see below) |
-| `--resume` | `false` | Continue from last saved state |
-| `--start-from` | none | Skip to: `brainstorm`, `plan`, `execute`, or `validate` |
+| `--pi PATH` | discovered on `PATH` | Pi executable |
+| `--node PATH` | discovered on `PATH` | Node executable |
+| `--maven-repository PATH` | under the Ship state directory | Private Maven repository for validation catalogs |
+| `--stage-timeout DURATION` | `10m` | Time limit for one stage attempt, like `90s`, `10m`, or `1h` |
+| `--accept-experimental` | off | Accept an experimental Pi or Node version after its warning |
+| `-c`, `--config PATH` | `~/.camel-kit/config.properties` | Config properties file |
+| `-p`, `--property KEY=VALUE` | none | Override a config property (repeatable) |
 
-## The Pipeline
+Runtime and config options apply when starting or resuming a run, not with `--status` or `--abort`. Repeat the same `-c`/`-p` options when resuming a run that used overrides.
 
-`/camel-ship` executes four pipeline stages followed by a stamp gate, with oversight decisions after each stage:
+## The Stages
 
-{{< carousel id="ship-stages" >}}
-<!--step Stage 0: Brainstorm-->
-## Stage 0: Brainstorm
+A run moves through five stages; PAUSED, FAILED, and ABORTED are run outcomes, and a fully published run ends COMPLETED.
 
-**Invokes:** `/camel-brainstorm`
+{{< carousel id="ship-run-stages" >}}
+<!--step Discovery-->
+## Discovery
 
-The AI conducts the design interview (Socratic questioning about systems, data formats, processing, error handling). If an `[input-file]` is provided, it uses the file as context for the interview.
+The controller gathers requirements. With no initial context it starts a short discovery conversation; supplied `--text` and `--document` material is included in the discovery input before any questions, and open points come back as grouped unresolved questions rather than one-at-a-time prompts.
 
-**Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
+Discovery is read-only for your application source.
 
-**Oversight behavior:**
+<!--step Design-->
+## Design
 
-| Level | When complete | When open questions |
-|-------|--------------|-------------------|
-| `always` | Pause for approval | Pause |
-| `smart` | Auto-proceed | Pause for input |
-| `never` | Auto-proceed | Auto-proceed (pick reasonable defaults) |
+The controller produces a design for the integration from the discovery output. Design is read-only for your application source.
 
-<!--step Stage 1: Plan-->
-## Stage 1: Plan
+<!--step Plan-->
+## Plan
 
-**Invokes:** `/camel-plan`
+The controller decomposes the approved design into an implementation plan. Plan is read-only for your application source. Under the default `smart` oversight, the run pauses after this stage — before any implementation work.
 
-The AI decomposes the approved design into implementation tasks with acceptance criteria, dependencies, and wave analysis for parallel execution.
+<!--step Execute-->
+## Execute
 
-**Output:** `docs/camel-kit/<pipeline-id>/implementation-plan.md`
+Implementation happens in a controller-owned staging copy of the project, prepared from a baseline snapshot — the live project is not modified during this stage. Changed files containing known secrets from the environment are rejected.
 
-**Oversight behavior:**
+<!--step Validate-->
+## Validate
 
-| Level | When complete | When gaps found |
-|-------|--------------|----------------|
-| `always` | Auto-proceed | Pause for input |
-| `smart` | Auto-proceed | Pause for input |
-| `never` | Auto-proceed | Auto-fill gaps |
+Validation is owned by the controller and deterministic — no worker prose decides the outcome. The controller runs required checks covering route and artifact policy, Camel catalog and schema validation, dependency and runtime consistency, build and packaging, and discovery and execution of required Citrus tests. Evidence commands run in a fail-closed OS sandbox with no network access.
 
-The plan stage auto-proceeds for all oversight levels once the plan is complete. There is no separate plan approval gate — the design approval from Stage 0 is the single approval gate in the pipeline.
+<!--step Stamp and publication-->
+## Stamp and Publication
 
-<!--step Stage 2: Execute-->
-## Stage 2: Execute
+The result of validation is the Stamp: a local run report with a pass or fail status derived from the required checks. A failed mandatory check fails the run under every oversight policy — there is no waiver flow.
 
-**Invokes:** `/camel-execute`
-
-Execution begins with an **environment probe** that validates the target environment (Java version, Maven availability, project structure, required dependencies) before dispatching implementers. This catches feasibility issues early, before any code generation begins.
-
-The AI then implements each task from the plan: generates YAML routes, properties, Docker Compose, DataMapper files, and Citrus tests. Each task gets two-stage review (spec compliance + code quality).
-
-**Output:** Complete Maven project with all artifacts
-
-**Oversight behavior:**
-
-| Level | When tests pass | When tests fail |
-|-------|-----------------|----------------|
-| `always` | Pause after execution and present the report | Pause |
-| `smart` | Pause after execution and present the report | Pause for decision |
-| `never` | Auto-proceed | Auto-fix (up to 3 rounds) |
-
-This is the longest stage. Agent traits optimize it significantly — for example, Claude Code dispatches independent tasks in parallel via background agents.
-
-<!--step Stage 3: Validate-->
-## Stage 3: Validate
-
-**Invokes:** `/camel-validate`
-
-After execute's internal runtime verification passes, the AI runs static route validation for configuration, security, quality, anti-patterns, project norms, and constitution compliance.
-
-**Output:** `docs/camel-kit/<pipeline-id>/validation-report.md`
-
-**Oversight behavior:**
-
-| Level | No Critical findings | Critical findings |
-|-------|----------------------|-------------------|
-| `always` | Pause and present the report | Pause |
-| `smart` | Auto-proceed to stamp | Pause |
-| `never` | Auto-proceed to stamp | Pause (blocker) |
-
-Validation is read-only, so `smart` and `never` proceed when it has no Critical findings. All oversight levels stop on a Critical finding.
-
-<!--step Stage 4: Stamp-->
-## Stage 4: Stamp Gate
-
-**Final quality check** before declaring success.
-
-The stamp gate verifies:
-- Build passes (`./mvnw verify`)
-- No Iron Law violations in generated routes
-- Constitution compliance (all 8 rules)
-- No unexpected uncommitted files
-- All acceptance criteria from the design spec are addressed
-
-**If all checks pass:** reports "Pipeline complete. All checks passed."
-
-**If any check fails:** Pauses regardless of `--ask` level. Stamp gate failures are always blockers.
+After validation and the configured approval gates, the controller publishes the staged changes to the live project.
 {{< /carousel >}}
 
-## Three Oversight Levels
+## Oversight Modes
 
-The `--ask` flag controls how much the pipeline pauses for human input:
+The `--ask` policy controls where the controller pauses for approval:
 
-{{< tabs id="oversight-levels" >}}
+{{< tabs id="ship-oversight" >}}
 <!--tab always — Full Control-->
 
-**Best for:** First-time users, critical integrations, learning how the pipeline works.
+**Best for:** First-time users and critical integrations.
 
-The pipeline pauses at the design gate, after execution completes, and after validation. The plan stage auto-proceeds once complete.
-
-```
-Stage 0: Brainstorm → "Here's the design spec. Approve?"
-  (You approve)
-Stage 1: Plan → Plan complete → auto-proceed
-Stage 2: Execute → "Execution complete. Here's the report. Continue?"
-  (You approve)
-Stage 3: Validate → "Here's the validation report."
-  (You approve)
-Stamp → Done!
-
-Total approvals: 3 for a successful, unambiguous run
-```
-
-**When to use:** When you want the same control as the manual pipeline but with automatic skill invocation between phases.
+The run pauses for approval after design, plan, execute, and validate — including a final approval before publication. Material ambiguity reported by a stage also pauses the run.
 
 <!--tab smart — Contextual (Default)-->
 
-**Best for:** Experienced users, standard integrations, day-to-day use.
+**Best for:** Day-to-day use.
 
-The pipeline auto-proceeds through a clear design and complete plan, then always pauses after execution because that stage writes code. Validation auto-proceeds when it has no Critical findings; ambiguity, execution failures, and Critical findings pause for human judgment.
+The run pauses after plan (before any implementation) and after execute. Material ambiguity reported by a stage pauses the run. A fully passing validation proceeds to guarded publication without a further pause.
 
-```
-Stage 0: Brainstorm → Design complete, no open questions → auto-proceed
-Stage 1: Plan → Plan complete and consistent → auto-proceed
-Stage 2: Execute → Verification passes → "Here's the execution report. Continue?"
-  (You approve)
-Stage 3: Validate → No Critical findings → auto-proceed
-Stamp → Done!
+<!--tab never — Minimal Pauses-->
 
-Total approvals: 1 for a successful, unambiguous run
-```
+**Best for:** Well-understood integrations where you accept recorded defaults.
 
-**When to use:** Most of the time. You stay in control of decisions that matter while the pipeline handles the routine transitions.
-
-<!--tab never — Fully Autonomous-->
-
-**Best for:** Batch generation, CI/CD integration, well-understood integration patterns.
-
-The pipeline runs end-to-end without pausing on successful outcomes. It auto-fixes eligible execution failures for up to 3 rounds. Critical validation findings, exhausted fixes, and stamp-gate failures cause a pause.
-
-```
-Stage 0: Brainstorm → auto-proceed (pick defaults for open questions)
-Stage 1: Plan → auto-proceed (fill gaps)
-Stage 2: Execute → Task 3 tests fail → auto-fix round 1 → still failing
-                   → auto-fix round 2 → tests pass → auto-proceed
-Stage 3: Validate → all checks pass → auto-proceed
-Stamp → report pipeline complete
-
-Total approvals: 0 (unless blocker)
-```
-
-**When to use:** When you trust the pipeline and want hands-off generation.
+The controller may choose and record reasonable defaults instead of pausing. It still stops for missing tools, failed mandatory checks, or actions requiring authority you did not grant — `never` does not publish unconditionally, and a failed mandatory validation check fails the run.
 
 {{< /tabs >}}
 
-## Auto-Fix Loop
+## Run State, Status, and Resume
 
-When a stage fails and the oversight level allows autonomous fixing, the pipeline enters an auto-fix loop:
+Ship run state lives outside your project, under the first of:
 
-{{< carousel id="auto-fix" >}}
-<!--step Classification-->
-## Step 1: Classify
+1. `$CAMEL_KIT_SHIP_STATE_HOME`
+2. `$XDG_STATE_HOME/camel-kit/ship`
+3. `~/.local/state/camel-kit/ship`
 
-Every finding is categorized:
+Each run has an ID (shown when the run starts and in every summary). `.camel-kit/pipeline.json` in the project is only the manual-mode active-pipeline pointer — Ship never stores run state there.
 
-| Category | Description | Examples |
-|---|---|---|
-| **Critical** | Prevents build/run | Compilation error, missing dependency, YAML parse error |
-| **Important** | Violates rules | Iron Law violation, Constitution non-compliance, test failure |
-| **Suggestion** | Improvement | Code quality, performance, style |
-
-`--ask never` can auto-fix eligible execution failures. `always` and `smart` pause on execution failures, and every level pauses on Critical validation findings.
-
-<!--step Fix Attempt-->
-## Step 2: Fix
-
-Based on the category:
-
-- **Compilation error** — read the error, locate the source, fix syntax/types
-- **Missing dependency** — add to pom.xml, re-run `./mvnw compile`
-- **Iron Law violation** — re-verify via MCP catalog, correct the usage
-- **Test failure** — read test output, identify the failed assertion, fix route or test
-
-<!--step Re-Verify-->
-## Step 3: Re-Verify
-
-After fixing, re-run the specific check that failed:
-- Build error: `./mvnw compile`
-- Test failure: `./mvnw test`
-- Iron Law: re-scan the YAML file
-
-If the check passes, the finding is resolved. If not, loop back.
-
-<!--step Escalate-->
-## Step 4: Escalate (after 3 rounds)
-
-After 3 failed fix attempts for the same finding, the pipeline **always** pauses — regardless of `--ask` level:
+### Status and abort
 
 ```
-Auto-fix exhausted (3 rounds) for: test failure in order-validation
-
-Attempted:
-  Round 1: Fixed route predicate → still failing
-  Round 2: Fixed test assertion → still failing  
-  Round 3: Regenerated route → still failing
-
-Options: Fix manually / Skip this check / Abort pipeline
+camel-kit ship --status <run-id>
+camel-kit ship --abort <run-id>
 ```
 
-Three failed auto-fixes is always a blocker. The user always has final say.
-{{< /carousel >}}
+`--status` prints the run, its stage, oversight policy, any pause report, and the next actionable command. `--abort` ends the run; aborted runs cannot be resumed.
 
-## State Persistence & Resume
-
-Pipeline state is saved to `.camel-kit/pipeline.json` after each stage:
-
-```json
-{
-  "activePipeline": "001-order-processing",
-  "mode": "ship",
-  "started": "2026-04-30T14:32:00Z",
-  "ask": "smart",
-  "currentStage": 2,
-  "stageResults": {
-    "0": { "status": "completed", "artifact": "docs/camel-kit/001-order-processing/design-spec.md" },
-    "1": { "status": "completed", "artifact": "docs/camel-kit/001-order-processing/implementation-plan.md" },
-    "2": { "status": "in_progress", "tasksCompleted": 3, "totalTasks": 5 }
-  }
-}
-```
-
-### Resume an interrupted pipeline
-
-If the pipeline is interrupted (session closes, network failure), resume from where it stopped:
+### Resume
 
 ```
-/camel-ship --resume
+camel-kit ship --resume <run-id>
+camel-kit ship --resume <run-id> --text "Use eu-west-1"
 ```
 
-The pipeline reads the state file, runs `camel-kit doc check` on each pipeline artifact, and continues from `currentStage` only when the artifacts are fresh. If an artifact is stale, it restarts from the earliest affected stage and regenerates downstream outputs.
+Resume re-reads the recorded context and every completed stage's artifacts, compares digests, and restarts the earliest stale or incomplete stage; later stages are reset and re-run. Any upstream change invalidates everything downstream — resuming is safe after your own edits because the controller detects them.
 
-### Skip to a specific stage
+Context (`--text`/`--document`) can be added only while a run is paused. Adding context to a run paused after validation restarts it from discovery and discards the validation Stamp — the command warns you first.
 
-If you already have artifacts from earlier stages:
+If the Ship process is interrupted, nothing is lost: the next invocation reports the latest durable state, and an interrupted publication is rolled back from its journal before any further operation.
+
+### Start from existing artifacts
 
 ```
-# I already have a design spec, start from planning
-/camel-ship --start-from plan
-
-# I have design + plan, start execution
-/camel-ship --start-from execute
+camel-kit ship --start-from plan
 ```
 
-`--start-from` verifies that prerequisite artifacts exist before proceeding.
+`--start-from` starts a new run at `discovery`, `design`, or `plan`:
 
-## Agent-Specific Optimization
+- `discovery` — no prerequisites (same as a bare start)
+- `design` — requires `--text` or `--document` context and a manual-mode `.camel-kit/pipeline.json` with a non-null `activePipeline`
+- `plan` — requires the same non-null `activePipeline` and imports that pipeline's existing `docs/camel-kit/<pipeline-id>/design-spec.md`, which must exist inside the project
 
-`/camel-ship` runs differently on each AI agent, thanks to agent traits. The pipeline goals are identical — the execution strategy adapts to each agent's strengths:
+Starting from `execute` or `validate` is not supported: those stages need controller-generated plan and evidence, so start from `plan` instead.
 
-{{< tabs id="agent-traits" >}}
-<!--tab Claude Code-->
+## Evidence and the Stamp
 
-- **Worktree isolation:** `EnterWorktree` at pipeline start isolates all generated artifacts
-- **Parallel dispatch:** Independent tasks run as background agents via `run_in_background`
-- **Build monitoring:** `CronCreate` schedules periodic `./mvnw compile` during execution
-- **Smart pacing:** `ScheduleWakeup` avoids busy-polling between stages
-- **Structured oversight:** `AskUserQuestion` with multiple-choice options at pause points
+The controller — not worker prose — decides whether required checks ran. For each validation command it records:
 
-<!--tab Gemini CLI-->
+- The executable (absolute path) and its version
+- The arguments, with secrets redacted
+- Exit status, timing, and whether the command timed out
+- Retained stdout/stderr logs with their digests
 
-- **Named agent chain:** Delegates to pre-registered `camel-implementer` and `camel-validator` agents
-- **Execution limits:** `max_turns` and `timeout_mins` per subagent prevent runaway execution
-- **Batch loading:** `read_many_files` loads all artifacts from previous stages in one call
-- **State persistence:** `save_memory` provides backup state alongside the JSON file
+The Stamp is a local run report with a pass or fail status derived from those required checks. It describes what ran on this machine. It is not a signed attestation or a certification, and Ship does not certify the exact OS, architecture, or package tree of the tools it detected — it reports their versions.
 
-<!--tab IBM Bob 2-->
+## Publication and Recovery
 
-- **Native subagents:** `spawn_subagent` uses `explore` for research/review and `general` for implementation, testing, and fixes
-- **Parallel waves:** Independent tasks are spawned in the same parent turn after `camel-kit plan analyze`
-- **Clean context:** `fork_context` is enabled only when a task needs earlier conversation decisions
-- **Mode restrictions:** Bob custom modes still constrain tools while shared skills define pipeline behavior
+Accepted changes reach the live project only after the configured approval and validation gates. Before applying anything, the controller re-verifies every completed stage exactly as recorded and re-checks that the live project has not changed; a changed live tree stops publication and asks you to resume the run. The apply itself is journaled: if it is interrupted, the next Ship operation rolls it back before doing anything else.
 
-<!--tab IBM Bob 1 (legacy)-->
+Ordinary process interruption is recoverable with the run ID, but Ship is not a daemon and not a guarantee against OS or power loss. It assumes the invoking OS account is trusted: it is not a hostile same-user sandbox, credential broker, or long-lived service.
 
-- **Mode-based pipeline:** `switch_mode` transitions between brainstorm, plan, implement, and validate custom modes
-- **Gate-based oversight:** Existing gate files (`.bob/gates/`) map directly to oversight levels — gates ARE the oversight mechanism
-- **Precise insertion:** `insert_content` for additive code changes that preserve existing content
+## Worker Requirements and Support Tiers
 
-<!--tab Qwen Code-->
+The first Ship worker is Pi on Linux. It requires:
 
-- **Serial execution:** Acknowledges Qwen's serial `task` dispatch — all tasks run sequentially
-- **Visual progress:** `todo_write` maintains a visible checklist of pipeline stages
-- **Explicit checkpoints:** State saved between every stage for reliable resume
+- A merged-`/usr` Linux host (`/lib -> usr/lib`, `/lib64 -> usr/lib64`)
+- Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
+- Bubblewrap (`bwrap` at `/usr/bin/bwrap` or `/bin/bwrap`) for the sandboxed validation evidence commands — there is deliberately no unsandboxed fallback
 
-<!--tab OpenCode-->
+Harness and runtime compatibility is reported in tiers:
 
-- **Step-limited stages:** `steps` limits per stage prevent runaway execution (200 for brainstorm, 500 for execute)
-- **Agent type mapping:** `Plan` agent for brainstorm, `Build` agent for execute, and `General` for validation
-{{< /tabs >}}
+| Tier | Meaning |
+|---|---|
+| Supported | A maintained configuration covered by a live end-to-end test |
+| Experimental | Runnable, but not covered by the supported live gate |
+| Incompatible | A required capability is known absent |
+| Untested | No current result |
+
+The maintained baseline versions are Pi `0.83.0` and Node `22.22.2`, pinned in the bundled distribution — user configuration cannot promote another version to supported. Any other detected Pi or Node version is labeled experimental with an explicit warning, and the stage refuses to start until you pass `--accept-experimental`. Pi `0.80.3` is incompatible: it lacks a required capability and is rejected outright. Missing or broken executables fail with install guidance.
+
+The one authenticated Pi/Linux live-gate run has not been completed yet, so no configuration is currently covered by the live gate. Ship reports the harness and runtime versions it detects, but does not snapshot or certify their package closure.
+
+### Maintainer live gate
+
+The live gate is a manual, maintainer-run test — not a CI default and not something end users run. Maintainers opt in by setting `CAMEL_KIT_SHIP_LIVE_PI` and `CAMEL_KIT_SHIP_LIVE_NODE` to absolute paths of the maintained versions and building with the `linux-ship-certification` profile. Release certification also includes one authenticated run through a registered `camel-kit ship` or `camel kit ship` entry point.
+
+## Harness Commands and Migration
+
+The harness-native commands are thin wrappers around the local CLI command — none of them implements a second workflow:
+
+- **Claude Code, Gemini CLI, Qwen Code, OpenCode, IBM Bob, IBM Bob 2** generate a `/camel-ship` command stub that forwards your options to the registered command once. Gemini and Qwen interpolate arguments directly; Bob and Bob 2 forward the options in prose because their command format only supports positional placeholders.
+- **Codex and GitHub Copilot CLI** expose Ship through their native skills (`$camel-ship`, `.github/skills/`) — no generated command files.
+- **Pi** exposes Ship only through `/skill:camel-ship`. There is deliberately no Pi `/camel-ship` prompt, because Pi's prompt-file argument expansion flattens quoted option values.
+
+### Upgrading from the old harness commands
+
+Earlier releases shipped `/camel-ship` as a prompt-owned workflow that the AI agent orchestrated itself, with state in `.camel-kit`. That design is retired. To move an existing workspace to the thin delegates:
+
+1. Back up or commit any customizations to generated assets — the next step rewrites them.
+2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or `camel kit init ...`). Re-initialization also removes the obsolete Ship guides, harness traits, and Bob 2 Ship mode and rule assets.
+3. If the workspace has a pre-controller `.camel-kit/ship-state.json`, or a `.camel-kit/pipeline.json` not in manual mode, archive it outside the project — Ship fails closed on that state and leaves it unchanged. Old runs are not resumable by the controller. Manual-mode `pipeline.json` stays supported for the standalone skills and `--start-from` imports.
+
+Initialization aborts if a managed agent directory (such as `.claude` or `.bob`) is a symbolic link — replace the link with a real directory first.
 
 ## Usage Examples
 
-{{< tabs id="usage-examples" >}}
-<!--tab Standard-->
+{{< tabs id="ship-usage" >}}
+<!--tab Start a run-->
 
 ```
-# Default: smart oversight, full pipeline
-/camel-ship requirements.md
+# No context: start with a short discovery conversation
+camel-kit ship
 
-→ Stage 0: Brainstorm (auto-proceeds — design complete)
-→ Stage 1: Plan (auto-proceeds — plan consistent)
-→ Stage 2: Execute (verification passes, presents report)
-  You: "Continue"
-→ Stage 3: Validate (no Critical findings, auto-proceeds)
-→ Stamp: All gates pass
+# Text context
+camel-kit ship --text "Consume Kafka orders and send them to Salesforce"
 
-Pipeline complete. All checks passed.
+# Document context
+camel-kit ship --document requirements.md
+
+# Combined
+camel-kit ship --document requirements.md --text "Prefer YAML and Simple; no Java"
 ```
 
-<!--tab Fully Autonomous-->
+<!--tab Oversight-->
 
 ```
-# Fully autonomous
-/camel-ship requirements.md --ask never
+# Pause at every approval point
+camel-kit ship --document requirements.md --ask always
 
-→ Runs all 4 stages autonomously
-→ Auto-fixes any issues (up to 3 rounds each)
-→ Reports the final stamp-gate result
+# Record reasonable defaults; still stop on missing tools,
+# failed mandatory checks, or ungranted authority
+camel-kit ship --document requirements.md --ask never
 ```
 
-<!--tab Resume after interruption-->
+<!--tab Resume and inspect-->
 
 ```
-# Session interrupted during execution
+# Continue an interrupted or paused run
+camel-kit ship --resume <run-id>
 
-/camel-ship --resume
+# Answer an open question while resuming
+camel-kit ship --resume <run-id> --text "Use eu-west-1"
 
-Reading pipeline state from .camel-kit/pipeline.json...
-  Stage 0 (Brainstorm): completed
-  Stage 1 (Plan): completed
-  Stage 2 (Execute): in_progress (3/5 tasks done)
-
-Resuming from Stage 2, task 4...
+# Inspect or end a run
+camel-kit ship --status <run-id>
+camel-kit ship --abort <run-id>
 ```
 
-<!--tab Skip brainstorming-->
+<!--tab Start from a design-->
 
 ```
-# Already have a design spec
-/camel-ship --start-from plan --ask always
-
-Verifying prerequisites...
-  docs/camel-kit/001-order-processing/design-spec.md: found
-
-Starting from Stage 1 (Plan)...
+# An approved design-spec.md already exists for the active pipeline
+camel-kit ship --start-from plan
 ```
 
 {{< /tabs >}}
 
-## Comparison: `/camel-ship` vs Manual Pipeline
+## Comparison: Ship vs Manual Pipeline
 
-| Aspect | Manual Pipeline | `/camel-ship --ask smart` | `/camel-ship --ask never` |
-|--------|----------------|--------------------------|--------------------------|
-| **Entry point** | `/camel-start` or a known stage | `/camel-ship` | `/camel-ship` |
-| **Stage transitions** | Manual invocation | Automatic | Automatic |
-| **Approval gates** | Chosen by the user | After execution, plus ambiguity or blockers | Only on blockers |
-| **Auto-fix** | No | No | Eligible execution failures, up to 3 rounds |
-| **Resume** | No | Yes (`--resume`) | Yes (`--resume`) |
-| **Best for** | Learning, exploration | Day-to-day use | Batch generation, CI/CD |
+| Aspect | Manual Pipeline | `camel-kit ship --ask smart` | `camel-kit ship --ask never` |
+|--------|----------------|------------------------------|------------------------------|
+| **Entry point** | `/camel-start` or a known stage | `camel-kit ship` (or `/camel-ship`) | `camel-kit ship --ask never` |
+| **Who runs the stages** | You invoke each skill | Local controller | Local controller |
+| **Approval gates** | Chosen by the user | After plan and execute, plus material ambiguity | None, but missing tools, failed mandatory checks, and ungranted authority still stop the run |
+| **Resume** | No | Yes (`--resume <run-id>`) | Yes (`--resume <run-id>`) |
+| **Where code changes happen** | Working tree | Staged workspace, published after gates | Staged workspace, published after gates |
+| **Best for** | Learning, exploration | Day-to-day use | Well-understood integrations |
 
 ## What's Next
 
-- [/camel-brainstorm](../brainstorm/) — Phase 1: Design interview (what `/camel-ship` invokes first)
-- [Runtime Verification](../verify/) — Internal feedback loop within execute
-- `/camel-validate` — Final static quality stage
-- [Skills System](../../architecture/skills/) — How traits customize the pipeline per agent
-- [Command Reference](../../reference/commands/) — Full argument list
+- [Skill Router](../start/) — Manual entry point for step-by-step pipeline control
+- [/camel-brainstorm](../brainstorm/) — The manual design interview
+- [Skills System](../../architecture/skills/) — How skills and command stubs are generated per agent
+- [Command Reference](../../reference/commands/) — Full command and option reference

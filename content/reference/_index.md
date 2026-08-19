@@ -20,8 +20,8 @@ See [Commands](commands) for the full reference. Summary of available commands:
 - `/camel-start` — Route any integration request to the right skill
 - `/camel-migrate` — Migration-specific discovery and design
 
-**Autonomous:**
-- `/camel-ship` — Autonomous pipeline (brainstorm → plan → execute → validate in one command)
+**Ship:**
+- `/camel-ship` — Thin wrapper around the local `camel-kit ship` workflow controller (discovery → design → plan → execute → validate)
 
 **Standalone:**
 - `/camel-knowledge` — Apache Camel documentation queries via MCP
@@ -29,6 +29,7 @@ See [Commands](commands) for the full reference. Summary of available commands:
 
 **CLI:**
 - `camel-kit init` — Initialize a new project
+- `camel-kit ship` — Start, inspect, resume, or abort a local Camel Ship run
 - `camel-kit doctor` — Validate a generated workspace
 - `camel-kit doc` — Track pipeline artifact provenance and staleness
 - `camel-kit graph` — Property graph queries (15 subcommands)
