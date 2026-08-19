@@ -291,7 +291,7 @@ Configuration is loaded strictly: a missing or unreadable config file or a malfo
 
 **Publication and recovery:** discovery, design, plan, and validate never modify application source; execute works in a controller-owned staging copy, and accepted changes are published to the live project only after the configured approval and validation gates. An interrupted process is recoverable with the run ID, but Ship is a local orchestrator — not a daemon, a hostile same-user sandbox, a credential broker, or a release-attestation system. Provider credentials remain with Pi and provider tooling; Ship does not persist them or include them in command arguments, logs, or reports.
 
-**Requirements and compatibility:** the first Ship worker runs on Linux only and needs Pi, Node, and Bubblewrap on a merged-/usr host. The maintained configuration is Pi 0.83.0 with Node 22.22.2; any other detected version is reported as experimental and runs only with `--accept-experimental`. The compatibility tiers and the current live-gate status are documented in [Worker Requirements and Support Tiers](../../pipeline/ship/#worker-requirements-and-support-tiers).
+**Requirements and compatibility:** the first Ship worker runs on Linux only and needs Pi, Node, and Bubblewrap on a merged-/usr host. The maintained configuration is Pi 0.84.2 with Node 22.22.2; any other detected version is reported as experimental and runs only with `--accept-experimental`. The compatibility tiers and the current live-gate status are documented in [Worker Requirements and Support Tiers](../../pipeline/ship/#worker-requirements-and-support-tiers).
 
 **Examples:**
 
