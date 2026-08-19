@@ -272,31 +272,12 @@ camel kit ship [options]
 
 A bare `camel-kit ship` starts a new run at discovery with a short discovery conversation. Initial context is optional: text, one or more documents, or both — a requirements document is never mandatory. Supplied material is included in discovery input before questions.
 
-**Context and lifecycle options:**
+**Options** (canonical descriptions, defaults, and prerequisites: [Command and Options](../../pipeline/ship/#command-and-options) on the Ship Workflow page):
 
-| Option | Description |
-|--------|-------------|
-| `--text TEXT` | Add text context (repeatable) |
-| `--document PATH` | Add document context (repeatable) |
-| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid only when starting a run |
-| `--resume RUN_ID` | Resume an existing run |
-| `--status RUN_ID` | Show an existing run |
-| `--abort RUN_ID` | Abort an existing run |
-| `--start-from STAGE` | Start a new run at `discovery`, `design`, or `plan` |
-
-`--resume`, `--status`, `--abort`, and `--start-from` are mutually exclusive; `--text`/`--document` are valid only when starting or resuming. Starting from `design` requires text or document context plus a manual-mode active pipeline in `.camel-kit/pipeline.json`; starting from `plan` imports that pipeline's `design-spec.md`; starting from `execute` or `validate` is not supported.
-
-**Runtime and configuration options** (valid only when starting or resuming):
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--pi PATH` | discovered on `PATH` | Pi executable |
-| `--node PATH` | discovered on `PATH` | Node executable |
-| `--maven-repository PATH` | under the Ship state directory | Private Maven repository for validation catalogs |
-| `--stage-timeout DURATION` | `10m` | Time limit for one stage attempt, like `90s`, `10m`, or `1h` |
-| `--accept-experimental` | off | Accept an experimental Pi or Node version after its warning |
-| `-c`, `--config PATH` | `~/.camel-kit/config.properties` | Config properties file |
-| `-p`, `--property KEY=VALUE` | — | Override a config property (repeatable) |
+- **Context:** `--text TEXT` and `--document PATH`, both repeatable — valid when starting or resuming a run
+- **Oversight:** `--ask always|smart|never` (default `smart`) — valid when starting a run, including with `--start-from`; not with `--resume`, `--status`, or `--abort`
+- **Run operations:** `--resume RUN_ID`, `--status RUN_ID`, `--abort RUN_ID`, `--start-from discovery|design|plan` — mutually exclusive; `--start-from` prerequisites are listed on the Ship page
+- **Runtime and configuration:** `--pi PATH`, `--node PATH`, `--maven-repository PATH`, `--stage-timeout DURATION`, `--accept-experimental`, `-c`/`--config PATH`, `-p`/`--property KEY=VALUE` — valid when starting or resuming
 
 Configuration is loaded strictly: a missing or unreadable config file or a malformed override is an error, not a warning. Repeat the same `-c`/`-p` options when resuming a run.
 

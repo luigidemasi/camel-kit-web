@@ -27,8 +27,8 @@ During a normal Ship run you never invoke `/camel-brainstorm`, `/camel-plan`, `/
 ## Command and Options
 
 ```
-camel-kit ship [--text TEXT]... [--document PATH]... [--ask always|smart|never]
-camel-kit ship --resume RUN_ID | --status RUN_ID | --abort RUN_ID | --start-from STAGE
+camel-kit ship [--text TEXT]... [--document PATH]... [--ask always|smart|never] [--start-from STAGE]
+camel-kit ship --resume RUN_ID | --status RUN_ID | --abort RUN_ID
 ```
 
 Initial context is optional: a bare `camel-kit ship` starts a short discovery conversation. You can pass text, one or more documents, or both — a requirements document is never mandatory. Supplied material is included in discovery input before any questions, and the worker reports only grouped unresolved questions.
@@ -39,7 +39,7 @@ Initial context is optional: a bare `camel-kit ship` starts a short discovery co
 |---|---|
 | `--text TEXT` | Add text context (repeatable) |
 | `--document PATH` | Add document context (repeatable) |
-| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid only when starting a run |
+| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid when starting a run, including with `--start-from` — not with `--resume`, `--status`, or `--abort` |
 | `--resume RUN_ID` | Resume an existing run |
 | `--status RUN_ID` | Show an existing run |
 | `--abort RUN_ID` | Abort an existing run |
@@ -167,8 +167,8 @@ camel-kit ship --start-from plan
 `--start-from` starts a new run at `discovery`, `design`, or `plan`:
 
 - `discovery` — no prerequisites (same as a bare start)
-- `design` — requires `--text` or `--document` context and a manual-mode active pipeline in `.camel-kit/pipeline.json`
-- `plan` — imports that pipeline's existing `docs/camel-kit/<pipeline-id>/design-spec.md`, which must exist inside the project
+- `design` — requires `--text` or `--document` context and a manual-mode `.camel-kit/pipeline.json` with a non-null `activePipeline`
+- `plan` — requires the same non-null `activePipeline` and imports that pipeline's existing `docs/camel-kit/<pipeline-id>/design-spec.md`, which must exist inside the project
 
 Starting from `execute` or `validate` is not supported: those stages need controller-generated plan and evidence, so start from `plan` instead.
 
