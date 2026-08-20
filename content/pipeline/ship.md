@@ -206,9 +206,9 @@ Harness and runtime compatibility is reported in tiers:
 | Incompatible | A required capability is known absent |
 | Untested | No current result |
 
-The maintained baseline versions are Pi `0.83.0` and Node `22.22.2`, pinned in the bundled distribution — user configuration cannot promote another version to supported. Any other detected Pi or Node version is labeled experimental with an explicit warning, and the stage refuses to start until you pass `--accept-experimental`. Pi `0.80.3` is incompatible: it lacks a required capability and is rejected outright. Missing or broken executables fail with install guidance.
+The certified Pi versions are `0.84.2` and `0.83.0`, with Node `22.22.2`, pinned in the bundled distribution; `0.84.2` is the primary install target — user configuration cannot promote another version to supported. Any other detected Pi or Node version is labeled experimental with an explicit warning, and the stage refuses to start until you pass `--accept-experimental`. Pi `0.80.3` is incompatible: it lacks a required capability and is rejected outright. Missing or broken executables fail with install guidance.
 
-The one authenticated Pi/Linux live-gate run has not been completed yet, so no configuration is currently covered by the live gate. Ship reports the harness and runtime versions it detects, but does not snapshot or certify their package closure.
+Both certified configurations — Pi `0.84.2` and Pi `0.83.0`, each with Node `22.22.2` — completed authenticated live-gate runs through the registered `camel-kit ship` entry point on 2026-08-19, with passing Stamps covering all mandatory checks. Ship reports the harness and runtime versions it detects, but does not snapshot or certify their package closure.
 
 ### Maintainer live gate
 
