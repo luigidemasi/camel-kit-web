@@ -91,7 +91,7 @@ Implementation happens in a controller-owned staging copy of the project, prepar
 <!--step Validate-->
 ## Validate
 
-Validation is owned by the controller and deterministic — no worker prose decides the outcome. The controller runs required checks covering route and artifact policy, Camel catalog and schema validation, dependency and runtime consistency, build and packaging, and discovery and execution of required Citrus tests. Evidence commands run in a fail-closed OS sandbox with no network access.
+Validation is owned by the controller and deterministic — no worker prose decides the outcome. The controller runs required checks covering route and artifact policy, Camel catalog and schema validation, dependency and runtime consistency, build and packaging, and discovery and execution of required Citrus tests. Evidence commands run in a separate JVM launched by the controller with a pinned, controller-resolved classpath, a scrubbed environment, and a frozen read-only copy of the accepted project tree; network access during validation is avoided by replacing every non-direct Camel endpoint with an in-memory stub, not by OS-level sandboxing.
 
 <!--step Stamp and publication-->
 ## Stamp and Publication
@@ -193,9 +193,8 @@ Ordinary process interruption is recoverable with the run ID, but Ship is not a 
 
 The first Ship worker is Pi on Linux. It requires:
 
-- A merged-`/usr` Linux host (`/lib -> usr/lib`, `/lib64 -> usr/lib64`)
+- A Linux host
 - Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
-- Bubblewrap (`bwrap` at `/usr/bin/bwrap` or `/bin/bwrap`) for the sandboxed validation evidence commands — there is deliberately no unsandboxed fallback
 
 Harness and runtime compatibility is reported in tiers:
 
