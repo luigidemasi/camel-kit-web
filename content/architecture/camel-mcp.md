@@ -170,15 +170,17 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 | GitHub Copilot CLI | `.github/mcp.json` | JSON |
 | Pi | `.mcp.json` | JSON via `pi-mcp-adapter` with `directTools` allowlists |
 | Qwen Code | `.qwen/settings.json` | JSON |
-| OpenCode | `opencode.json` | JSON |
+| OpenCode | `opencode.json` (default) | JSON / JSONC |
 
 All configurations point to the same JBang-launched Camel MCP server and catalog. Each target exposes that server/tool universe through its native format, filters, and approval fields, except Pi, which consumes `.mcp.json` through `pi-mcp-adapter`. Install its current pin with `pi install npm:pi-mcp-adapter@2.11.0`.
 
 The Codex configuration is repository-scoped and loads only after the repository is trusted; Codex also skips any user-added project hooks until trust, and Camel-Kit generates none. It declares the exact Camel workflow tool allowlist through `enabled_tools` and uses `default_tools_approval_mode = "prompt"`; Camel-Kit does not edit global Codex configuration or relax the active sandbox.
 
-For OpenCode, re-running init preserves unrelated root settings, permission entries, and MCP servers in an existing
-`opencode.json` while replacing Camel-Kit's managed entries. Invalid or structurally conflicting JSON fails without
-changing the file.
+For OpenCode, re-running init preserves unrelated root settings, permission entries, and MCP servers in any existing
+project configuration (`opencode.json`, `opencode.jsonc`, `.opencode/opencode.json`, or
+`.opencode/opencode.jsonc`) while removing lower-precedence copies of Camel-Kit's managed entries and writing the current
+definitions to the highest-precedence existing file. Invalid or structurally conflicting JSON or JSONC fails before any
+workspace file is changed. When none exists, init creates `opencode.json`.
 
 ## Version Alignment
 
