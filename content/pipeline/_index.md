@@ -7,9 +7,9 @@ toc: false
 
 ## Overview
 
-The Camel-Kit pipeline transforms integration requirements into working code through an orchestrated workflow. You can run it two ways:
+The Camel-Kit pipeline transforms integration requirements into generated code and review evidence through an orchestrated workflow. You can run it two ways:
 
-- **Manual:** Enter through `/camel-start` or invoke a known stage directly. Full control at each transition.
+- **Manual:** Enter through `/camel-start`, `/camel-brainstorm` without an ID, or `/camel-migrate` without an ID for a chained flow. Other independently invoked stages write their output and stop; only stages chained in the same conversation auto-transition.
 - **Ship (`/camel-ship`):** Delegate to the local `camel-kit ship` controller, which runs its own workflow — discovery, design, plan, execute, validate — with configurable oversight (`--ask always|smart|never`).
 
 The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship's stages, state, and gates are owned by the local controller.
@@ -22,9 +22,9 @@ The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship'
 
 **Goal:** Transform vague integration ideas into formal Design Specifications
 
-- Socratic questioning about your requirements
+- Adaptive discovery that reuses complete supplied requirements and asks only unresolved questions
 - MCP catalog verification of all components
-- Generation of 7-section Design Specification
+- Generation of the 6-section greenfield Design Specification
 
 **Output:** Design Specification ready for approval
 
@@ -39,20 +39,21 @@ The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship'
 - Create task breakdown with acceptance criteria
 - Build dependency graph for wave analysis
 
-**Output:** Implementation Plan with parallelizable task waves
+**Output:** Implementation Plan with dependency waves and concurrency candidates
 
-**Why this matters:** Without decomposition, you get a giant blob of code. Tasks enable incremental validation and parallel execution.
+**Why this matters:** Without decomposition, you get a giant blob of code. Tasks enable incremental validation and capability-aware concurrency.
 
 <!--step Phase 3: Execute-->
 ## ⚙️ /camel-execute
 
-**Goal:** Transform the plan into working, verified code
+**Goal:** Generate the planned code and collect review and runtime evidence
 
-- Wave-based parallel task execution
-- Two-stage review per task (spec compliance + code quality)
+- Wave-based execution with concurrency only on capable targets
+- Adversarial critic pre-filter per task, using nested moderator/critic contexts where supported, parent-owned reviewer dispatch on other multi-agent targets, and a sequential fallback on single-conversation targets such as Bob 1 and Pi
+- Ordered two-stage review per task (spec compliance, then code quality)
 - Generation of routes, tests, and configuration
 
-**Output:** Complete Maven project with verified artifacts
+**Output:** Runtime-specific project plus `execution-report.md`, including embedded runtime verification evidence; skipped or failed checks remain visible in that report
 
 **Includes:** Internal `camel-verify` runtime validation
 
@@ -70,11 +71,11 @@ The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship'
 
 ## Approval Gate
 
-The design phase has an approval gate. After `/camel-brainstorm` completes, the AI presents the **Design Specification** with 7 sections (business purpose, flows, endpoints, data formats, error handling, technical requirements, observability).
+The design phase has an approval gate. After `/camel-brainstorm` completes, the AI presents the greenfield **Design Specification** with six sections: Executive Summary, Systems Landscape, Flow Designs, Cross-Cutting Concerns, Constitution Compliance, and Project Structure. Migration design packages add Section 7, Migration Context.
 
 You must explicitly approve before the pipeline continues. You can request changes — the AI revises and re-presents.
 
-After design approval, planning and execution auto-proceed without additional approval gates. `/camel-plan` generates the task breakdown and transitions to `/camel-execute`; execute dispatches internal runtime verification, then continues to `/camel-validate` for static quality analysis.
+In a chained flow, design approval authorizes the remaining stages without additional approval gates. `/camel-plan` generates the task breakdown and transitions to `/camel-execute`; execute dispatches internal runtime verification, then continues to `/camel-validate` for static quality analysis. An independently invoked known stage writes its own output and stops instead of creating a new chain.
 
 ## Iron Laws
 
@@ -98,20 +99,20 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 
 Every generated route must comply with the **Constitution's 8 rules:**
 
-1. **Route Structure** — from → process → to
+1. **Route Structure** — every route has a source and sink; `direct:`/`seda:` sub-routes may omit an external sink, and processing-free pass-through routes warn
 2. **Single Responsibility** — one route = one business capability
 3. **Separation of Concerns** — no business logic in technical routes
-4. **Naming Conventions** — kebab-case route IDs, camelCase beans
-5. **Observability** — metrics, logging, tracing
-6. **External Configuration** — no hardcoded values
+4. **Naming Conventions** — route IDs use `<domain>-<action>[-<qualifier>]`, internal endpoints use `direct:<route-id>` or `seda:<domain>-<purpose>`, and custom headers use kebab-case
+5. **Observability** — route IDs and descriptions, with correlation and logging at context-specific decision points
+6. **External Configuration** — no hardcoded connection strings, credentials, or environment-specific values; use `{{placeholder}}` syntax
 7. **Supported Components** — only catalog-verified components
 8. **Infrastructure via Forage** — prefer catalog-verified `forage.*` configuration over hand-wired beans
 
 <!--tab 3. No Code Without Design Approval-->
 
-The AI **cannot generate implementation code** until the Design Specification is explicitly approved. After design approval, planning and execution auto-proceed without additional gates. Prevents wasted effort — if the design is wrong, the implementation will be wrong.
+The AI **cannot generate implementation code** until the Design Specification is explicitly approved. In a chained flow, planning and execution then auto-proceed without additional gates. Prevents wasted effort — if the design is wrong, the implementation will be wrong.
 
-`/camel-execute` checks for approved design spec before starting. If none found: *"Please run /camel-brainstorm first."*
+`/camel-execute` requires `implementation-plan.md`, which `/camel-plan` derives from the approved design. If no plan exists, it stops with: *"No implementation plan found. Run /camel-plan first."*
 
 <!--tab 4. Spec Before Quality-->
 
@@ -124,7 +125,7 @@ If stage 1 fails, regenerate without running stage 2.
 
 <!--tab 5. Adversarial Review-->
 
-Every generated code artifact passes a fresh-context adversarial review before spec compliance and quality review. Specialized critics look for route architecture, security, performance, boundary, and behavioral-equivalence failures.
+Every generated code artifact passes an adversarial review before spec compliance and quality review. Targets with nested moderator dispatch use fresh moderator and critic contexts; targets whose parent owns orchestration call bounded reviewers and synthesize their evidence there. Single-conversation targets such as Bob 1 and Pi apply the same critic lenses sequentially and record the missing isolation. Bob 1 implements that fallback in its monolithic gate. The critics look for route architecture, security, performance, boundary, and behavioral-equivalence failures.
 
 <!--tab 6. Surgical Changes-->
 
@@ -151,10 +152,10 @@ Generates Camel YAML route definitions from task specifications. Uses templates 
 
 <!--tab camel-test-->
 
-Creates Citrus integration tests for behavioral verification with Testcontainers.
+Creates Citrus integration tests for behavioral verification, using Testcontainers only for required external databases or brokers and mocks for external APIs.
 
 - **Input:** Route specification and test scenarios
-- **Output:** Citrus Java test class
+- **Output:** Citrus YAML test definition at `{module}/src/test/resources/<flow-name>.camel.it.yaml`; omit the entire `{module}/` prefix at the project root
 - **Loaded by:** `/camel-execute` during test generation tasks
 
 <!--tab camel-verify-->
@@ -162,7 +163,7 @@ Creates Citrus integration tests for behavioral verification with Testcontainers
 Builds, tests, diagnoses, and repairs the generated application in a runtime feedback loop.
 
 - **Input:** Generated application and Citrus tests
-- **Output:** Runtime verification report
+- **Output:** Runtime verification evidence embedded in `docs/camel-kit/<pipeline-id>/execution-report.md`
 - **Loaded by:** `/camel-execute` after implementation
 
 {{< /tabs >}}
@@ -175,6 +176,9 @@ Builds, tests, diagnoses, and repairs the generated application in a runtime fee
 ```
 You: I need to build an order processing integration
 
+AI: No active pipeline ID → asks you to create one
+You: camel-kit nextId order-processing
+
 AI: /camel-brainstorm → Interview → Design Spec
     (You approve)
 AI: /camel-plan → Task decomposition → Plan
@@ -183,7 +187,8 @@ AI: /camel-execute → Wave-based generation → Code
     → internal camel-verify → Build → Test → Report
 AI: /camel-validate → Static quality report
 
-Total: 1 command, 1 approval, 4 phases
+Total: 1 pipeline entry command, 1 approval, 4 phases,
+       plus first-run pipeline ID creation when needed
 ```
 
 <!--tab Migration-->
@@ -192,14 +197,15 @@ Total: 1 command, 1 approval, 4 phases
 You: Migrate my MuleSoft/BizTalk flows to Camel
 
 AI: /camel-migrate → Detect → Parse → Graph → Design
-    (You approve flow 1 design)
-AI: /camel-plan → Task decomposition
+    → Per-flow analysis → Consolidated design package
+    (You approve the complete design package once)
+AI: /camel-plan → One implementation plan
     (Auto-proceeds)
-AI: /camel-execute → Generate migrated code
-    → internal camel-verify → Verify migrated flow
+AI: /camel-execute → Implement all tasks in dependency waves
+    → internal camel-verify → Evidence embedded in execution-report.md
 AI: /camel-validate → Static quality report
 
-Flow 1 complete! Ready for flow 2?
+Migration package complete; any skipped or failed checks remain in the reports.
 ```
 
 <!--tab Iterative-->
@@ -266,5 +272,5 @@ Dive into each stage:
 - [/camel-plan](./plan/) — Stage 2: Task decomposition
 - [/camel-execute](./execute/) — Stage 3: Code generation
 - [Runtime Verification](./verify/) — Internal build/test feedback loop
-- `/camel-validate` — Stage 4: Static quality analysis
+- [/camel-validate](./validate/) — Stage 4: Static quality analysis
 - [Ship Workflow](./ship/) — Controller-owned run from requirements to published code

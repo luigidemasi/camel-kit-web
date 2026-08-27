@@ -11,10 +11,10 @@ Camel-Kit helps you modernize legacy Apache Camel 2.x/3.x projects to Camel 4.x 
 Key transformations handled by Camel-Kit:
 
 - **XML DSL to YAML DSL** — Spring XML and Blueprint XML routes converted to modern YAML syntax
-- **Deprecated components** — Automatic replacement with Camel 4.x equivalents
-- **OSGi Blueprint to configuration files** — Blueprint service definitions migrated to `application.properties` or `application.yaml`
-- **Karaf features to Maven dependencies** — OSGi feature bundles converted to standard Maven dependencies
-- **Platform modernization** — Migration paths from Karaf/OSGi to Spring Boot or Quarkus
+- **Deprecated components** — Catalog-verified renames, with explicit decisions when no fixed replacement exists
+- **OSGi Blueprint removal** — Property placeholders move to `application.properties`; routes, beans, references, and service exports move to their Camel 4 runtime equivalents
+- **Karaf features to runtime dependencies** — OSGi feature bundles become Maven dependencies in `pom.xml` for Spring Boot or Quarkus; Camel Main records them in the module-root `application.properties`
+- **Platform modernization** — Migration paths from Karaf/OSGi to Camel Main, Spring Boot, or Quarkus
 
 ## What Gets Parsed
 
@@ -33,18 +33,18 @@ The AI assistant parses all these artifacts together to understand the complete 
 
 ## Deprecated Component Updates
 
-Several Camel components were renamed, consolidated, or removed in Camel 4.x. Camel-Kit automatically updates component references to their modern equivalents:
+Several Camel components were renamed, consolidated, or removed before Camel 4.x. Camel-Kit uses the mappings below as starting points, then verifies each target and its options against the MCP catalog for the selected Camel version and runtime:
 
 | Old Component (2.x/3.x) | New Component (4.x) |
 |-------------------------|---------------------|
 | `camel-http4` | `camel-http` |
-| `camel-jetty9` | `camel-jetty` |
+| `jetty9:` consumer (`camel-jetty9`) | `platform-http:` (`camel-platform-http`) |
 | `camel-netty4` | `camel-netty` |
 | `camel-netty4-http` | `camel-netty-http` |
-| `camel-activemq` | `camel-jms` (with ActiveMQ client) |
+| `camel-activemq` | No forced rename; keep or replace only after catalog verification and a broker/runtime decision |
 | `camel-mina2` | `camel-mina` |
 | `camel-quartz2` | `camel-quartz` |
-| `camel-rxjava2` | Removed (use Camel reactive streams) |
+| `camel-rxjava2` | `camel-rxjava`, subject to MCP verification |
 | `camel-mongodb3` | `camel-mongodb` |
 | `camel-hdfs2` | `camel-hdfs` |
 
@@ -52,35 +52,31 @@ The AI will also flag components that have been fully removed and suggest modern
 
 ## Platform Migration Paths
 
-### Karaf/Blueprint → Spring Boot or Quarkus
+### Karaf/Blueprint → Camel Main, Spring Boot, or Quarkus
 
 For projects running on Apache Karaf or Red Hat Fuse Karaf distributions:
 
-- **OSGi Blueprint** (`<blueprint>` XML) is replaced with `application.properties` or `application.yaml` configuration files
-- **Karaf features** (feature XML files) are converted to standard Maven `<dependency>` declarations in `pom.xml`
-- **OSGi service injection** (`<reference>` tags) is replaced with CDI beans (Quarkus) or Spring dependency injection (Spring Boot)
+- **Blueprint route definitions** are converted to `.camel.yaml` route files
+- **Blueprint property placeholders** move to `application.properties`
+- **Blueprint `<bean>` and `<reference>` definitions** become named registry or dependency-injection entries for the target runtime; infrastructure beans follow the Forage-first configuration ladder
+- **OSGi `<service>` exports** are removed when no longer needed outside OSGi; required service contracts are recorded for implementation with the target runtime's facilities
+- **Karaf features** (feature XML files) become standard Maven `<dependency>` declarations in `pom.xml` for Spring Boot or Quarkus; Camel Main records the resolved coordinates under `camel.jbang.dependencies` in the module-root `application.properties`
 
-The AI will ask which target platform you prefer (Spring Boot or Quarkus) and generate the appropriate configuration.
+The AI will ask which target runtime you prefer and generate the appropriate configuration. Camel Main is offered only when all required Java processors, beans, and Blueprint configuration can be translated to supported YAML DSL or inline Groovy. If Java source must remain, choose Spring Boot or Quarkus so it can be compiled and packaged through Maven.
 
 ### Spring XML → YAML DSL
 
 For projects using Spring XML-based Camel configuration:
 
 - **`<camelContext>` and `<route>` elements** are converted to `.camel.yaml` route files
-- **`<bean>` definitions** are migrated to CDI beans (Quarkus) or Spring `@Component` classes (Spring Boot)
+- **`<bean>` definitions** are migrated using the target runtime's bean support; infrastructure beans follow the Forage-first configuration ladder
 - **`<endpoint>` declarations** are converted to inline URIs within routes
 
-Bean references are preserved using the same bean IDs in the target platform's dependency injection framework.
+Bean references are preserved using the same IDs in the target runtime's registry or dependency injection mechanism.
 
-### Java DSL → YAML DSL (Optional)
+### Java DSL → YAML DSL
 
-Camel-Kit can optionally convert Java DSL `RouteBuilder` classes to YAML route files. However, Java DSL is still fully supported in Camel 4.x, so this conversion is not always necessary or desired.
-
-The AI assistant will ask whether you want to:
-- **Keep Java DSL routes** (recommended for complex logic, dynamic routing, or heavy use of processors)
-- **Convert to YAML DSL** (recommended for simple declarative routes)
-
-You can mix both approaches in the same project.
+Camel-Kit analyzes Java DSL `RouteBuilder` classes and expresses their routes in the Camel 4.x YAML design. Required Java API updates, such as replacing removed exchange APIs in custom processors, are recorded as implementation actions for `/camel-execute`; the migration does not promise a mixed Java/YAML output choice. Camel Main remains available only if no Java source must remain after translation; otherwise the design requires Spring Boot or Quarkus.
 
 ## Common Scenarios
 
@@ -119,7 +115,7 @@ Convert a Spring XML Camel route to YAML DSL format.
 
 <!--step Blueprint XML to Configuration-->
 
-Migrate OSGi Blueprint bean definitions and routes to Spring Boot/Quarkus configuration.
+Migrate OSGi Blueprint bean definitions and routes to runtime-appropriate configuration.
 
 {{< before-after before="Blueprint XML" after="Application properties + YAML route" id="blueprint-config" >}}
 
@@ -140,13 +136,16 @@ Migrate OSGi Blueprint bean definitions and routes to Spring Boot/Quarkus config
 
 <!--after-->
 
-**application.properties:**
+**application.properties** (Camel Main syntax):
 
 ```properties
-camel.component.sql.data-source=#class:org.apache.commons.dbcp2.BasicDataSource
-camel.component.sql.data-source.url=jdbc:postgresql://localhost/orders
-camel.component.sql.data-source.username=dbuser
+forage.myDataSource.jdbc.db.kind=postgresql
+forage.myDataSource.jdbc.url=jdbc:postgresql://{{db.host}}:{{db.port}}/{{db.name}}
+forage.myDataSource.jdbc.username={{db.username}}
+forage.myDataSource.jdbc.password={{db.password}}
 ```
+
+This uses a Forage-backed named bean (`#myDataSource`) and keeps connection values external. Camel Main uses `{{key}}` references inside `application.properties`; Spring Boot and Quarkus use `${key}`. Camel-Kit first verifies Forage availability and these keys in its cached catalog. If Forage is unavailable, it continues down the configuration ladder to catalog-verified component properties, then uses `camel.beans.*` only as a documented last resort.
 
 **route.camel.yaml:**
 
@@ -156,7 +155,7 @@ camel.component.sql.data-source.username=dbuser
     from:
       uri: "timer:tick?period=5000"
       steps:
-        - to: "sql:SELECT * FROM orders"
+        - to: "sql:SELECT * FROM orders?dataSource=#myDataSource"
 ```
 
 {{< /before-after >}}
@@ -180,27 +179,20 @@ Replace deprecated Camel 2.x/3.x components with Camel 4.x equivalents.
 - route:
     id: api-to-queue
     from:
-      uri: "jetty:http://0.0.0.0:8080/api"
+      uri: "platform-http:/api"
       steps:
-        - to: "jms:queue:orders"
+        - to: "activemq:queue:orders"
 ```
 
-**pom.xml** (add JMS client dependency):
-
-```xml
-<dependency>
-  <groupId>org.apache.activemq</groupId>
-  <artifactId>artemis-jakarta-client</artifactId>
-</dependency>
-```
+The `jetty9:` consumer becomes `platform-http:`; configure its listener port with the selected runtime's server property. The `activemq:` producer is intentionally not forced to `jms:`. Camel-Kit verifies the selected target in the MCP catalog and chooses dependencies or an alternative from the project's broker requirements.
 
 {{< /before-after >}}
 
-<!--step Karaf Features to Maven-->
+<!--step Karaf Features to Runtime Dependencies-->
 
-Convert Karaf feature XML to standard Maven dependencies.
+For Spring Boot or Quarkus targets, convert Karaf feature XML to standard Maven dependencies.
 
-{{< before-after before="Karaf features XML" after="Maven pom.xml" id="karaf-maven" >}}
+{{< before-after before="Karaf features XML" after="Catalog-resolved runtime dependencies" id="karaf-maven" >}}
 
 ```xml
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
@@ -215,24 +207,17 @@ Convert Karaf feature XML to standard Maven dependencies.
 
 <!--after-->
 
-```xml
-<dependencies>
-  <dependency>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>camel-core</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>camel-http</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>camel-jackson</artifactId>
-  </dependency>
-</dependencies>
+```text
+Spring Boot: org.apache.camel.springboot:camel-<component>-starter
+Quarkus:     org.apache.camel.quarkus:camel-quarkus-<component>
+
+Exact component artifacts and versions are verified against the selected
+runtime catalog before camel-execute writes them to pom.xml.
 ```
 
 {{< /before-after >}}
+
+For Camel Main, the equivalent dependency coordinates are recorded under `camel.jbang.dependencies` in the module-root `application.properties`; no `pom.xml` is generated.
 
 {{< /carousel >}}
 
@@ -240,20 +225,21 @@ Convert Karaf feature XML to standard Maven dependencies.
 
 Camel-Kit automatically detects Red Hat Fuse-based projects by looking for `redhat-*` or `fuse-*` version qualifiers in Maven dependencies (e.g., `camel-core-2.23.2.fuse-7_11_1-00015`).
 
-For Fuse 6.x or 7.x projects, you can explicitly specify the source platform:
+For Fuse 6.x or 7.x projects, initialize Camel-Kit in the existing project with the `camel` source-platform hint, then start the migration skill in your AI assistant:
 
 ```bash
-camel-kit migrate --source-platform fuse
+camel-kit init --here --ai claude --source-platform camel
+# Then run /camel-migrate in Claude Code
 ```
 
-This ensures the AI uses Fuse-specific component mappings and generates migration notes for Red Hat-specific features.
+Camel-Kit detects Fuse-specific version qualifiers and the migration skill generates notes for Red Hat-specific features.
 
 ## Next Steps
 
 After generating the modernized Camel 4.x code:
 
 1. Review the generated YAML routes and configuration files
-2. Update any custom processors or beans to use Jakarta EE APIs (if migrating to Quarkus)
+2. Update affected Java source from `javax.*` to `jakarta.*`; Camel 4 requires Jakarta EE 10 across target runtimes
 3. Test routes locally using `camel run` (JBang) or your target platform's dev mode
 4. Consult the [Apache Camel 4.x Migration Guide](https://camel.apache.org/manual/camel-4-migration-guide.html) for additional breaking changes
 

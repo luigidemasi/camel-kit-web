@@ -4,7 +4,7 @@ weight: 4
 description: "Internal architecture for contributors and extenders"
 ---
 
-Camel-Kit is built on a **4-layer architecture** designed for AI agent composability, cross-agent portability, and token efficiency. The system is designed around the principle: **"The prompt is the product"** — Camel-Kit ships instructions, not implementations, with one deliberate exception (the Ship workflow, described below).
+Camel-Kit is built on a **4-layer architecture** designed for AI agent composability, cross-agent portability, and token efficiency. In the agent-run integration workflow, **"the prompt is the product"**: generated instructions own the integration behavior. The CLI still supplies compiled initialization, configuration, helper commands, and graph infrastructure; Ship is the deliberate controller-owned workflow exception described below.
 
 ## Four Layers
 
@@ -37,7 +37,7 @@ Cross-agent routing specification shared across every supported AI target.
 - **Iron Laws** — non-negotiable pipeline rules
 - **MCP setup** — Camel, Knowledge, and Citrus server configuration
 
-This ensures **multi-agent parity** — same experience regardless of which AI agent.
+The supported target generators adapt this layered skill architecture to their native surfaces. Legacy Bob 1 instead replaces seven shared pipeline skill files with self-contained monolithic gates and mode switching.
 
 <!--step Layer 2: Skills-->
 
@@ -45,7 +45,7 @@ This ensures **multi-agent parity** — same experience regardless of which AI a
 
 Skills are not code — they are structured prompts with step-by-step procedures, MCP tool invocations, conditionals, and shared guide imports.
 
-- 9 routed command stubs
+- 9 routed user-facing skills, with command stubs where the target supports them
 - 4 internal composition primitives
 - Progressive disclosure (load only what's needed)
 
@@ -58,7 +58,7 @@ Skills are not code — they are structured prompts with step-by-step procedures
 | Server | Purpose | Content |
 |--------|---------|---------|
 | **Camel MCP** | Catalog verification, route validation | Component catalog |
-| **Knowledge MCP** | Hybrid semantic search | 166,973 indexed documents |
+| **Knowledge MCP** | Hybrid semantic search | 28,388 indexed documents |
 | **Citrus MCP** | Test action and endpoint verification | Citrus catalogs, schemas, and guidance |
 
 Significant context reduction — metadata loaded upfront, MCP queried on demand.
@@ -92,28 +92,30 @@ Code intelligence via a property graph built from **9 content parsers and 2 post
 
 ## The Prompt Is the Product
 
-Camel-Kit's architecture embodies a key principle: **the prompt is the product**. Unlike traditional code generators that ship Java/Python implementations, Camel-Kit ships:
+Camel-Kit's agent-run integration workflow embodies a key principle: **the prompt is the product**. Its behavior is primarily delivered through:
 
 - **Markdown guides** that instruct AI agents how to generate code
 - **MCP tool definitions** for real-time verification
 - **Graph parsers** for code analysis (optional)
 
+Compiled CLI infrastructure handles initialization, configuration, `doctor`, `doc`, `nextId`, and graph commands; it supports the prompt-owned workflow rather than replacing it.
+
 One deliberate exception: the Ship workflow. `/camel-ship` is a short delegate to the registered `camel-kit ship` command, and the workflow controller — stages, run state, oversight, evidence, and guarded publication — is compiled code in the Camel-Kit CLI, not a prompt. Every other routed command remains prompt-owned.
 
 This means:
 
-- **No vendor lock-in** — Skills work on any agent (Claude, Gemini, Qwen, etc.)
+- **Cross-target portability** — Skills are generated for the supported AI targets
 - **Easy customization** — Edit Markdown files to change behavior
-- **Version-independent** — No recompilation when Camel versions change
+- **Version-configurable** — Distribution pins and live catalog queries control versions; publishing new bundled defaults requires a new build and project re-initialization
 - **Transparent** — Users can read the exact instructions agents follow
 
 ## Progressive Disclosure
 
 Skills use **progressive disclosure** to minimize token usage:
 
-1. **Metadata** (always loaded) — Skill name, description, trigger patterns (~50 tokens/skill)
-2. **SKILL.md** (on trigger) — Main skill logic, loaded only when invoked (~500-2000 tokens)
-3. **Guides** (as needed) — Shared utilities, loaded only when referenced (~100-500 tokens each)
+1. **Metadata** (always loaded) — Skill name, description, and trigger patterns
+2. **SKILL.md** (on trigger) — Main skill logic, loaded only when invoked
+3. **Guides** (as needed) — Shared utilities, loaded only when referenced
 
 Example flow:
 

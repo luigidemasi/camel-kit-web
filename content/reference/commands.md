@@ -10,61 +10,62 @@ Camel-Kit provides both CLI commands for project initialization and skills for u
 {{< carousel id="pipeline-cmds" >}}
 <!--step /camel-brainstorm — Design Stage-->
 
-Design an integration through an AI-guided interview. This is **Stage 1** of the greenfield pipeline; `/camel-start` is the routing entry point for Camel-Kit work.
+Design an integration through an AI-guided interview. This is **Phase 1** of the greenfield pipeline; `/camel-start` is the routing entry point for Camel-Kit work.
 
-**When to use:** Any new integration, connecting systems, building data pipelines, or starting migration projects.
+**When to use:** New integrations, connecting systems, or building greenfield data pipelines. Existing-platform migrations use `/camel-migrate`.
 
 **Process:**
 
-1. Detects project type (greenfield or migration)
-2. Runs a Socratic interview: business purpose, systems, data formats, processing, error handling, performance
-3. Verifies all components via MCP catalog (Iron Law 1)
-4. Produces a formal Design Specification
-5. Stops after approval when invoked directly, or returns control to the orchestrator
+1. Analyzes supplied material first; complete requirements may need no clarification questions
+2. Resolves project questions 1–4, then questions 5–9 for each flow, with conditional transformation, routing, and resilience follow-ups
+3. Asks cross-cutting questions 10–13 only when relevant or still unresolved
+4. Verifies every selected Camel artifact via MCP catalog (Iron Law 1)
+5. Produces the six-section greenfield Design Specification
+6. With an explicit pipeline ID, stops after approval; without one, continues through the chained pipeline
 
 **Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
 
 
 <!--step /camel-plan — Planning Stage-->
 
-Generate an implementation plan from an approved design spec. This is **Stage 2** of the pipeline.
+Generate an implementation plan from an approved design spec. This is **Phase 2** of the pipeline.
 
 **Process:**
 
 1. Reads the approved design spec
 2. Decomposes into implementation tasks with acceptance criteria
-3. Runs wave analysis to identify parallelizable tasks
+3. Runs wave analysis to identify dependency order and concurrency candidates
 4. Specifies two-stage review per task (spec compliance then quality)
 5. Continues to `/camel-execute` when running inside an orchestrated pipeline
 
 **Output:** `docs/camel-kit/<pipeline-id>/implementation-plan.md`
 
-**Key rule:** The plan is a recipe, not the meal — it describes WHAT to generate, not the generated code itself.
+**Key rule:** The plan is a recipe, not the meal — it describes WHAT to generate and HOW to generate and verify it, without embedding the generated artifact contents.
 
 
 <!--step /camel-execute — Execution Stage-->
 
-Execute the implementation plan with orchestrated task dispatch. This is **Stage 3** of the pipeline.
+Execute the implementation plan with orchestrated task dispatch. This is **Phase 3** of the pipeline.
 
 **Process:**
 
-1. Analyzes plan for parallel execution waves
-2. For each task: implement → spec compliance review → code quality review
+1. Analyzes plan for dependency waves and target-capable concurrency
+2. For each task: implement → adversarial review → spec compliance review → code quality review
 3. Loads internal skills as needed (`camel-implement`, `camel-test`, `camel-verify`)
-4. Runs internal runtime verification, then transitions to `/camel-validate`
+4. Runs internal runtime verification, then transitions to `/camel-validate` only in a same-conversation chained flow
 
 **Generated artifacts:**
 - `.camel.yaml` routes
 - `application.properties`
-- `docker-compose.yaml`
-- DataMapper files (XSLT/Groovy)
+- `docker-compose.yaml` when external services require it
+- An XSLT stylesheet when XSLT DataMapper is selected, or inline Groovy in the route
 - Citrus test definitions
 - Execution report
 
 
 <!--step /camel-validate — Validation Stage-->
 
-Run static quality analysis after execution. This final pipeline stage validates routes for correctness, security, and constitution compliance and produces a timestamped report.
+Run static quality analysis after execution. This is **Phase 4**, the final pipeline stage. It validates routes for correctness, security, and constitution compliance, and reports findings without modifying routes.
 
 **Validation categories:**
 - Schema and endpoint verification
@@ -73,7 +74,7 @@ Run static quality analysis after execution. This final pipeline stage validates
 - Security analysis
 - Constitution compliance (all 8 rules)
 
-**Output:** `docs/camel-kit/<pipeline-id>/validation-report.md`
+**Output:** Pipeline-scoped runs write `docs/camel-kit/<pipeline-id>/validation-report.md`. A standalone project-scoped run with no pipeline writes `docs/validation-report-YYYY-MM-DD_HH-mm.md`.
 
 {{< /carousel >}}
 
@@ -104,7 +105,7 @@ Migration-specific discovery and design for existing integrations.
 - Auto-detect source vendor
 - Graph-based flow analysis
 - DataWeave and BizTalk map parsing
-- Flow-by-flow incremental migration
+- Flow-aware analysis assembled into one migration design package, approval, plan, and execution
 
 {{< /carousel >}}
 
@@ -117,7 +118,7 @@ Look up Apache Camel documentation, component details, CVEs, migration guides, r
 
 **MCP Tools:**
 - `camel_docs_search` — general documentation search
-- `camel_docs_component_info` — component information + CVE lookup
+- `camel_docs_component_info` — component information
 - `camel_docs_cve_search` — security advisory search
 - `camel_docs_release_info` — release notes
 - `camel_docs_jira_lookup` — JIRA issue lookup
@@ -149,6 +150,8 @@ See `camel-kit ship` under CLI Commands for the full option reference.
 
 ## CLI Commands
 
+The standalone `camel-kit` forms describe the current source-tracking `0.3.2-SNAPSHOT` channel. Equivalent `camel kit` forms require a plugin built from that current source; published stable `0.3.1` exposes only `camel kit init`. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
+
 {{< carousel id="cli-cmds" >}}
 <!--step camel-kit init-->
 
@@ -169,12 +172,13 @@ camel-kit init --here [options]
 | `--citrus-version` | `5.0.0-M2` | Citrus Framework version for test schemas and generated test dependencies |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
-| `--source-platform` | `auto` | Source platform for migration: `mulesoft`, `biztalk`, `fuse`, `camel`, `auto` |
+| `--source-platform` | `auto` | Source platform for migration graph analysis: `mulesoft`, `camel`, `biztalk`, or `auto` |
 | `--force` | `false` | Overwrite existing project without prompting |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
-| `-p` | - | Override a single distribution property (e.g., `-p camel.main.version=4.21.0`) |
-| `-c` | - | Load configuration from a properties file (e.g., `-c my-config.properties`) |
-| `-V`, `--version` | - | Print camel-kit version and exit |
+| `-p`, `--property` | - | Override a distribution property; repeat the option for multiple overrides (e.g., `-p camel.main.version=4.21.0`) |
+| `-c`, `--config` | `~/.camel-kit/config.properties` | Load configuration from a properties file (e.g., `-c my-config.properties`) |
+
+`-V` and `--version` are global options; use `camel-kit --version`, not an `init` option.
 
 The Citrus Framework and MCP runner have separate distribution properties: `citrus.version` defaults to `5.0.0-M2`, while `citrus.mcp.version` is temporarily pinned to `5.0.0-M1`. See [Citrus MCP version compatibility](../../architecture/mcp/#citrus-mcp-version-compatibility) for fallback behavior when the versions differ.
 
@@ -195,7 +199,7 @@ camel-kit init my-integration --ai claude
 # Create a project for OpenAI Codex CLI
 camel-kit init my-integration --ai codex
 
-# The Camel JBang plugin accepts the same target
+# Current-source/snapshot plugin only; stable 0.3.1 does not include the Codex target
 camel kit init my-integration --ai codex
 
 # Create a project with the default IBM Bob 2 target
@@ -218,9 +222,15 @@ camel-kit --version
 
 {{< filetree >}}
 my-integration/
+  mvnw # Maven wrapper launcher for Linux and macOS
+  mvnw.cmd # Maven wrapper launcher for Windows
+  .mvn/
+    wrapper/
+      maven-wrapper.properties
   AGENTS.md # Cross-agent skill routing and iron laws
   CLAUDE.md # Agent-specific configuration (or GEMINI.md / QWEN.md)
   .claude/
+    settings.json # Claude Code permissions
     commands/ # Slash commands (Claude Code)
       camel-start.md
       camel-brainstorm.md
@@ -235,6 +245,10 @@ my-integration/
   .mcp.json # MCP server configuration
   docs/
     constitution.md # Best practices (8 rules)
+    flows/ # Empty initialization scaffold
+  test/
+    data/ # Empty initialization scaffold
+  schemas/ # Empty initialization scaffold
   .camel-kit/
     config.properties # Project configuration
     templates/ # Generated route, validation, and build templates
@@ -245,6 +259,11 @@ Codex uses repository-native skills and TOML configuration instead of command st
 
 {{< filetree >}}
 my-integration/
+  mvnw
+  mvnw.cmd
+  .mvn/
+    wrapper/
+      maven-wrapper.properties
   AGENTS.md # Codex project instructions and routing
   .agents/
     skills/ # All Camel-Kit skills; start with $camel-start
@@ -253,6 +272,10 @@ my-integration/
     agents/ # Seven Camel-Kit custom agents
   docs/
     constitution.md
+    flows/ # Empty initialization scaffold
+  test/
+    data/ # Empty initialization scaffold
+  schemas/ # Empty initialization scaffold
   .camel-kit/
 {{< /filetree >}}
 
@@ -291,7 +314,7 @@ Configuration is loaded strictly: a missing or unreadable config file or a malfo
 
 **Publication and recovery:** discovery, design, plan, and validate never modify application source; execute works in a controller-owned staging copy, and accepted changes are published to the live project only after the configured approval and validation gates. An interrupted process is recoverable with the run ID, but Ship is a local orchestrator — not a daemon, a hostile same-user sandbox, a credential broker, or a release-attestation system. Provider credentials remain with Pi and provider tooling; Ship does not persist them or include them in command arguments, logs, or reports.
 
-**Requirements and compatibility:** the first Ship worker runs on Linux only and needs Pi and Node. The certified Pi versions are 0.84.2 and 0.83.0, with Node 22.22.2; any other detected version is reported as experimental and runs only with `--accept-experimental`. The compatibility tiers and the current live-gate status are documented in [Worker Requirements and Support Tiers](../../pipeline/ship/#worker-requirements-and-support-tiers).
+**Requirements and compatibility:** the first Ship worker runs on Linux only and needs Pi and Node. Ship targets Camel Main at the configured `camel.main.version`, which defaults to the bundled distribution pin and can be overridden through `-p` or `-c`, with YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. The certified Pi versions are 0.84.2 and 0.83.0, with Node 22.22.2; any other detected version is reported as experimental and runs only with `--accept-experimental`. The compatibility tiers and the current live-gate status are documented in [Worker Requirements and Support Tiers](../../pipeline/ship/#worker-requirements-and-support-tiers).
 
 **Examples:**
 
@@ -321,16 +344,36 @@ Doctor checks generated configuration, target-native entry points, skills, MCP c
 
 <!--step camel-kit doc-->
 
-Track pipeline artifact provenance and staleness in YAML frontmatter.
+Track pipeline artifact provenance and staleness in YAML frontmatter. Use `camel-kit doc` with the standalone CLI or `camel kit doc` with the Camel JBang plugin.
+
+```bash
+camel-kit doc <init|check|stale|unstale> [options]
+camel kit doc <init|check|stale|unstale> [options]
+```
+
+Examples:
 
 ```bash
 camel-kit doc init --by camel-plan --from design-spec.md <file>
+camel-kit doc init --by camel-brainstorm <file>
 camel-kit doc check <file>
 camel-kit doc stale --reason "design changed" --cascade <file>
 camel-kit doc unstale <file>
 ```
 
-`--cascade` follows each document's `generated.from` chain and marks downstream artifacts stale. Regenerated artifacts are cleared with `doc unstale`.
+`--from` is optional; include it when the new document derives from an upstream pipeline artifact. `--cascade` follows each document's `generated.from` chain and marks downstream artifacts stale. Regenerated artifacts are cleared with `doc unstale`.
+
+
+<!--step camel-kit nextId-->
+
+Create the next sequential pipeline directory and print its ID. Use `camel-kit nextId` with the standalone CLI or `camel kit nextId` with the Camel JBang plugin.
+
+```bash
+camel-kit nextId <slug>
+camel kit nextId <slug>
+```
+
+The slug must contain lowercase letters, digits, and single hyphens. The command finds the highest numbered directory under `docs/camel-kit/`, creates the next one (for example, `003-order-processing`), and prints that ID.
 
 
 <!--step camel-kit graph-->
@@ -362,6 +405,7 @@ camel-kit init my-project --ai claude           # Create project
 camel-kit init my-project --ai codex            # Create a Codex project
 camel-kit doctor                                # Validate generated workspace
 camel-kit doc check docs/camel-kit/001-order-processing/design-spec.md  # Check artifact staleness
+camel-kit nextId order-processing               # Create and print the next pipeline ID
 camel-kit graph stats                           # Check graph availability
 camel-kit graph visualize                       # Interactive graph HTML
 camel-kit plan analyze docs/camel-kit/001-order-processing/implementation-plan.md  # Wave analysis

@@ -23,9 +23,9 @@ On-demand access to Apache Camel component catalogs, EIP patterns, data formats,
 
 <!--after-->
 
-Hybrid semantic search over **166,973 indexed documents** — Apache Camel documentation, guides, CVE advisories, and release notes.
+Hybrid semantic search over **28,388 indexed documents** — Apache Camel documentation, guides, CVE advisories, and release notes.
 
-**5 tools:**
+**5 workflow-allowlisted tools** (the server also exposes endpoint validation and index-info tools for direct MCP clients):
 - `camel_docs_search` — hybrid semantic search (20% BM25 + 80% KNN vector)
 - `camel_docs_component_info` — component-specific documentation lookup
 - `camel_docs_cve_search` — CVE and security advisory search
@@ -66,7 +66,7 @@ Fetch component details — URI format, properties, supported options:
     },
     "httpMethod": {
       "type": "string",
-      "enum": ["GET", "POST", "PUT", "DELETE"]
+      "enum": ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "PATCH"]
     }
   }
 }
@@ -91,10 +91,10 @@ Fetch Enterprise Integration Pattern details with YAML examples:
     when:
       - simple: "${header.type} == 'order'"
         steps:
-          - to: "direct:processOrder"
+          - to: "direct:process-order"
     otherwise:
       steps:
-        - to: "direct:processOther"
+          - to: "direct:process-other"
 ```
 
 <!--step camel_validate_route-->
@@ -126,7 +126,7 @@ Semantic + keyword search over indexed documentation:
 ```json
 {
   "query": "How do I configure SSL for HTTP endpoints?",
-  "topK": 5
+  "max_results": 5
 }
 ```
 
@@ -141,7 +141,7 @@ Pure BM25 search for exact component names — no semantic embedding.
 Why separate? Component names are **exact matches**. Semantic similarity doesn't help (`activemq` might match `kafka` semantically but they're different components).
 
 ```json
-{ "componentName": "kafka" }
+{ "component": "kafka" }
 ```
 {{< /carousel >}}
 
@@ -153,7 +153,7 @@ The `/camel-knowledge` skill is a **prescriptive Q&A interface** over Knowledge 
 User: "How do I enable retries on the Kafka component?"
 
 Agent:
-1. Calls camel_docs_search(query="Kafka retries", topK=5)
+1. Calls camel_docs_search(query="Kafka retries", max_results=5)
 2. Receives relevant chunks
 3. Synthesizes answer with source citations
 ```
@@ -168,13 +168,13 @@ The skill routes questions to the appropriate tool:
 
 <!--after-->
 
-Entirely **MCP-driven** — no agent-specific logic:
+The same MCP catalog is exposed through target-specific configuration, filtering, and visibility controls:
 
 ```
 User question → camel_docs_search() → ranked chunks → answer
 ```
 
-Works identically across supported AI targets. Same questions, same results, regardless of which agent.
+Supported targets query the same Knowledge MCP data through target-native workflows (or Pi's adapter). Orchestration and visible tool surfaces differ by target.
 
 {{< /before-after >}}
 

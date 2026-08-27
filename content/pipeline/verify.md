@@ -1,14 +1,14 @@
 ---
 title: "Runtime Verification"
-weight: 4
+weight: 5
 description: "Internal runtime verification feedback loop"
 ---
 
 ## Overview
 
-`camel-verify` is the internal runtime verification skill that checks whether generated integrations actually work. Through a 3-phase feedback loop with error classification and automated fixes, it ensures the application builds, passes integration tests, and handles failures gracefully.
+`camel-verify` is the internal runtime verification skill that checks whether generated integrations actually work. Through a 3-phase feedback loop with error classification and targeted fixes, it runs the applicable build or startup smoke checks and integration tests, while reporting every skipped or failed check.
 
-The output is a verified, working integration ready for deployment.
+The output is runtime-verification evidence returned to `/camel-execute`, with a `PASS`, `PARTIAL`, `FAIL`, or `NOT_RUN` outcome. Verification failures do not block the execute completion summary. A chained pipeline still continues through Phase 4 static `/camel-validate` before it is complete.
 
 ## When It Runs
 
@@ -22,27 +22,29 @@ It is not exposed as a command stub. Use `/camel-debug` for ad-hoc troubleshooti
 
 ## The Verification Loop
 
-The verification process runs three phases in sequence. If any phase fails, the AI classifies the error, fixes it, and retries (up to 15 attempts per phase). An environment probe runs before verification (as the first step of `camel-execute`) to catch dependency, service, and startup issues before code is generated.
+The verification process runs three phases in sequence. Maven compilation and Citrus testing each have a 15-attempt ceiling; the Camel Main startup smoke test has a 6-attempt ceiling. Repeated error classes can promote to re-planning before those limits. An environment probe runs before verification (as the first step of `camel-execute`) to catch dependency, service, and startup issues before code is generated.
 
 {{< carousel id="verify-phases" >}}
 <!--step Phase 1: Build-->
-## Phase 1: Build
+## Phase 1: Build / Startup Smoke
 
-**Goal:** Compile the integration and resolve all Maven dependencies.
+**Goal:** Compile Spring Boot or Quarkus integrations, or run the startup smoke test for Camel Main.
 
 ### What Happens
 
-The AI runs the Maven build:
+The AI detects the configured runtime first. For Spring Boot and Quarkus it uses `./mvnw` when present, falls back to system `mvn`, and runs each module's command from the project root:
 
 ```bash
-./mvnw clean package -DskipTests
+{MAVEN_CMD} compile -q
+# Nested target module:
+{MAVEN_CMD} -f {MODULE_DIR}pom.xml compile -q
 ```
 
-**Why skip tests?** We're verifying the build compiles. Tests run in Phase 2. For JBang-based integrations, this phase is skipped entirely since JBang handles compilation on the fly.
+For Camel Main there is no Maven compile step. Phase 1 instead runs the generated route's startup smoke test, checks its log markers, and applies its 6-attempt fix loop. Phase 2 owns Citrus integration tests for every runtime.
 
 ### Verification
 
-The AI checks the Maven exit code and output:
+For Spring Boot and Quarkus, the AI checks the Maven exit code and output. For Camel Main, it checks the runtime-specific startup log markers and reports the smoke-test result.
 
 **Success:**
 ```
@@ -55,22 +57,21 @@ Build: PASS
 
 **Failure:**
 ```
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile
+[ERROR] package org.apache.camel.component.kafka does not exist
 
 Build: FAIL
-Error type: BUILD_ERROR
+Classification: Missing dependency
+Fix target: Self-repair
 ```
 
-### Error Classification
-
-**Error Type:** `BUILD_ERROR`
+### Representative Error Families
 
 **Common Causes:**
 - Missing dependencies in pom.xml
 - Java syntax errors in generated code
 - YAML syntax errors in Camel routes
 - Version conflicts
-- Missing Java version (requires Java 17+)
+- Missing or incompatible JDK (Camel-Kit supports Java 17 and later; verification does not upgrade the project automatically)
 
 ### Auto-Fixes
 
@@ -81,11 +82,10 @@ Error: package org.apache.camel.component.kafka does not exist
 
 Diagnosis: Missing camel-kafka dependency
 
-Fix: Adding to pom.xml...
-  <dependency>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>camel-kafka</artifactId>
-  </dependency>
+Fix: Adding the configured runtime's dependency...
+  Quarkus: org.apache.camel.quarkus:camel-quarkus-kafka
+  Spring Boot: org.apache.camel.springboot:camel-kafka-starter
+  Camel Main/JBang: org.apache.camel:camel-kafka in camel.jbang.dependencies
 
 Retrying build...
 ```
@@ -97,16 +97,10 @@ Error: Dependency convergence error for org.apache.camel:camel-core
 
 Diagnosis: Multiple Camel versions detected
 
-Fix: Enforcing version via BOM...
-  <dependencyManagement>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-bom</artifactId>
-      <version>4.21.0</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-  </dependencyManagement>
+Fix: Aligning dependencies with the configured runtime...
+  Quarkus: Camel Quarkus BOM and camel-quarkus-* extensions
+  Spring Boot: Camel Spring Boot BOM and camel-*-starter dependencies
+  Camel Main/JBang: camel.jbang.dependencies entries in application.properties
 
 Retrying build...
 ```
@@ -119,36 +113,22 @@ Error: Cannot parse route file: order-validation.camel.yaml
 
 Diagnosis: YAML syntax error
 
-Fix: Invoking camel-validate skill to repair...
-  (camel-validate analyzes and fixes YAML)
+Fix: Invoking camel-implement for the affected flow...
+  (re-generates only the structurally broken route)
   
-Retrying build...
-```
-
-#### 4. Java Version
-
-```
-Error: Source option 17 is no longer supported. Use 21 or later.
-
-Diagnosis: Java version mismatch
-
-Fix: Updating pom.xml maven.compiler properties...
-  <maven.compiler.source>21</maven.compiler.source>
-  <maven.compiler.target>21</maven.compiler.target>
-
 Retrying build...
 ```
 
 ### Retry Strategy
 
-The AI retries the build up to 15 times, applying different fixes based on error patterns.
+The AI retries within a 15-attempt ceiling, applying fixes based on the classified error. If the same error survives a fix, the loop checks the re-plan promotion rules instead of blindly consuming the remaining budget.
 
 **Retry Loop:**
 ```
 Build attempt 1: FAIL (missing dependency)
-  → Fix: Add camel-kafka dependency
+  → Fix: Add the runtime-specific Kafka dependency
 Build attempt 2: FAIL (version conflict)
-  → Fix: Add BOM dependency management
+  → Fix: Align the configured platform BOM and dependencies
 Build attempt 3: PASS
 
 Build phase complete (3 attempts)
@@ -161,13 +141,14 @@ Build phase complete (3 attempts)
 
 ### What Happens
 
-The AI runs Citrus integration tests using the Camel JBang test plugin:
+The AI recursively discovers every `*.it.yaml` test file, including files under `src/test/resources/`, then runs them with the Camel JBang test plugin:
 
 ```bash
-camel test run *.it.yaml
+# {test-files} is the recursively discovered file list
+camel test run {test-files}
 ```
 
-These tests are self-contained: Testcontainers automatically start external services (databases, message brokers), `camel:jbang:run` starts the application, and send/receive actions validate behavior. There is no need for a separate startup or environment setup phase.
+Within Phase 2, Citrus manages the test lifecycle: Testcontainers start and stop required databases or brokers, `camel:jbang:run` starts and stops the application, and send/receive actions validate behavior. This does not replace the prerequisite checks or Phase 1 build/startup smoke verification. Docker is required only for discovered test files that declare Testcontainers; without it, those files are skipped while container-free and mock-only tests still run. The applicable JDK, Maven, JBang, and Camel test tooling requirements remain runtime- and phase-specific.
 
 ### Verification
 
@@ -199,12 +180,11 @@ Test Results:
   ✓ testKafkaPublish - PASS
 
 Test Verification: FAIL
-Error type: TEST_ERROR
+Classification: Timeout
+Fix target: Self-repair, then camel-implement if route logic is responsible
 ```
 
-### Error Classification
-
-**Error Type:** `TEST_ERROR`
+### Representative Error Families
 
 **Common Causes:**
 - Routes don't produce expected output
@@ -269,11 +249,12 @@ Retrying tests...
 Test: testValidOrderProcessing
 Error: Route architecture cannot satisfy the acceptance criteria
 
-Diagnosis: Persistent failure across multiple fix attempts —
-  the TDD plan itself needs modification
+Diagnosis: MCP confirms the required runtime feature is unavailable,
+  or the same error class persists through the promotion threshold
 
-Fix: Triggering re-plan to modify the TDD structure...
-  (Automatically adjusts the task decomposition and test expectations)
+Fix: Triggering the bounded re-plan loop...
+  (Modifies only the affected design-spec flow sections, preserves the
+  business requirements, and re-executes only affected tasks)
   
 Retrying from Phase 1...
 ```
@@ -284,7 +265,7 @@ Based on error classification, the AI routes fixes to the appropriate target:
 
 - **Route logic errors** → `camel-implement` (regenerate route)
 - **Test code errors** → `camel-test` (test re-generation)
-- **Persistent architectural failures** → `re-plan` (automatic TDD modification)
+- **Persistent architectural failures** → `re-plan` (update affected design-spec flow sections, preserve business requirements, then re-execute affected tasks)
 - **Configuration errors** → Update `application.properties`
 - **Unrecoverable errors** → `escalate` (report to user)
 
@@ -295,217 +276,66 @@ Based on error classification, the AI routes fixes to the appropriate target:
 
 ### What Happens
 
-After all phases pass (or max retries are exhausted), the subagent returns a structured verification report to `/camel-execute` and appends the iteration to `.camel-kit/verify-log.md`.
+After all phases pass (or the loop stops), the verification role returns a structured report to the execute orchestrator and appends the iteration to `.camel-kit/verify-log.md`. Some targets can isolate this work; Qwen and OpenCode keep verification in their primary executor session, and single-conversation targets run it inline.
 
-### Success Report
+### Report Contract
 
-**Returned to the execute orchestrator:**
-```markdown
-# Verification Report: Order Processing Integration
+The report uses the compact contract below. Optional sections appear only when a fix was applied, a check was skipped, or a phase failed.
 
-**Status:** ✓ SUCCESS
+```text
+VERIFICATION REPORT
+Runtime:          {runtime}
+Maven:            {status}
 
-## Summary
+Phase 1 — Build / Startup Smoke:  {PASS [(N fixes)] | SKIPPED (reason) | FAILED after N iterations}
+Phase 2 — Test:   {PASS: N/N tests passed [(N fixes)] | SKIPPED (reason) | FAILED: N/N tests failed}
 
-- Build: ✓ PASS (2 attempts)
-- Test Verification: ✓ PASS (1 attempt)
+{If any fixes were applied:}
+Fixes applied:
+  1. [{Phase}] {description of fix}
+  2. [{Phase}] {description of fix}
 
-## Build
+{If any phases were skipped:}
+Skipped checks:
+  - {description} ({reason})
 
-- Maven version: 3.9.5
-- Java version: 21.0.2
-- Camel version: 4.21.0
-- Build time: 45.3s
+{If a phase failed — show last error:}
+Last error:
+  {error detail or assertion message}
+  Classification: {category from error-taxonomy.md}
+  Fix attempted: {what was tried}
 
-## Tests
-
-- Total tests: 4
-- Passed: 4
-- Failed: 0
-- Coverage: 100% of acceptance criteria
-- Services managed by: Testcontainers
-
-### Test Details
-
-1. **testValidOrderProcessing** - ✓ PASS
-   - Verified: REST endpoint, validation, credit lookup, Kafka publish
-   - Latency: 1.2s (under 2s requirement)
-
-2. **testInvalidOrderHandling** - ✓ PASS
-   - Verified: Validation failure routing to orders.invalid topic
-   
-3. **testDatabaseFailureRetry** - ✓ PASS
-   - Verified: 3 retries with exponential backoff
-   
-4. **testKafkaPublish** - ✓ PASS
-   - Verified: Message delivery to warehouse.orders topic
-
-## Metrics
-
-- orders.received.total: 12
-- orders.valid.total: 10
-- orders.invalid.total: 2
-- database.lookup.time: avg 145ms
-- kafka.publish.time: avg 23ms
-
-## Next Steps
-
-Integration is ready for deployment.
-
-Consider:
-1. Running load tests with 500 orders/minute
-2. Setting up production database and Kafka cluster
-3. Configuring alerting for error thresholds
-4. Deploying to staging environment
-```
-
-### Failure Report
-
-If verification fails after 15 retries per phase:
-
-```markdown
-# Verification Report: Order Processing Integration
-
-**Status:** ✗ FAILED
-
-## Summary
-
-- Build: ✓ PASS (2 attempts)
-- Test Verification: ✗ FAIL (15 attempts)
-
-## Error Details
-
-**Phase:** Test Verification
-**Error Type:** TEST_ERROR
-**Error Message:** testInvalidOrderHandling — route logic does not match acceptance criteria
-
-**Attempted Fixes:**
-1. Regenerated route via camel-implement (attempt 1)
-2. Regenerated test via camel-test (attempt 5)
-3. Triggered re-plan for TDD modification (attempt 10)
-...
-
-**Root Cause:**
-Acceptance criterion conflicts with the actual data model — the test expects
-a field that does not exist in the source schema.
-
-**Manual Fix Required:**
-
-Review the Design Specification acceptance criteria and update the
-data model or test expectations accordingly.
-
-After applying the manual fix, resume execution so runtime verification is dispatched again:
-```
-/camel-execute
-```
-
-## Partial Results
-
-- Build: Successful
-- Tests: 3/4 passing, 1 failing
-
-## Recommendations
-
-1. Review the acceptance criteria for order validation
-2. Verify the source schema includes all expected fields
-3. Resume `/camel-execute` to regenerate and verify tests after schema updates
+  Escalated: {suggestion for manual resolution}
 ```
 {{< /carousel >}}
 
 ## Error Classification System
 
-The AI classifies every error into one of four categories and routes fixes to the appropriate target:
+The source taxonomy uses specific error families rather than four generic uppercase buckets. Representative routing is:
 
-### 1. BUILD_ERROR
-
-**Indicators:**
-- Maven compilation errors
-- Missing dependencies
-- YAML syntax errors
-- Java source errors
-
-**Fix Strategy:**
-- Add missing dependencies to pom.xml
-- Repair YAML with `camel-validate` skill
-- Update Java code (rare for generated code)
-- Resolve version conflicts with BOM
-
-**Routed To:** Build system, dependency manager, `camel-validate` skill
-
-### 2. RUNTIME_ERROR
-
-**Indicators:**
-- Application fails to start (detected by Citrus test runner)
-- Connection refused errors
-- Port conflicts
-- Configuration errors
-
-**Fix Strategy:**
-- Update configuration properties
-- Fix route startup issues
-- Change ports
-- Verify Testcontainers service configuration
-
-**Routed To:** `camel-implement` skill (route fixes), configuration manager
-
-### 3. TEST_ERROR
-
-**Indicators:**
-- Test failures
-- Assertion errors
-- Timeouts in tests
-- Testcontainers startup failures
-
-**Fix Strategy:**
-- Regenerate routes if logic wrong (`camel-implement`)
-- Regenerate tests if assumptions wrong (`camel-test`)
-- Modify the TDD plan for persistent architectural failures (`re-plan`)
-- Increase timeouts
-- Fix Testcontainers configuration
-
-**Routed To:** `camel-implement` (route logic), `camel-test` (test re-generation), `re-plan` (TDD modification)
-
-### 4. ENVIRONMENT_ERROR
-
-**Indicators:**
-- Docker not running (required for Testcontainers)
-- Testcontainers unable to start services
-- Port conflicts
-- Image pull errors
-
-**Fix Strategy:**
-- Start Docker daemon (required for Testcontainers)
-- Fix Testcontainers service configuration
-- Change conflicting ports
-- Pull missing images
-
-**Routed To:** Environment manager, Testcontainers configuration
+| Error family | Fix target |
+|---|---|
+| Missing Camel or third-party dependency; version incompatibility | Self-repair with runtime-aware dependency coordinates and BOM alignment |
+| Route creation, unknown component, missing bean, or injection failure | `camel-implement` for the affected flow |
+| Wrong endpoint option or YAML schema failure | `camel-validate` for diagnosis, then `camel-implement` for the correction |
+| Expression, type-conversion, transformation, or assertion mismatch | `camel-implement` |
+| Timeout, external-service, or container-startup failure | Self-repair first; route logic goes to `camel-implement` when indicated |
+| Test syntax or incorrect test expectations | `camel-test` |
+| MCP-confirmed unavailable component/pattern or a persistent error family | Bounded `re-plan` of affected design-spec flow sections, followed by affected-task execution and re-verification |
+| Missing build plugin, Quarkus augmentation failure, iteration limit, or unclassified error | Escalate with the raw error and attempted fix |
 
 ## Retry Budget
 
-Each phase has a retry budget of 15 attempts.
+Maven compilation and Citrus testing each have a ceiling of 15 attempts; Camel Main startup smoke has a ceiling of 6. Promotion rules can end a local fix loop sooner.
 
 **Retry Strategy:**
 ```
-Attempt 1: Try original approach
-Attempt 2: Apply simple fix (restart service)
-Attempt 3: Apply configuration fix
-Attempt 4: Apply code fix
-Attempt 5: Apply environment fix
-...
-Attempt 15: Last attempt
-  → If still failing, give up and report
+1. Classify the current error and route one targeted fix.
+2. If the same error remains, short-circuit and evaluate promotion.
+3. Trigger immediate Tier 1 re-planning when the MCP catalog confirms the required runtime feature does not exist.
+4. Trigger Tier 2 re-planning after three failed fixes for the same error class.
+5. Escalate unclassified errors or a phase that reaches its attempt limit.
 ```
-
-**Exponential Backoff:**
-
-Between retries, the AI waits:
-- Attempts 1-3: 5 seconds
-- Attempts 4-7: 10 seconds
-- Attempts 8-12: 30 seconds
-- Attempts 13-15: 60 seconds
-
-This gives external services time to recover.
 
 ## Pipeline Re-entry
 
@@ -513,21 +343,21 @@ Resume `/camel-execute` after an approved manual correction so it can dispatch r
 
 ## Environment-in-the-Loop Concept
 
-`camel-verify` is "environment-in-the-loop" verification: it doesn't just check code, it actually runs the integration with real databases, message brokers, and HTTP endpoints via Testcontainers.
+`camel-verify` is "environment-in-the-loop" verification: it doesn't just check code. Citrus runs the integration and exercises its endpoints, while Testcontainers provides required external databases and brokers.
 
 **Why This Matters:**
 
 - **Catches real issues:** Code might compile but fail at runtime
-- **Validates integrations:** Endpoints actually connect, messages actually flow
-- **Tests behavior:** Not just unit tests, but full integration tests with real services
+- **Validates integrations:** Test endpoints are exercised and messages actually flow
+- **Tests behavior:** Not just unit tests, but integration tests with required databases or brokers and mocked external APIs
 - **Prevents surprises:** Find issues now, not in production
-- **Self-contained:** Testcontainers manage the service lifecycle -- no manual Docker Compose setup needed
+- **Self-contained:** Where external databases or brokers are required and Docker is available, Testcontainers manage their lifecycle; external APIs use mocks -- no manual Docker Compose setup needed
 
 **Contrast with traditional testing:**
 - Unit tests: Mock everything (no environment)
-- Integration tests: Run against real services managed by Testcontainers (environment-in-the-loop)
+- Integration tests: Exercise the application with required databases or brokers managed by Testcontainers and external APIs mocked (environment-in-the-loop)
 
-Camel-Kit uses Citrus YAML integration tests with Testcontainers for verification because integrations are, by definition, about connecting systems. Docker Compose files are still generated as user artifacts for local development, but they are not used during the verification loop.
+Camel-Kit uses Citrus YAML integration tests for verification. Tests use Testcontainers when required external databases or brokers and Docker are available, and mocks for external APIs. Camel-Kit generates Docker Compose as a local-development artifact only when the integration needs external services; verification does not consume that Compose file.
 
 ## Graceful Degradation
 
@@ -538,18 +368,19 @@ If tools are unavailable, the AI adapts:
 ```
 Warning: Docker not available.
 
-Skipping test verification phase (Testcontainers requires Docker).
+Running container-free and mock-only Citrus tests.
+Skipping only tests that declare Testcontainers.
 
-Note: Without Docker, integration tests cannot start external services.
+Note: Without Docker, integration tests cannot start required external databases or brokers.
 Consider running on a system with Docker installed.
 
-Proceeding to report phase with partial results...
+Proceeding to report phase with dependent checks recorded as skipped...
 ```
 
-### No Maven Wrapper
+### No Maven (Spring Boot or Quarkus)
 
 ```
-Warning: ./mvnw not found. Skipping build verification phase.
+Warning: neither ./mvnw nor system mvn is available. Skipping build verification phase.
 
 Proceeding to test verification...
 ```
@@ -562,7 +393,7 @@ Warning: camel test command not available.
 Skipping test verification phase.
 
 Note: Without the Camel JBang test plugin, we cannot run integration tests.
-Consider installing Camel JBang: https://camel.apache.org/manual/camel-jbang.html
+After installing Camel JBang if needed, run: camel plugin add test
 ```
 
 ### No Citrus Tests
@@ -580,20 +411,20 @@ The AI continues with available tools, warning about limitations.
 
 ## Summary
 
-`camel-verify` validates integrations through a 3-phase feedback loop:
+`camel-verify` collects runtime evidence through a 3-phase feedback loop:
 
-1. **Build** - Compile and resolve dependencies (skipped for JBang)
-2. **Test Verification** - Run Citrus YAML tests via `camel test run` with Testcontainers
+1. **Build / Startup Smoke** - Compile Spring Boot or Quarkus with the wrapper or system Maven; start and inspect Camel Main instead
+2. **Test Verification** - Run Citrus YAML tests via `camel test run`, using Testcontainers only for tests that declare required external services
 3. **Report Generation** - Summarize results and provide insights
 
 **Key Features:**
-- **Error Classification** - BUILD, RUNTIME, TEST, ENVIRONMENT errors
-- **Auto-Fixes** - 15 retry attempts with intelligent fixes
-- **Fix Routing** - Errors routed to `camel-implement`, `camel-test`, `re-plan`, or escalated to user
-- **Environment-in-the-Loop** - Testcontainers manage real databases and brokers
-- **Graceful Degradation** - Works even when tools unavailable
+- **Error Classification** - Specific build, startup, runtime, and test error families with explicit fix targets
+- **Targeted Fix Loops** - Up to 15 compile/test attempts or 6 Camel Main startup attempts, with earlier promotion for persistent errors
+- **Fix Routing** - Errors routed to self-repair, `camel-validate` → `camel-implement`, `camel-implement`, `camel-test`, bounded `re-plan`, or escalation
+- **Environment-in-the-Loop** - Testcontainers manage required databases and brokers for the tests that declare them
+- **Graceful Degradation** - Reports unavailable tools and explicitly skips dependent checks
 - **Internal Dispatch** - Runs within `/camel-execute`; `/camel-debug` handles ad-hoc failures
 
-The result is confidence that your integration actually works, not just compiles.
+The result is an explicit `PASS`, `PARTIAL`, `FAIL`, or `NOT_RUN` record rather than a silent claim that the integration works.
 
-After runtime verification passes, the pipeline continues from Execute to `/camel-validate`.
+After runtime verification finishes, regardless of outcome, a chained pipeline continues from Execute to `/camel-validate`; standalone `/camel-execute` reports completion and stops.

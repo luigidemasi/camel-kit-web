@@ -20,7 +20,7 @@ Traditional code generation treats the environment as static: generate code base
 2. **No automatic recovery** — when the environment rejects the generated code, the AI can't fix it without starting over
 3. **Disconnected testing** — test generation happens independently of test execution, so tests are never iteratively refined based on actual runtime behavior
 
-Camel-Kit solves all three by embedding environment interaction at every stage of the pipeline.
+Camel-Kit addresses all three by interacting with the environment before and after code generation within the execution stage.
 
 ## How It Works
 
@@ -31,25 +31,26 @@ The pipeline creates a continuous feedback loop between three concerns: **code g
 
 ### Before Any Code Is Generated
 
-The first step of `/camel-execute` is an **environment probe** — a lightweight feasibility check that runs before any implementer subagent is dispatched.
+The first step of `/camel-execute` is an **environment probe** — a lightweight feasibility check that runs before any implementation task.
 
 The probe generates a **throwaway skeleton** in a temporary directory:
-- `pom.xml` with all planned dependencies
-- `docker-compose.yaml` with required services
-- An empty route (just enough to verify the runtime boots)
+
+- A `pom.xml` with all planned dependencies for Spring Boot and Quarkus; Camel Main records dependencies in `application.properties` instead
+- A `docker-compose.yaml` only when the design needs external services
+- An empty route and runtime configuration, just enough to verify startup
 
 Then it runs three checks:
 
 | Check | What It Validates | Command |
 |-------|-------------------|---------|
-| **Dependency resolution** | All Maven artifacts exist and resolve | `./mvnw dependency:resolve` |
-| **Docker services** | Required databases, brokers, etc. can start | `docker compose up -d` |
+| **Dependency resolution** | Spring Boot and Quarkus Maven artifacts exist and resolve; skipped for Camel Main | `./mvnw dependency:resolve` |
+| **Docker services** | Required databases, brokers, etc. can start when services are needed and Docker is available. No required services records `PASS (no services required)`; required services with Docker unavailable records `SKIPPED`. | `docker compose up -d` when applicable |
 | **Runtime startup** | The framework itself boots | Runtime-specific start command |
 
-If a check fails, the probe classifies the error:
+Every applicable check records PASS or FAIL. Unavailable required tooling is reported explicitly as skipped, while a Docker check with no required services records a successful no-services outcome. If a check fails, the probe classifies the error:
 
 - **Mechanical failure** (wrong artifact name, port conflict) — auto-fix and re-probe
-- **Architectural failure** (component doesn't exist for this runtime) — trigger [automatic re-planning](#automatic-re-planning)
+- **Architectural failure** (component doesn't exist for this runtime) — trigger [automatic re-planning](#when-the-approach-is-wrong)
 
 The skeleton is deleted after the probe completes. The real implementation generates proper project files.
 
@@ -57,23 +58,23 @@ The skeleton is deleted after the probe completes. The real implementation gener
 
 ### After Code Is Generated
 
-The internal `camel-verify` loop runs [Citrus](https://citrusframework.org/) integration tests to validate the generated code against real infrastructure.
+The internal `camel-verify` loop runs [Citrus](https://citrusframework.org/) integration tests to validate the generated code against its required environment.
 
 **Three phases:**
 
 | Phase | What Happens |
 |-------|-------------|
-| **Build** | Compile the project (`./mvnw compile`). Classify and fix build errors. Skipped for JBang. |
-| **Test** | Run Citrus YAML tests via `camel test run`. Tests are self-contained: [Testcontainers](https://testcontainers.com/) start services, the Camel integration launches within the test, send/receive actions validate behavior. |
+| **Build / Startup Smoke** | Compile each Spring Boot or Quarkus module from the project root (`{MAVEN_CMD} compile -q`, or `{MAVEN_CMD} -f {MODULE_DIR}pom.xml compile -q` for a nested module); for Camel Main, run the startup smoke test instead. Classify and fix failures. |
+| **Test** | Run Citrus YAML tests via `camel test run`. The Camel integration launches within each test and send/receive actions validate behavior. When Docker is available and external databases or brokers are required, [Testcontainers](https://testcontainers.com/) start them; tests without such infrastructure use no container, and external APIs are mocked. |
 | **Report** | Structured summary of phases, fixes applied, and issues found. |
 
-Each phase retries up to 15 times. On each iteration, errors are classified and routed to the appropriate fix:
+Maven compilation and Citrus testing each have a 15-attempt ceiling; the Camel Main startup smoke test has a 6-attempt ceiling. Errors are classified and routed to the appropriate fix, and persistent error classes can promote to re-planning earlier:
 
 | Fix Target | When Used |
 |-----------|-----------|
 | **Self-repair** | Missing dependency, Docker config issue — fix directly |
 | **camel-implement** | Route logic error — re-generate from the design spec |
-| **camel-validate** | Wrong component options — re-verify against the MCP catalog |
+| **camel-validate → camel-implement** | Wrong component options — diagnose against the MCP catalog, then correct the affected flow |
 | **camel-test** | Test itself is wrong — re-generate the test from the design spec |
 | **re-plan** | Persistent architectural failure — modify the design and re-implement |
 
@@ -85,7 +86,7 @@ Sometimes the problem isn't in the code — it's in the plan. A component that w
 
 When fix attempts fail repeatedly, camel-kit **automatically re-plans**:
 
-1. **Identify the scope** — which design document sections need to change
+1. **Identify the scope** — which flow sections of `design-spec.md` need to change
 2. **Find alternatives via MCP** — query the catalog for components that fulfill the same role
 3. **Modify the design** — update only the affected sections, preserving everything else
 4. **Re-implement and re-verify** — generate new code and run tests again
@@ -153,18 +154,18 @@ The system decides *when* to re-plan based on how experienced developers think a
   </div>
 </div>
 
-**One approval gate.** You approve the design (the architecture, the components, the integration patterns). After that, planning, probing, implementation, and verification flow continuously. If the environment discovers a problem, the system fixes it — either at the code level (self-repair, re-implement) or at the design level (re-plan).
+**One approval gate in a chained pipeline.** You approve the design (the architecture, the components, the integration patterns). After that, planning, probing, implementation, and verification flow continuously. When the environment exposes a classified problem, Camel-Kit attempts bounded code-level repair or design-level replanning. Skipped checks and unresolved failures are reported for user action.
 
 This means:
 
-- **No wasted implementation work** — the probe catches infeasible plans before code is generated
-- **No manual test debugging** — test failures route automatically to the right fix target
-- **No silent failures** — every error is classified, every fix attempt is tracked, every escalation includes context
-- **No stale tests** — when tests are wrong, they're re-generated from the design spec, not manually patched
+- **Earlier feasibility feedback** — the probe can catch infeasible plans before code is generated
+- **Bounded automatic test diagnosis** — classified failures route to the appropriate fix target within retry limits
+- **Explicit outcomes** — fixes, skipped checks, unresolved errors, and escalations are recorded with context
+- **Design-derived test repair** — when a test is classified as wrong, it is regenerated from the design specification
 
 ## Error Taxonomy
 
-Every error discovered during probing or verification is classified and routed. The classification determines what gets fixed and how.
+Errors that match the taxonomy are classified and routed; unknown, complex, or persistent failures are reported or escalated. The classification determines which bounded repair is attempted.
 
 ### Mechanical vs Architectural
 
@@ -201,7 +202,7 @@ The probe and verify loop use an **"assume mechanical, promote on failure"** rul
   </div>
 </div>
 
-The key insight: **MCP is the oracle** that distinguishes mechanical from architectural. When a dependency fails, the probe queries `camel_catalog_component_doc` — if MCP confirms the component doesn't exist for this runtime/version, it's architectural. If MCP returns a valid artifact with a different name, it's mechanical.
+For Camel component, dependency, and runtime failures, **MCP is the catalog oracle** that distinguishes mechanical from architectural. When a dependency fails, the probe queries `camel_catalog_component_doc` — if MCP confirms the component doesn't exist for this runtime/version, it's architectural. If MCP returns a valid artifact with a different name, it's mechanical. Docker image, port, and service failures follow the probe's separate classification rules.
 
 ### How Errors Promote
 
@@ -234,9 +235,9 @@ Every classified error routes to a specific fix target. The taxonomy covers erro
 
 | Error Category | Examples | Fix Target |
 |---------------|----------|------------|
-| **Missing dependency** | `ClassNotFoundException`, unresolved artifact | Self-repair (add to pom.xml) |
+| **Missing dependency** | `ClassNotFoundException`, unresolved artifact | Self-repair (add the runtime-specific POM dependency or Camel Main `application.properties` entry) |
 | **Version conflict** | `NoSuchMethodError`, BOM misalignment | Self-repair (align versions) |
-| **Wrong component options** | `ResolveEndpointFailedException` | camel-validate (re-verify via MCP) |
+| **Wrong component options** | `ResolveEndpointFailedException` | camel-validate → camel-implement (diagnose via MCP, then correct) |
 | **Route logic error** | `FailedToCreateRouteException`, wrong output | camel-implement (re-generate route) |
 | **Test is wrong** | Assertion expects wrong value, test parse error | camel-test (re-generate test) |
 | **Docker/service issue** | `Connection refused`, container won't start | Self-repair (restart, fix config) |
@@ -250,7 +251,7 @@ Most AI coding tools follow a **generate-and-hope** model: produce code, let the
 | Aspect | Generate-and-Hope | Camel-Kit EITL |
 |--------|-------------------|----------------|
 | **When environment is checked** | After all code is generated | Before (probe) and after (verify) |
-| **What happens on failure** | User debugs | Auto-fix, re-generate, or re-plan |
-| **Test strategy** | Generate tests, never run them | Generate tests, run them, fix them |
-| **Feedback to design** | None — design is immutable | Re-plan loop modifies design documents |
-| **Service management** | Manual Docker Compose | Testcontainers in self-contained tests |
+| **What happens on failure** | User debugs | Auto-fix, regenerate, or re-plan when classified; otherwise report or escalate |
+| **Test strategy** | Generate tests, never run them | Generate and run tests; attempt bounded fixes and report remaining gaps |
+| **Feedback to design** | None — design is immutable | Re-plan loop may modify affected flow sections in `design-spec.md` for architectural failures |
+| **Service management** | Manual Docker Compose | Testcontainers when the applicable tests and Docker are available |

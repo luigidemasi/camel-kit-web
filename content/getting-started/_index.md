@@ -19,7 +19,10 @@ Follow these steps to install Camel-Kit and create your first integration projec
 Before installing Camel-Kit, ensure you have:
 
 - **Java 17 or higher** - Required for running Apache Camel and JBang
-- **JBang 0.120.0 or higher** - The scripting engine that powers Camel-Kit
+- **JBang** - CLI launcher for Camel-Kit
+- **Camel JBang 4.18.0 or higher** - Required for the `camel kit` plugin channel and complete route execution and startup checks
+- **Camel JBang test plugin** - Required for Citrus integration tests; install it with `camel plugin add test`
+- **Docker (conditional)** - Required for external-service environment probes and [full Citrus/Testcontainers integration verification](../pipeline/verify/); design, planning, and non-container checks work without it
 
 **Verify Java:**
 ```bash
@@ -39,12 +42,16 @@ curl -Ls https://sh.jbang.dev | bash -s - app setup
 
 # Windows
 choco install jbang
+
+# Install Camel JBang and its test plugin
+jbang app install camel@apache/camel
+camel plugin add test
 ```
 
 <!--step Install Camel-Kit-->
 ## Install Camel-Kit
 
-**Method 1: JBang App Install (Recommended)**
+**Current development channel: JBang App Install (Recommended)**
 
 The easiest way to install Camel-Kit:
 
@@ -52,17 +59,30 @@ The easiest way to install Camel-Kit:
 jbang app install camel-kit@luigidemasi/camel-kit
 ```
 
-This adds the `camel-kit` command to your PATH.
+This adds the `camel-kit` command to your PATH. The GitHub alias installs the latest deployed `0.3.2-SNAPSHOT`, which may lag `main` until the next deployment. Build from source when you need the exact current revision; both current channels provide the commands and AI targets described by this site.
 
 **Verify installation:**
 ```bash
 camel-kit --version
 ```
 
-**Alternative Methods:**
+**Run without installing:**
 
-- **Run without installing:** `jbang camel-kit@luigidemasi/camel-kit init ...`
-- **Camel JBang plugin:** `camel plugin add camel-kit`
+```bash
+jbang run camel-kit@luigidemasi/camel-kit init ...
+```
+
+**Stable channel: Camel JBang plugin 0.3.1**
+
+Maven Central currently provides the stable `0.3.1` plugin. Pin that version explicitly:
+
+```bash
+camel plugin add kit \
+  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.3.1 \
+  --description "Design Apache Camel Integrations with AI"
+```
+
+Stable `0.3.1` exposes only `camel kit init` and the `bob`, `gemini`, and `claude` targets. It does not provide the current `0.3.2-SNAPSHOT` command or nine-agent surface; do not use a dynamic Maven version when you need current-source behavior.
 
 <!--step Initialize Project-->
 ## Initialize Your First Project
@@ -81,8 +101,10 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 - `AGENTS.md` - Routing table for AI agents
 - Agent-native skills and entry points - for example, `.claude/commands/` for Claude Code or `.agents/skills/` for Codex
 - `docs/constitution.md` - Generated architecture rules
+- `docs/flows/`, `test/data/`, and `schemas/` - Empty initialization scaffolds; generated pipeline artifacts use the selected runtime's paths
 - `.camel-kit/` - Project configuration, cached catalogs, templates, and pipeline state
-- Agent-native MCP configuration - JSON for most targets, or `.codex/config.toml` for Codex
+- Target-specific MCP configuration - JSON for most targets, `.codex/config.toml` for Codex, and `.mcp.json` consumed through `pi-mcp-adapter` for Pi
+- `mvnw`, `mvnw.cmd`, and `.mvn/wrapper/maven-wrapper.properties` - Maven wrapper launchers and configuration
 
 **Choose your AI agent:**
 
@@ -94,7 +116,7 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 | Claude Code | `--ai claude` |
 | OpenAI Codex CLI | `--ai codex` |
 | GitHub Copilot CLI | `--ai copilot` |
-| Pi | `--ai pi` |
+| Pi | `--ai pi` (then `pi install npm:pi-mcp-adapter@2.11.0`) |
 | Qwen Code | `--ai qwen` |
 | OpenCode | `--ai opencode` |
 
@@ -110,6 +132,14 @@ I want to build an integration that reads from Kafka and writes to a database
 ```
 
 The AI reads `AGENTS.md`, uses `/camel-start` to route the request to `/camel-brainstorm`, and guides you through design.
+
+On the first run, no active pipeline ID exists yet. The agent asks you to create
+one before the interview continues:
+
+```bash
+camel-kit nextId kafka-to-database
+# Camel JBang plugin equivalent: camel kit nextId kafka-to-database
+```
 
 With OpenAI Codex CLI, run `/skills` and invoke `$camel-start` instead; Codex discovers `.agents/skills/` directly and does not use slash-command stubs. See the [Codex setup guide](./codex/).
 
@@ -158,12 +188,13 @@ Camel-Kit supports two integration workflows. Toggle to see each approach:
 
 {{< before-after before="Greenfield Development" after="Platform Migration" id="workflows" >}}
 
-Build new integrations from scratch using the **Design → Plan → Execute** pipeline:
+Build new integrations from scratch using the **Design → Plan → Execute → Validate** pipeline:
 
 1. Run `/camel-brainstorm` — AI interviews you about requirements
 2. Review and approve the design specification
 3. AI automatically decomposes into tasks and generates code
 4. AI verifies the integration with runtime tests
+5. AI runs the final static quality gate and reports findings without modifying routes
 
 ```bash
 camel-kit init my-project --ai claude
@@ -177,12 +208,12 @@ camel-kit init my-project --ai claude
 
 Migrate existing integrations from other platforms:
 
-- **MuleSoft Mule 3.x/4.x** — Full XML and DataWeave support
+- **MuleSoft Mule 3.x/4.x** — Analysis of Mule XML flows, DataWeave, and connectors
 - **Microsoft BizTalk** — Orchestration, map, and pipeline migration
 - **Apache Camel 2.x/3.x** — Modernize to Camel 4.x YAML DSL
 - **JBoss Fuse** — Legacy Fuse/Karaf migration
 
-The AI auto-detects the source platform, uses graph-based flow analysis, and converts flow-by-flow.
+The AI auto-detects the source platform, records flow-specific analysis in one migration design package, and—after one approval—plans and executes the complete migration in dependency waves. It then runs one project-wide runtime verification pass and the final report-only validation gate.
 
 ```bash
 camel-kit init --here --ai claude --source-platform mulesoft

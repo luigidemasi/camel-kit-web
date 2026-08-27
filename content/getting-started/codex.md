@@ -9,15 +9,13 @@ Camel-Kit supports OpenAI Codex CLI as a native AI target. It installs project s
 
 ## Initialize a Codex Project
 
-Use either Camel-Kit entry point:
+Install the current source-tracking `0.3.2-SNAPSHOT` channel from the [Getting Started guide](../), then use the standalone CLI:
 
 ```bash
-# Standalone Camel-Kit CLI
 camel-kit init my-integration --ai codex
-
-# Camel JBang plugin
-camel kit init my-integration --ai codex
 ```
+
+The Maven Central Camel JBang plugin is currently stable `0.3.1`. That release supports only the `bob`, `gemini`, and `claude` targets, so it does not provide `camel kit init --ai codex`. A plugin built from the current `0.3.2-SNAPSHOT` source generates the same Codex assets as the standalone CLI, but it is a development build rather than the published stable plugin.
 
 To add Camel-Kit to the current repository instead, run:
 
@@ -25,12 +23,17 @@ To add Camel-Kit to the current repository instead, run:
 camel-kit init --here --ai codex
 ```
 
-Both entry points generate the same Codex-native project assets.
+The current standalone CLI generates these Codex-native project assets.
 
 ## Generated Assets
 
 {{< filetree >}}
 my-integration/
+  mvnw # Maven wrapper launcher for Linux and macOS
+  mvnw.cmd # Maven wrapper launcher for Windows
+  .mvn/
+    wrapper/
+      maven-wrapper.properties
   AGENTS.md # Codex project instructions, routing, and Iron Laws
   .agents/
     skills/ # All Camel-Kit project skills
@@ -48,6 +51,10 @@ my-integration/
       camel-security-reviewer.toml
   docs/
     constitution.md # Generated architecture rules
+    flows/ # Empty initialization scaffold
+  test/
+    data/ # Empty initialization scaffold
+  schemas/ # Empty initialization scaffold
   .camel-kit/ # Project configuration, catalogs, templates, and state
 {{< /filetree >}}
 
@@ -110,11 +117,10 @@ Codex can dispatch independent implementation-wave tasks to these roles in paral
 
 ## Diagnose the Workspace
 
-Use either doctor entry point:
+Use the current standalone CLI:
 
 ```bash
 camel-kit doctor
-camel kit doctor
 ```
 
 Doctor validates the Codex TOML, all three MCP tables and their exact tool allowlists, prompt approval defaults, project skills, and required custom-agent fields. Failures include a remediation command for regenerating the affected assets.
