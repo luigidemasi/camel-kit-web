@@ -339,7 +339,7 @@ camel-kit doctor [--project-dir <path>] [--json]
 camel kit doctor [--project-dir <path>] [--json]
 ```
 
-Doctor checks generated configuration, target-native entry points, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
+Doctor checks generated configuration, target-native entry points, registered workspace templates, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. Legacy Qwen/OpenCode configurations that predate current filter and permission fields produce upgrade warnings; malformed current configurations fail. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
 
 
 <!--step camel-kit doc-->

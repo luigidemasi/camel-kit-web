@@ -176,6 +176,10 @@ All configurations point to the same JBang-launched Camel MCP server and catalog
 
 The Codex configuration is repository-scoped and loads only after the repository is trusted; Codex also skips any user-added project hooks until trust, and Camel-Kit generates none. It declares the exact Camel workflow tool allowlist through `enabled_tools` and uses `default_tools_approval_mode = "prompt"`; Camel-Kit does not edit global Codex configuration or relax the active sandbox.
 
+For OpenCode, re-running init preserves unrelated root settings, permission entries, and MCP servers in an existing
+`opencode.json` while replacing Camel-Kit's managed entries. Invalid or structurally conflicting JSON fails without
+changing the file.
+
 ## Version Alignment
 
 The server artifact follows the distribution's Camel Main stream; version-sensitive calls select the target runtime catalog explicitly:
