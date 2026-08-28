@@ -7,7 +7,7 @@ toc: false
 
 ## Overview
 
-The greenfield workflow guides you through building a new Apache Camel integration from requirements to working code in minutes. The AI conducts a structured interview, decomposes the design into tasks, generates implementation code, and verifies everything works at runtime.
+The greenfield workflow guides you through building a new Apache Camel integration from requirements to generated code and runtime-verification evidence. The AI conducts a structured interview, decomposes the design into tasks, generates implementation code, and reports which runtime checks passed, failed, or could not run.
 
 This guide walks through a complete example: building an order processing integration.
 
@@ -25,13 +25,27 @@ Your AI agent (Claude Code in this example) now has access to the Camel-Kit pipe
 
 <!--step Start the Design Interview-->
 
-Launch the design phase by invoking the `/camel-brainstorm` command:
+The first pipeline run needs an active pipeline ID. Because `init` does not create
+one, `/camel-brainstorm` prompts you to create it when none exists (see `camel-kit nextId` in the [command reference](../../reference/commands/)):
+
+```bash
+camel-kit nextId order-processing
+# Camel JBang plugin equivalent: camel kit nextId order-processing
+```
+
+Then launch the design phase by invoking the `/camel-brainstorm` command:
 
 ```
 /camel-brainstorm
 ```
 
-The AI begins a Socratic interview covering six areas. Expand each to see an example conversation:
+The interview adapts to what you have already supplied and asks one unresolved question at a time:
+
+- **Project questions (Q1–4)** establish the name, business purpose, systems landscape, and integration goals or flow names.
+- **Per-flow questions (Q5–9)** cover each flow's intent and data, source, transformations, sink, and error handling, with field-mapping, routing, and resilience follow-ups only when needed.
+- **Cross-cutting questions (Q10–13)** cover relevant performance, security, monitoring, and remaining constraints; categories that do not apply are recorded with a rationale.
+
+The AI first analyzes any requirements, examples, or other project material you provide and does not re-ask facts that are already resolved. Complete material can require no clarification questions. The examples below illustrate possible exchanges rather than a fixed checklist:
 
 {{< accordion title="💼 Business Purpose" >}}
 The AI first asks about the high-level business goal:
@@ -107,72 +121,74 @@ You: We expect 100-500 orders per minute during peak hours.
 ```
 {{< /accordion >}}
 
-Throughout the interview, every component name is verified against the MCP catalog. When you mention "Kafka," the AI checks that `camel-kafka` exists in your target version.
+After requirements are complete and before assembling the design, the AI verifies every source and sink component against the MCP catalog. In this example, it confirms that `kafka` exists for the selected Camel version and runtime.
 
 <!--step Review and Approve the Design Specification-->
 
-After the interview, the AI generates a formal **Design Specification** with 7 sections:
+After discovery, the AI generates a formal **Design Specification** with exactly six sections:
 
 | Section | Content |
 |---------|---------|
-| **1. Business Purpose** | Process orders via REST, validate, enrich, publish to fulfillment |
-| **2. Integration Flows** | 6 flows: reception, validation, enrichment, tax, publishing, error handling |
-| **3. Systems & Endpoints** | HTTP `/api/orders` → PostgreSQL → Kafka topics |
-| **4. Data Formats** | JSON in → SQL enrichment → JSON out |
-| **5. Error Handling** | Validation → DLQ, DB errors → retry 3x, Kafka → log & alert |
-| **6. Technical Requirements** | `camel-rest`, `camel-jackson`, `camel-sql`, `camel-kafka` — 500 orders/min |
-| **7. Observability** | Metrics, logging, external config via `application.properties` |
+| **1. Executive Summary** | Business purpose, value, and success criteria |
+| **2. Systems Landscape** | Systems, protocols, and source/target roles |
+| **3. Flow Designs** | Per-flow source, sink, processing, data, configuration, error handling, and verified technical choices |
+| **4. Cross-Cutting Concerns** | Applicable performance, security, monitoring, and constraints |
+| **5. Constitution Compliance** | How every flow satisfies the eight project rules |
+| **6. Project Structure** | Planned routes, configuration, tests, and supporting artifacts |
 
 Review this carefully. Once you approve, the AI proceeds to planning. To approve: *"Looks good, let's proceed!"*
 
 <!--step Automatic Task Decomposition-->
 
-The AI automatically invokes `/camel-plan` and decomposes the design into tasks:
+The AI automatically invokes `/camel-plan` and decomposes the design into route,
+configuration, dependency, test, and conditional infrastructure tasks. The table
+below shows selected route tasks; supporting artifact and test tasks are omitted
+for brevity:
 
-| Task | Acceptance Criteria | Components | Wave |
-|------|-------------------|------------|------|
-| **1. REST Endpoint** | Listen at `/api/orders`, POST, return 202 | `camel-rest`, `camel-jackson` | 1 |
-| **2. Validation** | Check amount > 0, customer_id present | `camel-bean`, `camel-choice` | 2 |
-| **3. Enrichment** | Query PostgreSQL, add email + address | `camel-sql`, `camel-jackson` | 2 |
-| **4. Tax Calculation** | Compute tax, set total = amount + tax | `camel-bean` | 3 |
-| **5. Kafka Publisher** | Publish to `fulfillment.orders`, order ID as key | `camel-kafka` | 4 |
-| **6. Dead Letter Queue** | Publish to `orders.invalid` with error message | `camel-kafka`, `camel-log` | 2 |
+| Task | Acceptance Criteria | Camel components / patterns | Wave |
+|------|-------------------|-----------------------------|------|
+| **1. REST Endpoint** | Listen at `/api/orders`, POST, return 202 | `platform-http`, `jackson` | 1 |
+| **2. Validation** | Check amount > 0, customer_id present | `bean`; `choice` EIP | 2 |
+| **3. Enrichment** | Query PostgreSQL, add email + address | `sql`, `jackson` | 2 |
+| **4. Tax Calculation** | Compute tax, set total = amount + tax | `bean` | 3 |
+| **5. Kafka Publisher** | Publish to `fulfillment.orders`, order ID as key | `kafka` | 4 |
+Error retry and dead-letter behavior is included in the affected route tasks unless
+error delivery is itself a distinct business flow. Tasks in the same wave can run
+**in parallel when the agent supports concurrency**; later waves wait for their
+declared dependencies.
 
-Wave 2 tasks run **in parallel** (independent). Waves 3–4 are **sequential** (dependent).
+<!--step Review the Generated Plan-->
 
-<!--step Approve the Plan-->
-
-Review the task breakdown and wave analysis. The plan is your recipe, not the implementation. It specifies what to build, not how.
-
-To approve:
-```
-Approved, let's build it!
-```
+The AI shows the task breakdown and wave analysis for visibility. The plan is a recipe, not the implementation: it specifies what to build and how to verify it without embedding the generated code. The earlier design approval already authorizes downstream work, so there is no second plan-approval prompt.
 
 <!--step Orchestrated Code Generation-->
 
-The AI automatically invokes `/camel-execute` after plan approval:
+After writing the plan, `/camel-plan` automatically invokes `/camel-execute` under the existing design approval:
 
 ```
 Auto-invoking /camel-execute to implement the plan...
 ```
 
-For each task, the AI:
+For each task, the executor dispatches the persona and guides declared by the plan.
+Route and configuration tasks use `camel-implement`; test tasks use `camel-test`.
+Every task then goes through the applicable review stages:
 
-1. **Implements** - Generates the Camel YAML route using the `camel-implement` skill
-2. **Spec Compliance Review** - Validates the route matches the task's acceptance criteria
-3. **Code Quality Review** - Checks constitution compliance (single responsibility, observability, external config, etc.)
+1. **Implements** - Generates the task's declared artifact with its assigned skill
+2. **Adversarial Review** - A fresh-context moderator and parallel critics inspect the task diff where supported; single-conversation targets such as Bob 1 and Pi run the critic lenses sequentially and record the missing isolation. Verified failures return to implementation before staged review.
+3. **Spec Compliance Review** - Validates the route matches the task's acceptance criteria
+4. **Code Quality Review** - Checks constitution compliance (single responsibility, observability, external config, etc.)
 
 You'll see progress updates:
 
 ```
 Wave 1/4: Task 1 (REST Endpoint)
   - Implementing route...
+  - Adversarial review: PASS
   - Spec compliance: PASS
   - Code quality: PASS
   - Task 1 complete
 
-Wave 2/4: Running 3 tasks in parallel...
+Wave 2/4: Running 3 independent tasks concurrently where supported...
   Task 2 (Validation Flow)
     - Implementing route...
     - Spec compliance: PASS
@@ -192,7 +208,7 @@ Wave 2/4: Running 3 tasks in parallel...
 All routes follow the constitution:
 - Single responsibility per route
 - Separation of concerns (reception → validation → enrichment → publish)
-- Observability (metrics and logging)
+- Observability (route IDs and descriptions, with context-specific correlation and logging)
 - External configuration (database URL, Kafka brokers from application.properties)
 - Only supported components (verified via MCP catalog)
 
@@ -208,11 +224,11 @@ The verification loop runs three phases after execute's environment probe:
 
 | Phase | What happens | Output |
 |-------|-------------|--------|
-| **1. Build** | `./mvnw clean package` | Build successful |
-| **2. Test** | Citrus integration tests with Testcontainers | 4/4 passed |
-| **3. Report** | Summary of checks and fixes | ✅ Integration ready |
+| **1. Build / startup smoke** | Compile with `./mvnw` (or system `mvn` when no wrapper exists); Camel Main projects run a startup smoke test instead | PASS, SKIPPED, or FAILED with the reason |
+| **2. Test** | Recursively discover `*.it.yaml` files and run `camel test run {test-files}` when the Camel test CLI is available; tests that declare Testcontainers additionally require Docker, while container-free and mock-only tests still run | Passed-test count, or an explicit skip/failure |
+| **3. Report** | Summarize checks, fixes, failures, and skipped phases | PASS, PARTIAL, FAIL, or NOT_RUN |
 
-If any phase fails, the AI classifies the error (build/runtime/test/config), fixes it, and retries — up to 15 times per phase.
+Build and test failures enter bounded classify/fix/retry loops (up to 15 attempts); the Camel Main startup smoke test allows up to 6 attempts. Missing tools skip their dependent checks with a recorded reason. Verification is informational and does not block `/camel-execute` from finishing, so review its report and resolve any failed or skipped checks before deployment.
 
 {{< /carousel >}}
 
@@ -220,58 +236,58 @@ If any phase fails, the AI classifies the error (build/runtime/test/config), fix
 
 In one session, without writing code directly, you created:
 
-- 6 Camel YAML routes
+- 5 Camel YAML route files
 - Integration tests using Citrus framework
-- Docker Compose environment setup
+- Docker Compose setup when external services require it
 - Configuration management with external properties
-- Error handling and dead letter queue
-- Observability with metrics and logging
+- Retry and dead-letter handling within the affected routes
+- Observability with route IDs and descriptions, plus context-specific correlation and logging
 
-All code follows the constitution's 8 architecture rules and passed two-stage review per task.
+All code follows the constitution's 8 architecture rules and passed the adversarial pre-filter plus two-stage review per task.
 
 ## Next Steps
 
 {{< carousel id="next-steps" >}}
 <!--step Generated Artifacts-->
 
-Your project now contains:
+If you select Camel Main during design, routes and properties are generated at the project root and no `pom.xml` is required:
 
 {{< filetree >}}
 order-processing/
+  order-reception.camel.yaml
+  order-validation.camel.yaml
+  customer-enrichment.camel.yaml
+  tax-calculation.camel.yaml
+  kafka-publisher.camel.yaml
+  application.properties
+  run.sh
   src/
-    main/
-      resources/
-        routes/
-          order-reception.camel.yaml
-          order-validation.camel.yaml
-          customer-enrichment.camel.yaml
-          tax-calculation.camel.yaml
-          kafka-publisher.camel.yaml
-          error-handler.camel.yaml
-        application.properties
     test/
-      java/
-        OrderProcessingIT.java
-  docker-compose.yaml
-  pom.xml
+      resources/
+        order-reception.camel.it.yaml
+        order-validation.camel.it.yaml
+        ... one .camel.it.yaml file per flow
+        application-test.properties
+        jbang.properties
+  docker-compose.yaml  (only when external services require it)
 {{< /filetree >}}
 
-All routes follow the constitution's 8 rules and passed two-stage review.
+All routes follow the constitution's 8 rules and passed the adversarial pre-filter plus two-stage review.
 
 <!--step Customize & Deploy-->
 
-Now that your integration is working:
+Once the implementation is generated, review its execution report and resolve any failed or skipped verification checks before deployment:
 
 - **Customize** — Edit generated routes to add business-specific logic
-- **Deploy** — Package as a Spring Boot JAR or container image
-- **Monitor** — Use the built-in metrics for observability
-- **Extend** — Run `/camel-brainstorm` again to add new flows
+- **Deploy** — Use the generated `run.sh` for Camel Main or package a runtime-appropriate container image
+- **Monitor** — Use route IDs and descriptions plus the project-specific monitoring configured from your requirements
+- **Extend** — Run `/camel-brainstorm <pipeline-id>` to amend the approved design, then regenerate stale downstream artifacts
 
 <!--step Common Variations-->
 
 **Async Processing** — mention during the interview: *"Orders should be processed asynchronously with 10 concurrent threads"* → AI uses SEDA component.
 
-**DataMapper** — for complex JSON-to-JSON mapping, the AI offers XSLT-based DataMapper with field-by-field mapping.
+**DataMapper** — for JSON-to-JSON mapping, DataMapper uses inline Groovy when both schemas are absent or the mapping has fewer than 20 leaf fields; it uses XSLT only when the mapping has at least 20 leaf fields and at least one schema.
 
 **Multiple Environments** — say *"We need dev, staging, and production configurations"* → AI generates `application-{env}.properties` files.
 
@@ -279,14 +295,14 @@ Now that your integration is working:
 
 **A route breaks later?** Run `/camel-debug` for structured diagnosis. Failures during `/camel-execute` are handled by its internal verification loop.
 
-**Design changes after approval?** Run `/camel-brainstorm` again with the new requirements.
+**Design changes after approval?** Run `/camel-brainstorm <pipeline-id>` with the new requirements, then regenerate stale downstream artifacts.
 
 **Constitution rules too strict?** Edit `docs/constitution.md` before running the pipeline. The 8 rules are customizable per team.
 {{< /carousel >}}
 
 ## Summary
 
-The greenfield workflow transforms requirements into working integrations through four phases:
+The greenfield workflow transforms requirements into an implementation and verification evidence through four phases:
 
 1. **/camel-brainstorm** - Socratic interview → Design Specification
 2. **/camel-plan** - Task decomposition → Implementation Plan

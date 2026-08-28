@@ -1,6 +1,6 @@
 ---
 title: "Route Debugging"
-weight: 6
+weight: 8
 description: "/camel-debug — structured troubleshooting outside a pipeline run"
 toc: false
 ---

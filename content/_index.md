@@ -11,11 +11,11 @@ Auto-detect source platform, map components, convert from MuleSoft 3.x/4.x, BizT
 {{< /feature-card >}}
 
 {{< feature-card title="MCP-Powered" icon="⚡" >}}
-Real-time catalog verification via MCP servers — every component and property checked against the actual Camel catalog.
+Real-time MCP verification for Camel components and options, with infrastructure `forage.*` keys checked against the authoritative cached Forage catalog.
 {{< /feature-card >}}
 
-{{< feature-card title="Multi-Agent Parity" icon="🤖" >}}
-Same skills and quality across IBM Bob 2, IBM Bob 1, Claude Code, OpenAI Codex CLI, Gemini CLI, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode.
+{{< feature-card title="Multi-Target Support" icon="🤖" >}}
+Shared skills are adapted for IBM Bob 2, Claude Code, OpenAI Codex CLI, Gemini CLI, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode. Legacy IBM Bob 1 replaces seven shared pipeline skill files with self-contained monolithic gates and mode switching.
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}
@@ -23,5 +23,5 @@ Same skills and quality across IBM Bob 2, IBM Bob 1, Claude Code, OpenAI Codex C
 {{< /feature-card >}}
 
 {{< feature-card title="Runtime Verification" icon="✅" >}}
-Environment-in-the-loop: build, start, test, classify errors, fix — automatically until it works.
+Environment-in-the-loop: run applicable build, startup, and test checks; classify failures; retry bounded fixes; report skips or unresolved errors.
 {{< /feature-card >}}

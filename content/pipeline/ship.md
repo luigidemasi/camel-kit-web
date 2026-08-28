@@ -1,12 +1,12 @@
 ---
 title: "Ship Workflow"
-weight: 5
+weight: 7
 description: "camel-kit ship — a local controller-owned run from requirements to published code"
 ---
 
 ## Overview
 
-Ship is a local workflow controller. The command `camel-kit ship` (or `camel kit ship` when Camel-Kit is installed as a Camel JBang plugin) starts, inspects, resumes, or aborts a Ship run on your machine. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
+Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.3.2-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
 The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — are thin delegates. They forward your options to the registered CLI command once and return its output. The AI agent does not orchestrate the workflow: the local controller is the sole owner of stages, run state, oversight, evidence, publication, and recovery.
 
@@ -18,11 +18,11 @@ Run Ship when you:
 
 - Want one resumable run from requirements to validated, published code
 - Need to resume an interrupted run by its run ID
-- Already have validated design or plan artifacts and want to start from them
+- Already have an approved manual design spec and want the controller to start at planning
 
 During a normal Ship run you never invoke `/camel-brainstorm`, `/camel-plan`, `/camel-execute`, or `/camel-validate` yourself — the controller drives its own stages.
 
-**Manual alternative:** If you prefer step-by-step control, enter through `/camel-start` or invoke a pipeline stage directly.
+**Manual alternative:** If you prefer the prompt-owned workflow or need to enter at a known stage, use `/camel-start` or invoke that stage directly. After the design approval, a chained manual run continues through downstream stages automatically.
 
 ## Command and Options
 
@@ -91,7 +91,7 @@ Implementation happens in a controller-owned staging copy of the project, prepar
 <!--step Validate-->
 ## Validate
 
-Validation is owned by the controller and deterministic — no worker prose decides the outcome. The controller runs required checks covering route and artifact policy, Camel catalog and schema validation, dependency and runtime consistency, build and packaging, and discovery and execution of required Citrus tests. Evidence commands run in a separate JVM launched by the controller with a pinned, controller-resolved classpath, a scrubbed environment, and a frozen read-only copy of the accepted project tree; network access during validation is avoided by replacing every non-direct Camel endpoint with an in-memory stub, not by OS-level sandboxing.
+Validation is owned by the controller and deterministic — no worker prose decides the outcome. The controller runs required checks covering route and artifact policy, Camel catalog and schema validation, dependency and runtime consistency, direct JVM YAML validation, Camel Main resolution and startup, and discovery and execution of required Citrus tests. Evidence commands run in a separate JVM launched by the controller with a pinned, controller-resolved classpath, a scrubbed environment, and a frozen read-only copy of the accepted project tree. In-memory stubs prevent application endpoints from performing external I/O, but initial catalog and validation-payload resolution can still download artifacts from Maven Central; this is not an OS-level network sandbox.
 
 <!--step Stamp and publication-->
 ## Stamp and Publication
@@ -156,7 +156,7 @@ Resume re-reads the recorded context and every completed stage's artifacts, comp
 
 Context (`--text`/`--document`) can be added only while a run is paused. Adding context to a run paused after validation restarts it from discovery and discards the validation Stamp — the command warns you first.
 
-If the Ship process is interrupted, nothing is lost: the next invocation reports the latest durable state, and an interrupted publication is rolled back from its journal before any further operation.
+If the Ship process is interrupted, the next invocation reports the latest durable run state. The next locked mutation attempts recovery of an interrupted publication from its journal before proceeding; status alone does not perform recovery, and a partial rollback can require manual resolution.
 
 ### Start from existing artifacts
 
@@ -166,11 +166,11 @@ camel-kit ship --start-from plan
 
 `--start-from` starts a new run at `discovery`, `design`, or `plan`:
 
-- `discovery` — no prerequisites (same as a bare start)
+- `discovery` — no imported-artifact prerequisite (same as a bare start); the normal Linux, Pi, and Node Ship prerequisites still apply
 - `design` — requires `--text` or `--document` context and a manual-mode `.camel-kit/pipeline.json` with a non-null `activePipeline`
-- `plan` — requires the same non-null `activePipeline` and imports that pipeline's existing `docs/camel-kit/<pipeline-id>/design-spec.md`, which must exist inside the project
+- `plan` — requires the same non-null `activePipeline`, imports that pipeline's approved `docs/camel-kit/<pipeline-id>/design-spec.md`, and starts the controller at planning
 
-Starting from `execute` or `validate` is not supported: those stages need controller-generated plan and evidence, so start from `plan` instead.
+An existing `implementation-plan.md`, execution report, or validation report cannot be imported into Ship. Starting from `execute` or `validate` is unsupported because those stages require the controller's own generated plan and Pi evidence; start from `plan` and let the controller regenerate downstream artifacts.
 
 ## Evidence and the Stamp
 
@@ -185,23 +185,24 @@ The Stamp is a local run report with a pass or fail status derived from those re
 
 ## Publication and Recovery
 
-Accepted changes reach the live project only after the configured approval and validation gates. Before applying anything, the controller re-verifies every completed stage exactly as recorded and re-checks that the live project has not changed; a changed live tree stops publication and asks you to resume the run. The apply itself is journaled: if it is interrupted, the next Ship operation rolls it back before doing anything else.
+Accepted changes reach the live project only after the configured approval and validation gates. Before applying anything, the controller re-verifies every completed stage exactly as recorded and re-checks that the live project has not changed; a changed live tree stops publication and asks you to resume the run. The apply itself is journaled: if it is interrupted, the next locked mutating Ship operation attempts rollback before proceeding. Recovery can stop for manual resolution if it cannot restore every path safely.
 
 Ordinary process interruption is recoverable with the run ID, but Ship is not a daemon and not a guarantee against OS or power loss. It assumes the invoking OS account is trusted: it is not a hostile same-user sandbox, credential broker, or long-lived service.
 
 ## Worker Requirements and Support Tiers
 
-The first Ship worker is Pi on Linux. It requires:
+The first Ship worker is Pi on Linux. Ship targets Camel Main at the configured `camel.main.version`. Resolution order is a CLI `-p camel.main.version=...` override, the `-c` file or default `~/.camel-kit/config.properties`, then the bundled distribution default; a valid override may select another supported value. Ship uses YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. It requires:
 
 - A Linux host
 - Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
+- Outbound access to Maven Central for catalog and validation-payload resolution
 
 Harness and runtime compatibility is reported in tiers:
 
 | Tier | Meaning |
 |---|---|
 | Supported | A maintained configuration covered by a live end-to-end test |
-| Experimental | Runnable, but not covered by the supported live gate |
+| Experimental | Unverified; allowed to attempt a run only with `--accept-experimental` |
 | Incompatible | A required capability is known absent |
 | Untested | No current result |
 
@@ -211,7 +212,7 @@ Both certified configurations — Pi `0.84.2` and Pi `0.83.0`, each with Node `2
 
 ### Maintainer live gate
 
-The live gate is a manual, maintainer-run test — not a CI default and not something end users run. Maintainers opt in by setting `CAMEL_KIT_SHIP_LIVE_PI` and `CAMEL_KIT_SHIP_LIVE_NODE` to absolute paths of the maintained versions and building with the `linux-ship-certification` profile. Release certification also includes one authenticated run through a registered `camel-kit ship` or `camel kit ship` entry point.
+The live gate is a manual, maintainer-run test — not a CI default and not something end users run. Maintainers opt in by setting `CAMEL_KIT_SHIP_LIVE_PI` and `CAMEL_KIT_SHIP_LIVE_NODE` to absolute paths of the maintained versions and building with the `linux-ship-certification` profile. Release certification also includes one authenticated run through the registered `camel-kit ship` entry point or the current-source plugin's `camel kit ship` form.
 
 ## Harness Commands and Migration
 
@@ -226,7 +227,7 @@ The harness-native commands are thin wrappers around the local CLI command — n
 Earlier releases shipped `/camel-ship` as a prompt-owned workflow that the AI agent orchestrated itself, with state in `.camel-kit`. That design is retired. To move an existing workspace to the thin delegates:
 
 1. Back up or commit any customizations to generated assets — the next step rewrites them.
-2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or `camel kit init ...`). Re-initialization also removes the obsolete Ship guides, harness traits, and Bob 2 Ship mode and rule assets.
+2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization also removes the obsolete Ship guides, harness traits, and Bob 2 Ship mode and rule assets.
 3. If the workspace has a pre-controller `.camel-kit/ship-state.json`, or a `.camel-kit/pipeline.json` not in manual mode, archive it outside the project — Ship fails closed on that state and leaves it unchanged. Old runs are not resumable by the controller. Manual-mode `pipeline.json` stays supported for the standalone skills and `--start-from` imports.
 
 Initialization aborts if a managed agent directory (such as `.claude` or `.bob`) is a symbolic link — replace the link with a real directory first.
@@ -289,9 +290,9 @@ camel-kit ship --start-from plan
 | Aspect | Manual Pipeline | `camel-kit ship --ask smart` | `camel-kit ship --ask never` |
 |--------|----------------|------------------------------|------------------------------|
 | **Entry point** | `/camel-start` or a known stage | `camel-kit ship` (or `/camel-ship`) | `camel-kit ship --ask never` |
-| **Who runs the stages** | You invoke each skill | Local controller | Local controller |
-| **Approval gates** | Chosen by the user | After plan and execute, plus material ambiguity | None, but missing tools, failed mandatory checks, and ungranted authority still stop the run |
-| **Resume** | No | Yes (`--resume <run-id>`) | Yes (`--resume <run-id>`) |
+| **Who runs the stages** | AI agent; chained stages hand off automatically | Local controller | Local controller |
+| **Approval gates** | One required design approval | After plan and execute, plus material ambiguity | None, but missing tools, failed mandatory checks, and ungranted authority still stop the run |
+| **Resume** | No controller run ID; re-enter from on-disk artifacts | Yes (`--resume <run-id>`) | Yes (`--resume <run-id>`) |
 | **Where code changes happen** | Working tree | Staged workspace, published after gates | Staged workspace, published after gates |
 | **Best for** | Learning, exploration | Day-to-day use | Well-understood integrations |
 

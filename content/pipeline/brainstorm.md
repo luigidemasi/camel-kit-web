@@ -1,15 +1,15 @@
 ---
 title: "Design Interview"
-weight: 1
+weight: 2
 description: "/camel-brainstorm — Phase 1: AI-guided design interview"
 toc: false
 ---
 
 ## Overview
 
-`/camel-brainstorm` is the Phase 1 orchestrator that transforms vague integration ideas into formal Design Specifications. Through Socratic questioning, the AI guides you through requirements discovery, system identification, data format analysis, and error handling strategy.
+`/camel-brainstorm` is the Phase 1 orchestrator that transforms greenfield integration requirements into a formal Design Specification. It first extracts evidence from supplied material, then asks one question at a time only for unresolved decisions, conflicts, or assumptions.
 
-The output is a structured 7-section Design Specification that serves as the single source of truth for planning and implementation.
+The output is the six-section greenfield Design Specification that serves as the single source of truth for planning and implementation. Migration packages use `/camel-migrate` and add a seventh Migration Context section.
 
 ## When to Use
 
@@ -24,19 +24,25 @@ Invoke `/camel-brainstorm` when you:
 
 ## The Socratic Method
 
-The AI doesn't ask you to "describe your integration." Instead, it guides you through six discovery areas using open-ended questions that build on your previous answers.
+The interview is adaptive rather than a fixed questionnaire. The AI analyzes all supplied material first and does not re-ask anything already established. A complete requirements document may need zero clarification questions.
 
 Two key benefits:
 
-1. **Completeness** — Structured questions ensure you don't forget critical aspects like error handling or observability
+1. **Completeness** — Required categories are resolved, while conditional categories can be recorded as not applicable with a concrete reason
 2. **Clarity** — Asking "what happens when the database is unavailable?" is clearer than parsing a long paragraph description
 
-The AI adapts questions based on your answers, creating a conversation flow rather than a rigid questionnaire.
+The sequence is:
 
-## The Six Discovery Areas
+1. **Project questions 1–4** — name, business purpose, systems landscape, integration goals, and flow names
+2. **Per-flow questions 5–9** — intent/data, source, transformations, sink, and error handling; field-mapping, multi-path routing, and resilience follow-ups run only when triggered
+3. **Cross-cutting questions 10–13** — performance, security, monitoring, and remaining constraints, asked only when relevant or unresolved
+
+## Example Interview Topics
+
+The following tabs illustrate information the adaptive sequence can collect. They are not six mandatory interview rounds, and questions are asked one at a time.
 
 {{< carousel id="discovery-areas" >}}
-<!--step 1. Business Purpose-->
+<!--step Business Purpose-->
 
 **Goal:** Understand the high-level business value and primary use case.
 
@@ -61,9 +67,9 @@ You: Ensure every valid order reaches the warehouse system
      manual review.
 ```
 
-**Why this matters:** The business purpose becomes the first section of the Design Specification and guides all downstream decisions. It's the "why" that explains the integration to future developers.
+**Why this matters:** The business purpose is recorded in the Executive Summary and guides all downstream decisions. It's the "why" that explains the integration to future developers.
 
-<!--step 2. Systems and Endpoints-->
+<!--step Systems and Endpoints-->
 
 **Goal:** Identify all systems involved and their connection details.
 
@@ -93,15 +99,15 @@ You: Yes, we need to look up customer credit status in
      a PostgreSQL database before sending to the warehouse.
 ```
 
-**MCP Verification:** As you mention systems, the AI verifies component names:
+**Illustrative component selection:** After the adaptive discovery interview is complete, the AI searches the catalog and reads the component documentation before assembling the design. For the requirements above, that selection could produce:
 
 ```
-AI: (MCP lookup: "http") ✓ camel-rest
-AI: (MCP lookup: "kafka") ✓ camel-kafka
-AI: (MCP lookup: "postgresql") ✓ camel-sql
+AI: (catalog search + component docs) ✓ platform-http for the selected runtime
+AI: (catalog search + component docs) ✓ kafka
+AI: (catalog search + component docs) ✓ sql
 ```
 
-If you say "We need to use SuperQueue," the AI responds:
+If discovery identifies a requirement for "SuperQueue" and no matching component is found during component selection, the AI asks for clarification before assembling the design:
 
 ```
 AI: I couldn't find a component for "SuperQueue" in the 
@@ -111,7 +117,7 @@ AI: I couldn't find a component for "SuperQueue" in the
 
 This is Iron Law #1 in action: no component name enters the design without MCP verification.
 
-<!--step 3. Data Formats-->
+<!--step Data Formats-->
 
 **Goal:** Understand input/output formats and transformation requirements.
 
@@ -120,6 +126,7 @@ This is Iron Law #1 in action: no component name enters the design without MCP v
 - What format should output data be in?
 - Are transformations needed between input and output?
 - Are there schemas or data contracts?
+- Field-level mapping detail — conditional follow-up, asked only when field mapping is needed between XML and JSON formats
 
 **Example Exchange:**
 
@@ -141,9 +148,9 @@ AI: This sounds like a field-level transformation. Would you
 You: Let's use DataMapper since this needs to be very reliable.
 ```
 
-**DataMapper Decision:** If transformations are complex, the AI offers DataMapper (XSLT-based). For simple transformations, it suggests JSON processors or bean methods.
+**DataMapper Decision:** If transformations are complex, the AI offers DataMapper. It uses inline Groovy when both schemas are absent or the mapping has fewer than 20 leaf fields; it uses XSLT only when the mapping has at least 20 leaf fields and at least one schema. For simple transformations, the AI suggests JSON processors or bean methods.
 
-<!--step 4. Processing Requirements-->
+<!--step Processing Requirements-->
 
 **Goal:** Identify business logic, validation rules, and processing steps.
 
@@ -151,7 +158,7 @@ You: Let's use DataMapper since this needs to be very reliable.
 - What validations are required?
 - What business rules must be enforced?
 - Are there calculations or enrichments?
-- Any conditional routing (if-then-else)?
+- Any conditional routing (if-then-else)? — the multi-path routing follow-up is asked only when you name several destinations
 
 **Example Exchange:**
 
@@ -174,7 +181,7 @@ You: If creditStatus is "BLOCKED", don't send to warehouse.
 
 **Conditional Routing:** The AI identifies choice/when patterns and includes them in the design.
 
-<!--step 5. Error Handling-->
+<!--step Error Handling-->
 
 **Goal:** Define how failures are handled across different failure modes.
 
@@ -210,7 +217,7 @@ You: Yes, send an email to ops@company.com if we get more
 - **Validation errors** → route to dead letter / invalid topic
 - **System errors** → alert
 
-<!--step 6. Performance & Observability-->
+<!--step Conditional Performance & Observability-->
 
 **Goal:** Capture non-functional requirements and monitoring needs.
 
@@ -240,123 +247,88 @@ You: Total orders received, validation pass rate, database
      lookup time, Kafka publish time, and error count by type.
 ```
 
-**Constitution Rule 5:** Observability is mandatory. The AI ensures metrics and logging are included in the design.
+**Constitution Rule 5:** Every route requires a `routeId` and description. Metrics, logging, tracing, and correlation are added when the project's monitoring requirements call for them.
 
 {{< /carousel >}}
 
 ## MCP Catalog Verification
 
-Throughout the interview, every mentioned component is verified in real-time against the Model Context Protocol catalog.
+After the adaptive discovery interview is complete, and before the design is assembled, the AI selects components by searching the Model Context Protocol catalog and reading the documentation for each candidate.
 
 ### How It Works
 
-When you say "I need to connect to Kafka":
+Given a discovered requirement to connect to Kafka:
 
 1. AI extracts the component name ("kafka")
-2. AI calls MCP tool: `camel_catalog_lookup("kafka")`
-3. MCP responds with component details:
-   ```json
-   {
-     "name": "camel-kafka",
-     "title": "Kafka",
-     "description": "Sent and receive messages to/from an Apache Kafka broker",
-     "version": "4.14.4"
-   }
-   ```
-4. AI confirms: "I'll use the `camel-kafka` component."
+2. AI calls `camel_catalog_components` with a matching label, the project runtime, Camel version, and full platform BOM
+3. AI selects `kafka` only from the returned candidates
+4. AI calls `camel_catalog_component_doc(component="kafka", ...)` with the same runtime and version parameters
+5. AI checks that the response echoes the resolved project Camel version, then records the verified component and options
 
 If the component doesn't exist:
 
 1. AI extracts the component name ("superqueue")
-2. AI calls MCP tool: `camel_catalog_lookup("superqueue")`
-3. MCP responds: `null` (not found)
-4. AI asks for clarification: "I couldn't find a component for SuperQueue. Which messaging system are you using?"
-
-### Supported vs. Unsupported Components
-
-**Constitution Rule 7:** Only Apache Camel supported components are allowed.
-
-The AI cross-references the catalog lookup with the supported components list. If you mention a component that exists but isn't in the Apache Camel catalog:
-
-```
-AI: I found the camel-example component in the catalog, but 
-    it's not supported by Apache Camel. 
-    Would you like to use a supported alternative?
-```
-
-This prevents production deployments of unsupported or community-only components.
+2. AI searches `camel_catalog_components` with the project runtime, Camel version, and full platform BOM
+3. If no result matches, the AI tries a broader catalog category
+4. If the component still is not found, the AI asks for clarification or offers to search for an alternative; it does not write an unverified name into the design
 
 ## Design Specification Format
 
-After the interview, the AI generates a formal Design Specification. Navigate through the 7 sections:
+After discovery and version selection, the AI generates the six-section greenfield Design Specification:
 
 {{< carousel id="spec-sections" >}}
-<!--step 1. Business Purpose-->
+<!--step 1. Executive Summary-->
 
-High-level description of the integration's business value.
+Business purpose, value, and stakeholders.
 
 > Process incoming e-commerce orders from the website, validate order data and customer credit status, and route valid orders to the warehouse management system. Invalid orders are flagged for manual review. Must handle 500 orders/minute with sub-2-second latency.
 
-<!--step 2. Integration Flows-->
+<!--step 2. Systems Landscape-->
 
-List of distinct flows that make up the integration.
+The systems, technologies, protocols, and source/target roles involved in the integration.
 
-- **Order Reception** — REST endpoint for POST requests
-- **Order Validation** — schema and business rules
-- **Customer Credit Lookup** — PostgreSQL query
-- **Routing Decision** — warehouse / pending / invalid
-- **Warehouse Publisher** — Kafka `warehouse.orders`
-- **Error Handler** — retries and alerting
+| System | Type | Protocol | Role |
+|---|---|---|---|
+| E-commerce | Web application | HTTPS/JSON | Source |
+| Customer database | PostgreSQL | SQL | Source |
+| Warehouse | Kafka consumer | Kafka | Target |
 
-<!--step 3. Systems and Endpoints-->
+<!--step 3. Flow Designs-->
 
-Detailed connection information for all systems.
+One complete design per named flow, including its target module, purpose, MCP-verified source and sink, transformations, error handling, configuration properties, and decision rationale.
 
-- **Source:** HTTP POST to `/api/orders` (JSON)
-- **Enrichment:** PostgreSQL at `${db.url}`
-- **Destinations:** Kafka topics `warehouse.orders`, `orders.pending`, `orders.invalid`
-- **Alerts:** SMTP email to `${ops.email}`
+- **order-reception** — HTTP source, validation and enrichment steps, Kafka sink
+- **Source/sink options** — exact catalog-backed endpoint options
+- **Error handling** — retry/DLQ/log/stop strategy and applicable resilience patterns
+- **DataMapper** — field mappings and approach when transformation requires it
 
-All connection details externalized via `application.properties`.
+Each component and EIP records why it was selected and which constraints influenced the choice.
 
-<!--step 4. Data Formats-->
+<!--step 4. Cross-Cutting Concerns-->
 
-Input/output formats and transformation specifications.
+Project-wide performance, security, monitoring, and constraint decisions. When no special requirement applies, the spec records the corresponding standard behavior instead of inventing one.
 
-**Input:** JSON with `orderId`, `customerId`, `items[]`, `totalAmount`
+- **Performance:** throughput, latency, and deployment targets when supplied
+- **Security:** authentication, sensitive data, and compliance requirements when supplied
+- **Monitoring:** metrics, logging, and tracing requirements when supplied
+- **Constraints:** technology, team, timeline, and other project requirements
 
-**Enriched output:** Same fields + `creditStatus`, `warehouseLocation`
+<!--step 5. Constitution Compliance-->
 
-**Transformation:** DataMapper XSLT for reliable field-level mapping.
+An explicit checklist showing how every flow is designed to meet all eight Constitution rules, including catalog verification and the Forage infrastructure ladder.
 
-<!--step 5. Error Handling-->
+- Route Structure and Single Responsibility
+- Separation of Concerns and Naming Conventions
+- Observability and External Configuration
+- Component Catalog Verification and Infrastructure via Forage
 
-Detailed strategy for each failure mode:
+<!--step 6. Project Structure-->
 
-- **Validation errors** → route to `orders.invalid` (no retry)
-- **Database errors** → retry 3x with exponential backoff, then alert
-- **Kafka errors** → retry indefinitely (wait for recovery)
-- **Credit blocked** → route to `orders.pending` (not an error)
+The planned runtime-aware project tree, pipeline artifacts, route locations, properties, schemas, tests, DataMapper files, and conditional build or Docker files.
 
-Alert threshold: > 10 database failures in 5 minutes → email ops.
-
-<!--step 6. Technical Requirements-->
-
-**Components:** `camel-rest`, `camel-jackson`, `camel-sql`, `camel-kafka`, `camel-mail`, `camel-bean`
-
-**Performance:**
-- Throughput: 500/min peak
-- Latency: < 2s per order
-- Concurrency: 10 threads
-
-<!--step 7. Observability-->
-
-**Metrics:** order counts, validation failures, DB lookup time, Kafka publish latency
-
-**Logging:** INFO (received), WARN (validation fail), ERROR (DB/Kafka fail)
-
-**External config:** `db.url`, `kafka.brokers`, `ops.email`, `rest.port` — all via `application.properties`
 {{< /carousel >}}
+
+Migration design packages use the same six sections and add **Section 7: Migration Context** for the source platform, component mappings, platform changes, migration ordering, and Java sources that need adaptation.
 
 ## After the Design Specification
 
@@ -372,31 +344,28 @@ AI: Auto-invoking /camel-plan to create the implementation plan...
 
 ```
 You: Can we add a retry strategy for Kafka publish failures?
-AI: (Updates Section 5, presents revised spec)
+AI: (Updates the affected flow in Section 3, presents revised spec)
 ```
 
 <!--step Greenfield vs. Migration-->
 
-**Greenfield:** `/camel-brainstorm` conducts a full Socratic interview because there's no existing implementation to analyze.
+**Greenfield:** `/camel-brainstorm` extracts all available evidence first, then asks only the project, per-flow, or conditional cross-cutting questions still needed. Complete supplied requirements can go directly to runtime/version selection, MCP catalog verification, and design assembly without clarification.
 
-**Migration:** `/camel-migrate` parses existing artifacts (Mule XML, Camel 2.x XML, etc.) and generates the Design Specification automatically by analyzing existing flows. It still presents a spec for approval, but skips the interview.
+**Migration:** `/camel-migrate` parses existing artifacts (Mule XML, Camel 2.x XML, etc.) and generates the Design Specification by analyzing existing flows. It skips the generic Socratic interview, but confirms unknown or inferred fields before presenting the complete design for approval.
 
 <!--step Customizing the Interview-->
 
-The interview is defined in the brainstorm skill. You can customize questions by editing the skill file.
+The interview is defined in the brainstorm skill. You can customize project-specific prompts while retaining the adaptive evidence-first rules.
 
-**Example:** Add security questions to every interview:
+**Example:** Add a project-specific compliance follow-up when regulated data is present:
 
 ```markdown
-### Security Requirements
-Ask about:
-- Authentication and authorization
-- Data encryption (in-transit and at-rest)
-- Secrets management
-- Compliance (GDPR, HIPAA, etc.)
+### Regulated Data Follow-Up (conditional)
+If supplied material identifies regulated data, ask for the applicable retention
+and audit requirements unless those decisions are already documented.
 ```
 
-Now every design interview includes security, and the spec gains "Section 8: Security Requirements."
+Record the result under Section 4, Cross-Cutting Concerns; do not add a new fixed interview round or change the greenfield spec schema.
 {{< /carousel >}}
 
 ## Common Interview Patterns
@@ -460,7 +429,7 @@ You: Yes, with compensating transactions
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💬</div>
 <strong style="color: var(--color-hero-text);">Socratic Interview</strong>
-<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Six discovery areas with adaptive questioning</p>
+<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Evidence-first, adaptive questions only where needed</p>
 </div>
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔍</div>
@@ -469,8 +438,8 @@ You: Yes, with compensating transactions
 </div>
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📄</div>
-<strong style="color: var(--color-hero-text);">7-Section Spec</strong>
-<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Structured design document — the single source of truth</p>
+<strong style="color: var(--color-hero-text);">Greenfield Design Spec</strong>
+<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Six structured sections — the single source of truth</p>
 </div>
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅</div>

@@ -19,7 +19,7 @@
       </div>
       <div class="text-center max-w-[200px]">
         <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Agent-Agnostic</div>
-        <div class="text-xs" style="color: var(--color-text-secondary);">Same skills and quality across all supported AI targets</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Shared skills across current targets; legacy Bob 1 uses seven self-contained monolithic gates</div>
       </div>
     </div>
     {{ $agents := slice
@@ -53,9 +53,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
       <div>
         <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-accent);">Greenfield Integrations</div>
-        <h2 class="text-xl md:text-2xl font-bold mb-4">Start from requirements, end with running code</h2>
+        <h2 class="text-xl md:text-2xl font-bold mb-4">Start from requirements, end with generated code and evidence</h2>
         <p class="mb-4 leading-relaxed" style="color: var(--color-text-secondary);">
-          The AI walks you through business purpose, data formats, error handling, and performance needs &mdash; then generates production-grade Camel routes with built-in quality gates.
+          The AI walks you through business purpose, data formats, error handling, and performance needs &mdash; then generates catalog-verified Camel routes with quality gates and explicit runtime outcomes.
         </p>
         <code class="text-sm" style="color: var(--color-accent);">/camel-brainstorm</code>
       </div>
@@ -78,7 +78,7 @@
         <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-accent);">Platform Migration</div>
         <h2 class="text-xl md:text-2xl font-bold mb-4">Migrate with Confidence</h2>
         <p class="mb-4 leading-relaxed" style="color: var(--color-text-secondary);">
-          Camel-Kit builds a property graph of your existing project &mdash; parsing flows, connectors, dependencies, and configurations. The AI uses this graph to plan migrations in the correct dependency order.
+          Camel-Kit builds a property graph of your existing project &mdash; parsing flows, connectors, dependencies, and configurations. The AI turns the complete analysis into one project-wide design, then executes its implementation plan in dependency waves.
         </p>
         <div class="space-y-2 mb-6">
           <div class="flex items-start gap-3">
@@ -95,7 +95,7 @@
           </div>
           <div class="flex items-start gap-3">
             <span style="color: var(--color-accent);">&#10003;</span>
-            <span class="text-sm"><strong>Flow-by-flow</strong> &mdash; incremental migration, not big-bang</span>
+            <span class="text-sm"><strong>Whole-project design</strong> &mdash; one approved package, then dependency-wave execution</span>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-4">
@@ -108,11 +108,11 @@
   </div>
 </section>
 
-<!-- Three-Phase Pipeline -->
+<!-- Four-Stage Pipeline -->
 <section class="py-20 md:py-24 px-4" style="background-color: var(--color-bg-secondary);">
   <div class="max-w-5xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-2">Three-Phase Pipeline</h2>
-    <p class="text-center mb-8" style="color: var(--color-text-secondary);">Design &rarr; Plan &rarr; Execute &mdash; each gate requires user approval</p>
+    <h2 class="text-2xl font-bold text-center mb-2">Four-Stage Pipeline</h2>
+    <p class="text-center mb-8" style="color: var(--color-text-secondary);">Design &rarr; Plan &rarr; Execute &rarr; Validate &mdash; one approval gate after design</p>
     {{ partial "pipeline-diagram.html" . }}
   </div>
 </section>
@@ -139,21 +139,24 @@
       </div>
       <div class="tab-panel active" role="tabpanel" data-tab-panel="install-1">
         <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang app install camel-kit@luigidemasi/camel-kit
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.3.2-SNAPSHOT alias (may lag main)
+jbang app install camel-kit@luigidemasi/camel-kit
 camel-kit init my-project --ai claude</code></pre>
         </div>
       </div>
       <div class="tab-panel" role="tabpanel" data-tab-panel="install-2">
         <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">camel plugin add kit \
-  --gav io.github.luigidemasi:camel-kit-jbang-plugin:{version} \
-  -d "Design Apache Camel Integrations with AI"
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Stable 0.3.1: init + bob, gemini, and claude targets
+camel plugin add kit \
+  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.3.1 \
+  --description "Design Apache Camel Integrations with AI"
 camel kit init my-project --ai claude</code></pre>
         </div>
       </div>
       <div class="tab-panel" role="tabpanel" data-tab-panel="install-3">
         <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm">jbang camel-kit@luigidemasi/camel-kit init my-project --ai claude</code></pre>
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.3.2-SNAPSHOT alias (may lag main)
+jbang camel-kit@luigidemasi/camel-kit init my-project --ai claude</code></pre>
         </div>
       </div>
     </div>

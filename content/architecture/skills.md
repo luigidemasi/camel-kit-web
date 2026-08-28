@@ -33,7 +33,7 @@ Loaded by pipeline skills — not exposed as command stubs:
 | Skill | Purpose |
 |-------|---------|
 | **implement** | Generate Camel YAML routes and DataMapper transformations |
-| **test** | Generate Citrus integration tests with Testcontainers |
+| **test** | Generate Citrus integration tests, using Testcontainers only for required external infrastructure |
 | **design** | Component selection, EIP catalog, interview guides |
 | **verify** | Build, test, diagnose, and repair the application at runtime |
 
@@ -50,7 +50,7 @@ Reusable utilities under `skills/shared/`:
 | `forage.md` | Infrastructure configuration ladder and catalog queries |
 | `graph-availability.md` | Graph CLI detection and fallback |
 | `pipeline-infrastructure.md` | Pipeline IDs, state, provenance, and staleness |
-| `datamapper-canonicalize.md` | Pre-compute XPaths for XSLT |
+| `datamapper-canonicalize.md` | Choose Groovy or XSLT from schemas and field count; pre-compute XPaths for XSLT |
 | `flow-test-data.md` | Test data generation patterns |
 | `yaml-structure.md` | YAML DSL structure rules |
 | `yaml-components.md` | Component URI syntax and parameter rules |
@@ -101,17 +101,19 @@ Step-by-step instructions for the agent:
 ```markdown
 # Camel Brainstorm — Phase 1 Orchestrator
 
-## Step 1: Detect Project Type
-Determine if greenfield or migration...
+## Step 1: Detect Invocation Mode
+Determine whether this is a new design or an amendment...
 
 ## Step 2: Run Interview
 Read guides/greenfield-interview.md...
 
 ## Step 3: MCP Verification
 For each component, call camel_catalog_component_doc...
+
+Migration and upgrade requests route to camel-migrate instead.
 ```
 
-Loaded **only when invoked** (~500-2000 tokens).
+Loaded **only when invoked**.
 {{< /carousel >}}
 
 ## Progressive Disclosure
@@ -129,7 +131,7 @@ Request → /camel-start → matching pipeline stage or utility
 
 <!--step Tier 2: SKILL.md (On Trigger)-->
 
-**~500-2000 tokens** per skill
+The main instructions are loaded on demand.
 
 Loaded only when the user invokes the skill or the agent matches intent:
 
@@ -141,26 +143,26 @@ User: "Design a Kafka-to-PostgreSQL integration"
 
 <!--step Tier 3: Guides (As Needed)-->
 
-**~100-500 tokens** per guide
+Supporting guides are loaded only as the active instructions require them.
 
 Loaded only when referenced during execution:
 
 ```
 SKILL.md says: "Read guides/greenfield-interview.md"
   → Agent loads the interview guide
-  → Conducts the 6-area Socratic interview
+  → Conducts adaptive project, per-flow, conditional, and cross-cutting discovery for unresolved requirements
 ```
 
-Total for a typical invocation: **1,000-3,000 tokens**.
+Actual context use depends on the selected workflow and the guides it needs.
 {{< /carousel >}}
 
-## Multi-Agent Parity
+## Target Generation
 
-One set of skills works across all nine current AI targets via agent-specific generators:
+One shared skill set is adapted for eight current AI targets. Legacy IBM Bob 1 replaces seven pipeline `SKILL.md` files with self-contained monolithic gates and mode switching, so those files have a separate source architecture:
 
-{{< before-after before="Same Skill Source" after="Agent-Specific Output" id="multi-agent" >}}
+{{< before-after before="Shared Skill Source" after="Agent-Specific Output" id="multi-agent" >}}
 
-**Markdown instructions** written once:
+**Markdown instructions** written once and adapted by each generator:
 
 ```markdown
 # /camel-brainstorm
@@ -177,15 +179,15 @@ Agent-specific generators produce each platform's native format:
 
 | Generator | Agent | Output |
 |-----------|-------|--------|
-| `ClaudeGenerator` | Claude Code | `.claude/commands/` + subagent dispatch |
-| `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` |
-| `BobGenerator` | IBM Bob 1 (legacy) | `.bob/gates/` + mode switching |
-| `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies |
-| `CodexGenerator` | OpenAI Codex CLI | `AGENTS.md` + `.agents/skills/` + `.codex/agents/` |
-| `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents and hooks |
-| `PiGenerator` | Pi | `.pi/skills/` + prompt templates and guard hooks |
-| `QwenGenerator` | Qwen Code | `.qwen/agents/` + fork dispatch |
-| `OpenCodeGenerator` | OpenCode | `AGENTS.md` + permission profiles |
+| `ClaudeGenerator` | Claude Code | `.claude/commands/` + subagent dispatch + `.claude/camel-kit-personas/` role library |
+| `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` + `.bob/personas/` role library |
+| `BobGenerator` | IBM Bob 1 (legacy) | `.bob/skills/` with seven gate-backed `SKILL.md` files + modes and rules |
+| `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies + `.gemini/camel-kit-personas/` role library |
+| `CodexGenerator` | OpenAI Codex CLI | `AGENTS.md` + `.agents/skills/` + `.codex/agents/` + `.agents/camel-kit-personas/` role library |
+| `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents and hooks + `.github/camel-kit-personas/` role library |
+| `PiGenerator` | Pi | `.pi/skills/` + prompt templates and guard hooks + `.pi/camel-kit-personas/` role library |
+| `QwenGenerator` | Qwen Code | Primary-session workflows + four bounded leaves + `.qwen/camel-kit-personas/` role library |
+| `OpenCodeGenerator` | OpenCode | Nine permission-scoped agents, including the primary executor, + `.opencode/camel-kit-personas/` role library |
 
 {{< /before-after >}}
 
@@ -193,7 +195,7 @@ Codex discovers the shared skills directly under `.agents/skills/`. Users inspec
 
 ## Agent Traits
 
-In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-specific instruction fragments appended to shared skill files during `camel-kit init`. Traits bridge the gap between the equalization layer (identical skills) and agent-specific capabilities.
+In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-specific instruction fragments appended to shared skill files during `camel-kit init`. Traits bridge the gap between the shared-skill equalization layer and agent-specific capabilities.
 
 **How it works:** `DefaultGenerator.applyTraits()` reads `.append.md` files from `templates/traits/{agent}/` and appends them to the corresponding skill files with idempotent HTML comment sentinels. Re-running `init` does not duplicate trait content.
 
@@ -201,7 +203,7 @@ In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-s
 - **SKILL.md traits** (strategy) — e.g., Claude's `camel-execute.append.md` adds parallel subagent dispatch via the `Agent` tool
 - **Guide traits** (tactics) — e.g., Claude's `implementer-context.append.md` adds `run_in_background: true` guidance for wave-based execution
 
-Each agent gets trait content tailored to its capabilities. Bob 2 uses `spawn_subagent` with `explore` for read-only work and `general` for implementation, test, and fix tasks; independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Bob 1 retains its legacy mode-switching gates.
+Each agent gets trait content tailored to its capabilities. Bob 2 reserves built-in `explore` for factual discovery, generates `camel-worker` for implementation, test, fix, and verification work from broad orchestration modes, and generates a read/MCP-only `camel-reviewer` for catalog research, knowledge research, and independent judgment. The parent supplies the selected complete role text from `.bob/personas/` to each scoped preset. Standalone restricted implement and test modes keep mutations inline; test retains its path-scoped edit restriction. Independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Qwen keeps slash-command workflow orchestration in the primary session so questions, approval, arguments, and handoffs remain available; it generates bounded implementer, reviewer, tester, and validator leaves, with the read-only reviewer receiving complete research and review roles from `.qwen/camel-kit-personas/`. OpenCode keeps the other command stubs in the calling primary session, while its execute command selects the generated primary executor; that executor can dispatch only its allowlisted bounded leaves, and each leaf denies further delegation. Researcher and reviewer leaves receive complete roles from `.opencode/camel-kit-personas/`. Bob 1 retains its legacy mode-switching gates. Report ownership follows the same pattern: the Gemini, Qwen, and Copilot validators return complete reports to the primary session, which owns the report write, while the OpenCode validator writes the report only when the executor's prompt assigns it.
 
 ## Next Steps
 

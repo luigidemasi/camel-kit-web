@@ -10,7 +10,7 @@ MuleSoft to Apache Camel 4.x is one of the most common migration paths. Camel-Ki
 
 Key features:
 
-- Automatic DataWeave to XSLT conversion via DataMapper
+- DataWeave migration through DataMapper, using inline Groovy or XSLT from the canonical engine-selection rules
 - Component mapping from Mule connectors to Camel components
 - Preservation of error handling semantics
 - Flow-ref to `direct:` route conversion
@@ -32,7 +32,7 @@ Camel-Kit maps MuleSoft connectors to their Apache Camel equivalents:
 
 | Mule Connector | Camel Component |
 |----------------|-----------------|
-| HTTP Listener | `camel-rest`, `camel-jetty` |
+| HTTP Listener | Catalog-verified target-runtime HTTP consumer, such as `camel-platform-http` |
 | Database | `camel-sql`, `camel-jdbc` |
 | File | `camel-file` |
 | JMS | `camel-jms` |
@@ -103,18 +103,17 @@ Parallel processing pattern that calls multiple services concurrently and aggreg
 ```yaml
 - multicast:
     parallelProcessing: true
+    aggregationStrategy: "#class:org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy"
     steps:
       - to: http://inventory-service/check
       - to: http://pricing-service/price
-- aggregate:
-    strategy: GroupedBodyAggregationStrategy
 ```
 
 {{< /before-after >}}
 
-<!--step DataWeave to XSLT-->
+<!--step DataWeave to DataMapper-->
 
-DataWeave transformations are automatically converted to XSLT for Apache Camel.
+DataWeave transformations are migrated through DataMapper. Camel-Kit uses inline Groovy when both schemas are absent or the mapping has fewer than 20 leaf fields; it selects XSLT only when the mapping has at least 20 leaf fields and at least one schema. The excerpt below illustrates part of an XSLT selected for a mapping with at least 20 leaf fields and available schemas; the remaining fields and schemas are omitted for brevity.
 
 {{< before-after before="DataWeave" after="XSLT" id="dataweave-xslt" >}}
 

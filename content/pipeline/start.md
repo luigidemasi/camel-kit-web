@@ -1,6 +1,6 @@
 ---
 title: "Skill Router"
-weight: 0
+weight: 1
 description: "/camel-start — route integration work to the right Camel-Kit skill"
 toc: false
 ---
