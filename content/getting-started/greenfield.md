@@ -26,7 +26,7 @@ Your AI agent (Claude Code in this example) now has access to the Camel-Kit pipe
 <!--step Start the Design Interview-->
 
 The first pipeline run needs an active pipeline ID. Because `init` does not create
-one, `/camel-brainstorm` prompts you to create it when none exists:
+one, `/camel-brainstorm` prompts you to create it when none exists (see `camel-kit nextId` in the [command reference](../../reference/commands/)):
 
 ```bash
 camel-kit nextId order-processing

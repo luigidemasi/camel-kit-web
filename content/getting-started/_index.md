@@ -134,7 +134,7 @@ I want to build an integration that reads from Kafka and writes to a database
 The AI reads `AGENTS.md`, uses `/camel-start` to route the request to `/camel-brainstorm`, and guides you through design.
 
 On the first run, no active pipeline ID exists yet. The agent asks you to create
-one before the interview continues:
+one before the interview continues (see `camel-kit nextId` in the [command reference](../reference/commands/)):
 
 ```bash
 camel-kit nextId kafka-to-database
@@ -211,7 +211,7 @@ Migrate existing integrations from other platforms:
 - **MuleSoft Mule 3.x/4.x** — Analysis of Mule XML flows, DataWeave, and connectors
 - **Microsoft BizTalk** — Orchestration, map, and pipeline migration
 - **Apache Camel 2.x/3.x** — Modernize to Camel 4.x YAML DSL
-- **JBoss Fuse** — Legacy Fuse/Karaf migration
+- **JBoss Fuse** — Legacy Fuse/Karaf migration; Fuse projects are Camel 2.x/3.x codebases, so use `--source-platform camel` (or let `auto` detect the Fuse version qualifiers)
 
 The AI auto-detects the source platform, records flow-specific analysis in one migration design package, and—after one approval—plans and executes the complete migration in dependency waves. It then runs one project-wide runtime verification pass and the final report-only validation gate.
 

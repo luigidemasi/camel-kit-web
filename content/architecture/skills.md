@@ -179,13 +179,13 @@ Agent-specific generators produce each platform's native format:
 
 | Generator | Agent | Output |
 |-----------|-------|--------|
-| `ClaudeGenerator` | Claude Code | `.claude/commands/` + subagent dispatch + `.claude/camel-kit-personas/` |
-| `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` |
+| `ClaudeGenerator` | Claude Code | `.claude/commands/` + subagent dispatch + `.claude/camel-kit-personas/` role library |
+| `Bob2Generator` | IBM Bob 2 (default) | Shared skills + Bob modes and native `spawn_subagent` + `.bob/personas/` role library |
 | `BobGenerator` | IBM Bob 1 (legacy) | `.bob/skills/` with seven gate-backed `SKILL.md` files + modes and rules |
-| `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies + `.gemini/camel-kit-personas/` |
-| `CodexGenerator` | OpenAI Codex CLI | `AGENTS.md` + `.agents/skills/` + `.codex/agents/` + `.agents/camel-kit-personas/` |
-| `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents, hooks, and `.github/camel-kit-personas/` |
-| `PiGenerator` | Pi | `.pi/skills/` + prompt templates, guard hooks, and `.pi/camel-kit-personas/` |
+| `GeminiGenerator` | Gemini CLI | `GEMINI.md` + TOML policies + `.gemini/camel-kit-personas/` role library |
+| `CodexGenerator` | OpenAI Codex CLI | `AGENTS.md` + `.agents/skills/` + `.codex/agents/` + `.agents/camel-kit-personas/` role library |
+| `CopilotGenerator` | GitHub Copilot CLI | `.github/skills/` + custom agents and hooks + `.github/camel-kit-personas/` role library |
+| `PiGenerator` | Pi | `.pi/skills/` + prompt templates and guard hooks + `.pi/camel-kit-personas/` role library |
 | `QwenGenerator` | Qwen Code | Primary-session workflows + four bounded leaves + `.qwen/camel-kit-personas/` role library |
 | `OpenCodeGenerator` | OpenCode | Nine permission-scoped agents, including the primary executor, + `.opencode/camel-kit-personas/` role library |
 
@@ -203,7 +203,7 @@ In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-s
 - **SKILL.md traits** (strategy) — e.g., Claude's `camel-execute.append.md` adds parallel subagent dispatch via the `Agent` tool
 - **Guide traits** (tactics) — e.g., Claude's `implementer-context.append.md` adds `run_in_background: true` guidance for wave-based execution
 
-Each agent gets trait content tailored to its capabilities. Bob 2 reserves built-in `explore` for factual discovery, generates `camel-worker` for implementation, test, fix, and verification work from broad orchestration modes, and generates a read/MCP-only `camel-reviewer` for catalog research, knowledge research, and independent judgment. The parent supplies the selected complete role text from `.bob/personas/` to each scoped preset. Standalone restricted implement and test modes keep mutations inline; test retains its path-scoped edit restriction. Independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Qwen keeps slash-command workflow orchestration in the primary session so questions, approval, arguments, and handoffs remain available; it generates bounded implementer, reviewer, tester, and validator leaves, with the read-only reviewer receiving complete research and review roles from `.qwen/camel-kit-personas/`. Validators for Gemini, Qwen, and Copilot return complete reports to the primary session, which owns the report write. OpenCode keeps the other command stubs in the calling primary session, while its execute command selects the generated primary executor; that executor can dispatch only its allowlisted bounded leaves, and each leaf denies further delegation. Researcher and reviewer leaves receive complete roles from `.opencode/camel-kit-personas/`. Bob 1 retains its legacy mode-switching gates.
+Each agent gets trait content tailored to its capabilities. Bob 2 reserves built-in `explore` for factual discovery, generates `camel-worker` for implementation, test, fix, and verification work from broad orchestration modes, and generates a read/MCP-only `camel-reviewer` for catalog research, knowledge research, and independent judgment. The parent supplies the selected complete role text from `.bob/personas/` to each scoped preset. Standalone restricted implement and test modes keep mutations inline; test retains its path-scoped edit restriction. Independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Qwen keeps slash-command workflow orchestration in the primary session so questions, approval, arguments, and handoffs remain available; it generates bounded implementer, reviewer, tester, and validator leaves, with the read-only reviewer receiving complete research and review roles from `.qwen/camel-kit-personas/`. OpenCode keeps the other command stubs in the calling primary session, while its execute command selects the generated primary executor; that executor can dispatch only its allowlisted bounded leaves, and each leaf denies further delegation. Researcher and reviewer leaves receive complete roles from `.opencode/camel-kit-personas/`. Bob 1 retains its legacy mode-switching gates. Report ownership follows the same pattern: the Gemini, Qwen, and Copilot validators return complete reports to the primary session, which owns the report write, while the OpenCode validator writes the report only when the executor's prompt assigns it.
 
 ## Next Steps
 

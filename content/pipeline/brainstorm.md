@@ -126,6 +126,7 @@ This is Iron Law #1 in action: no component name enters the design without MCP v
 - What format should output data be in?
 - Are transformations needed between input and output?
 - Are there schemas or data contracts?
+- Field-level mapping detail — conditional follow-up, asked only when field mapping is needed between XML and JSON formats
 
 **Example Exchange:**
 
@@ -157,7 +158,7 @@ You: Let's use DataMapper since this needs to be very reliable.
 - What validations are required?
 - What business rules must be enforced?
 - Are there calculations or enrichments?
-- Any conditional routing (if-then-else)?
+- Any conditional routing (if-then-else)? — the multi-path routing follow-up is asked only when you name several destinations
 
 **Example Exchange:**
 

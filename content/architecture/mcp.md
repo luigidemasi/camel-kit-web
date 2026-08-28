@@ -94,7 +94,7 @@ Fetch Enterprise Integration Pattern details with YAML examples:
           - to: "direct:process-order"
     otherwise:
       steps:
-          - to: "direct:process-other"
+        - to: "direct:process-other"
 ```
 
 <!--step camel_validate_route-->

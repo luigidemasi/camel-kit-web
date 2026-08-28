@@ -59,6 +59,7 @@ camel-kit init --here --ai claude --source-platform <platform>
       - **camel-debug.md**
       - **camel-ship.md**
     - **skills/**
+    - **camel-kit-personas/** # New: fourteen complete role definitions for subagents
   - **docs/**
     - **flows/** # New: empty initialization scaffold
   - **test/**

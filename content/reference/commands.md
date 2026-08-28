@@ -101,6 +101,8 @@ Migration-specific discovery and design for existing integrations.
 | JBoss Fuse | 6.x, 7.x | Fuse BOM, Blueprint XML |
 | Apache Camel | 2.x, 3.x | camel-context.xml, Spring XML, Blueprint |
 
+JBoss Fuse has no dedicated `--source-platform` value: Fuse projects are Camel 2.x/3.x codebases, so pass `--source-platform camel` or leave the default `auto`, which detects the `redhat-*`/`fuse-*` version qualifiers.
+
 **Features:**
 - Auto-detect source vendor
 - Graph-based flow analysis
@@ -242,6 +244,7 @@ my-integration/
       camel-knowledge.md
       camel-debug.md
     skills/ # Skill files with guides
+    camel-kit-personas/ # Fourteen complete role definitions for subagents
   .mcp.json # MCP server configuration
   docs/
     constitution.md # Best practices (8 rules)
@@ -267,6 +270,7 @@ my-integration/
   AGENTS.md # Codex project instructions and routing
   .agents/
     skills/ # All Camel-Kit skills; start with $camel-start
+    camel-kit-personas/ # Fourteen complete role definitions for the custom agents
   .codex/
     config.toml # Camel, Camel Knowledge, and Citrus MCP servers
     agents/ # Seven Camel-Kit custom agents
@@ -339,7 +343,7 @@ camel-kit doctor [--project-dir <path>] [--json]
 camel kit doctor [--project-dir <path>] [--json]
 ```
 
-Doctor checks generated configuration, target-native entry points, registered workspace templates, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. Legacy Qwen/OpenCode configurations that predate current filter and permission fields produce upgrade warnings; malformed current configurations fail. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
+Doctor checks generated configuration, target-native entry points, registered workspace templates, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. Legacy Qwen/OpenCode configurations that predate current filter and permission fields produce upgrade warnings; malformed current configurations fail. A workspace generated before Citrus MCP support produces a warning for the missing `citrus` server on every JSON-configured agent, while a present but malformed `citrus` server fails. For OpenCode, all existing configuration layers are evaluated as one effective configuration and each finding names the file that defines the rule. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
 
 
 <!--step camel-kit doc-->

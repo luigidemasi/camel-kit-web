@@ -170,17 +170,13 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 | GitHub Copilot CLI | `.github/mcp.json` | JSON |
 | Pi | `.mcp.json` | JSON via `pi-mcp-adapter` with `directTools` allowlists |
 | Qwen Code | `.qwen/settings.json` | JSON |
-| OpenCode | `opencode.json` (default) | JSON / JSONC |
+| OpenCode | `opencode.json` (or the existing project file, see below) | JSON / JSONC |
 
 All configurations point to the same JBang-launched Camel MCP server and catalog. Each target exposes that server/tool universe through its native format, filters, and approval fields, except Pi, which consumes `.mcp.json` through `pi-mcp-adapter`. Install its current pin with `pi install npm:pi-mcp-adapter@2.11.0`.
 
 The Codex configuration is repository-scoped and loads only after the repository is trusted; Codex also skips any user-added project hooks until trust, and Camel-Kit generates none. It declares the exact Camel workflow tool allowlist through `enabled_tools` and uses `default_tools_approval_mode = "prompt"`; Camel-Kit does not edit global Codex configuration or relax the active sandbox.
 
-For OpenCode, re-running init preserves unrelated root settings, permission entries, and MCP servers in any existing
-project configuration (`opencode.json`, `opencode.jsonc`, `.opencode/opencode.json`, or
-`.opencode/opencode.jsonc`) while removing lower-precedence copies of Camel-Kit's managed entries and writing the current
-definitions to the highest-precedence existing file. Invalid or structurally conflicting JSON or JSONC fails before any
-workspace file is changed. When none exists, init creates `opencode.json`.
+For OpenCode, init recognises four project configuration layers — `opencode.json`, `opencode.jsonc`, `.opencode/opencode.json`, and `.opencode/opencode.jsonc`, listed from lowest to highest precedence, so `.opencode/opencode.jsonc` wins when several exist. Re-running init (`--here --force` on an initialized project) edits the existing files in place — comments, trailing commas, and newline style are kept, and a symbolic link is written through to its target — preserves unrelated root settings, permission entries, and MCP servers, removes Camel-Kit's managed `permission` and `mcp` entries from lower-precedence layers, and writes the current definitions to the highest-precedence existing file. Every layer is validated first: if any file is not valid JSON or JSONC, is not a JSON object, has a `permission` or `mcp` member that is not an object (a bare `permission` value of `allow`, `ask`, or `deny` is accepted and expanded to a wildcard rule), is not a regular file, or is a symbolic link to a missing file, init fails before any workspace file is changed. When no layer exists, init creates `opencode.json`. `camel-kit doctor` evaluates the same layers as one effective configuration and reports each permission finding against the file that defines the rule.
 
 ## Version Alignment
 

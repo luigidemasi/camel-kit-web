@@ -39,6 +39,7 @@ my-integration/
     skills/ # All Camel-Kit project skills
       camel-start/
         SKILL.md
+    camel-kit-personas/ # Fourteen complete role definitions for the custom agents
   .codex/
     config.toml # Repository-scoped MCP configuration
     agents/ # Camel-Kit custom agent roles
@@ -123,7 +124,7 @@ Use the current standalone CLI:
 camel-kit doctor
 ```
 
-Doctor validates the Codex TOML, all three MCP tables and their exact tool allowlists, prompt approval defaults, project skills, and required custom-agent fields. Failures include a remediation command for regenerating the affected assets.
+Doctor validates the Codex TOML, all three MCP tables and their exact tool allowlists, prompt approval defaults, project skills, required custom-agent fields, and the read-only sandbox of the research and security agents; it warns when registered generated assets such as `AGENTS.md` or the persona library are missing. Failures include a remediation command for regenerating the affected assets.
 
 ## Next Steps
 
