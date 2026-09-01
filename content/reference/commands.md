@@ -32,8 +32,8 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 
 **Process:**
 
-1. Reads the approved design spec
-2. Decomposes into implementation tasks with acceptance criteria
+1. Reads the approved design spec, including global **Not Doing (and Why)** boundaries when present
+2. Decomposes only in-scope capabilities into implementation tasks with acceptance criteria
 3. Runs wave analysis to identify dependency order and concurrency candidates
 4. Specifies two-stage review per task (spec compliance then quality)
 5. Continues to `/camel-execute` when running inside an orchestrated pipeline

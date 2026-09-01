@@ -155,7 +155,7 @@ Review this carefully. Once you approve, the AI proceeds to planning. To approve
 
 <!--step Automatic Task Decomposition-->
 
-The AI automatically invokes `/camel-plan` and decomposes the design into route,
+The AI automatically invokes `/camel-plan`, applies the approved **Not Doing (and Why)** boundaries, and decomposes the design into route,
 configuration, dependency, test, and conditional infrastructure tasks. The table
 below shows selected route tasks; supporting artifact and test tasks are omitted
 for brevity:
