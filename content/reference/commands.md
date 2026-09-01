@@ -18,9 +18,9 @@ Design an integration through an AI-guided interview. This is **Phase 1** of the
 
 1. Analyzes supplied material first; complete requirements may need no clarification questions
 2. Resolves project questions 1–4, then questions 5–9 for each flow, with conditional transformation, routing, and resilience follow-ups
-3. Asks cross-cutting questions 10–13 only when relevant or still unresolved
+3. Asks cross-cutting questions 10–14, including deliberate scope exclusions and their rationale, only when relevant or still unresolved
 4. Verifies every selected Camel artifact via MCP catalog (Iron Law 1)
-5. Produces the six-section greenfield Design Specification
+5. Produces the greenfield Design Specification with six numbered sections plus the unnumbered global **Not Doing (and Why)** scope section
 6. With an explicit pipeline ID, stops after approval; without one, continues through the chained pipeline
 
 **Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
@@ -50,7 +50,7 @@ Execute the implementation plan with orchestrated task dispatch. This is **Phase
 **Process:**
 
 1. Analyzes plan for dependency waves and target-capable concurrency
-2. For each task: implement → adversarial review → spec compliance review → code quality review
+2. For each task, applies any global **Not Doing (and Why)** boundaries, then runs implementation → adversarial review → spec compliance review → code quality review
 3. Loads internal skills as needed (`camel-implement`, `camel-test`, `camel-verify`)
 4. Runs internal runtime verification, then transitions to `/camel-validate` only in a same-conversation chained flow
 

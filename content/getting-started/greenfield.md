@@ -43,7 +43,7 @@ The interview adapts to what you have already supplied and asks one unresolved q
 
 - **Project questions (Q1–4)** establish the name, business purpose, systems landscape, and integration goals or flow names.
 - **Per-flow questions (Q5–9)** cover each flow's intent and data, source, transformations, sink, and error handling, with field-mapping, routing, and resilience follow-ups only when needed.
-- **Cross-cutting questions (Q10–13)** cover relevant performance, security, monitoring, and remaining constraints; categories that do not apply are recorded with a rationale.
+- **Cross-cutting questions (Q10–14)** cover relevant performance, security, monitoring, remaining constraints, and deliberate scope exclusions; categories that do not apply are recorded with a rationale.
 
 The AI first analyzes any requirements, examples, or other project material you provide and does not re-ask facts that are already resolved. Complete material can require no clarification questions. The examples below illustrate possible exchanges rather than a fixed checklist:
 
@@ -121,11 +121,24 @@ You: We expect 100-500 orders per minute during peak hours.
 ```
 {{< /accordion >}}
 
+{{< accordion title="🚫 Scope Boundaries" >}}
+The AI asks which reasonable adjacent capabilities are deliberately out of scope and records why each one is excluded:
+
+```
+AI: Which related capabilities should this iteration not
+    implement, and why?
+
+You: Do not add an order-status API; it needs a separate
+     security design. Use our existing Kafka replay and
+     monitoring platforms instead of rebuilding them here.
+```
+{{< /accordion >}}
+
 After requirements are complete and before assembling the design, the AI verifies every source and sink component against the MCP catalog. In this example, it confirms that `kafka` exists for the selected Camel version and runtime.
 
 <!--step Review and Approve the Design Specification-->
 
-After discovery, the AI generates a formal **Design Specification** with exactly six sections:
+After discovery, the AI generates a formal **Design Specification** with six numbered sections:
 
 | Section | Content |
 |---------|---------|
@@ -135,6 +148,8 @@ After discovery, the AI generates a formal **Design Specification** with exactly
 | **4. Cross-Cutting Concerns** | Applicable performance, security, monitoring, and constraints |
 | **5. Constitution Compliance** | How every flow satisfies the eight project rules |
 | **6. Project Structure** | Planned routes, configuration, tests, and supporting artifacts |
+
+The design also includes an unnumbered top-level **Not Doing (and Why)** section. Each entry names a deliberately excluded capability and records its rationale, so implementation and spec review treat it as a scope boundary rather than an invitation to add an adjacent feature.
 
 Review this carefully. Once you approve, the AI proceeds to planning. To approve: *"Looks good, let's proceed!"*
 
@@ -175,7 +190,7 @@ Every task then goes through the applicable review stages:
 
 1. **Implements** - Generates the task's declared artifact with its assigned skill
 2. **Adversarial Review** - A fresh-context moderator and parallel critics inspect the task diff where supported; single-conversation targets such as Bob 1 and Pi run the critic lenses sequentially and record the missing isolation. Verified failures return to implementation before staged review.
-3. **Spec Compliance Review** - Validates the route matches the task's acceptance criteria
+3. **Spec Compliance Review** - Validates the route matches the task's acceptance criteria without adding capabilities excluded by **Not Doing (and Why)**
 4. **Code Quality Review** - Checks constitution compliance (single responsibility, observability, external config, etc.)
 
 You'll see progress updates:

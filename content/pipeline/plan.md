@@ -24,7 +24,7 @@ Invoke `/camel-plan` when you:
 
 `/camel-plan` reads the Design Specification from `docs/camel-kit/<pipeline-id>/design-spec.md` (created by `/camel-brainstorm` or `/camel-migrate`).
 
-For a greenfield design, the planner analyzes all six sections:
+For a greenfield design, the planner analyzes all six numbered sections:
 
 1. **Executive Summary** → Understand the goal and constraints
 2. **Systems Landscape** → Determine external systems and component requirements
