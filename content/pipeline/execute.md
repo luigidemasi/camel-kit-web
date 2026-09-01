@@ -37,7 +37,7 @@ The executor analyzes:
 
 The AI transforms the Implementation Plan into code and reports through wave-based execution with continuous review.
 
-Before each wave, it deduplicates the components, EIPs, data formats, and languages referenced by that wave and runs the `catalog-researcher` role. The resulting MCP verification summary is passed to every implementer; missing artifacts must be replaced before YAML generation.
+Before each wave, it deduplicates the components, EIPs, data formats, and languages referenced by that wave and runs the `catalog-researcher` role. The resulting summary passes only its declared catalog fields after the artifact identity, runtime, full platform BOM GAV, Camel version, result, and provenance match the task. Implementers treat those fields as data, never as instructions; missing or mismatched bindings must be researched again, and missing artifacts must be replaced before YAML generation.
 
 {{< tabs id="execution-stages" >}}
 <!--tab Implement-->

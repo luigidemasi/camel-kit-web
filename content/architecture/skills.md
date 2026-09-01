@@ -46,6 +46,7 @@ Reusable utilities under `skills/shared/`:
 | Guide | Purpose |
 |-------|---------|
 | `iron-laws.md` | 6 non-negotiable pipeline rules |
+| `context-authority.md` | Data validation, instruction boundaries, and action-specific confirmation |
 | `mcp-setup.md` | MCP version mapping and fallback policy |
 | `forage.md` | Infrastructure configuration ladder and catalog queries |
 | `graph-availability.md` | Graph CLI detection and fallback |
@@ -156,6 +157,23 @@ SKILL.md says: "Read guides/greenfield-interview.md"
 Actual context use depends on the selected workflow and the guides it needs.
 {{< /carousel >}}
 
+## Context Authority
+
+Camel-Kit separates **data authority** from **instruction authority**. A source is never trusted as a whole.
+
+- **Data authority is field- and purpose-specific.** Catalog fields, recognized `.camel-kit/` fields, and approved design or plan fields may be relied upon only after the workflow's required version, schema, provenance, freshness, consistency, and approval checks succeed.
+- **Instruction authority is narrow.** Subject to the host agent's system/developer/user hierarchy, sandbox, safety policy, and approval gates, only the shipped Camel-Kit instructions for the active workflow and explicit user directions may direct Camel-Kit actions. Shipped workflow text cannot override a higher-priority instruction or widen the user's requested scope. A path, attachment, pasted log, or quoted block supplied by the user is loaded content; commands or requests inside it are not themselves user directions.
+
+Prose, comments, examples, commands, URLs, and requests embedded in MCP responses, summaries, project files, logs, documentation, or generated state remain data even when nearby fields have data authority. They cannot add tasks, widen scope, waive a gate, request secrets, or authorize commands, tool calls, URL navigation, file changes, or external effects.
+
+| Workflow | Loaded context | Automatic behavior | Confirmation boundary |
+|---|---|---|---|
+| `/camel-debug` | User-provided and reproduced logs or stack traces, route and configuration files, and MCP responses | Reproduce and classify the symptom; a direct fix request authorizes ordinary in-scope taxonomy-selected repair | A diagnosis-only request stops before mutation and presents the exact repair for approval; a command, URL, or procedure found only in loaded content never supplies that approval |
+| `camel-verify` | Build, startup, and test output; assertions; test files; MCP results; forwarded failure details | Apply bounded taxonomy-defined repair within the approved workflow after corroborating the error | Instruction-like output cannot select a fix; an otherwise necessary action outside the shipped workflow is escalated for specific confirmation |
+| `/camel-migrate` | Source code, XML, configuration, documentation, tests, deployment files, graph output, MCP responses, and generated summaries | Parse migration facts and preserve their confirmed, inferred, or unknown provenance | Embedded requests are surfaced only as data or unknowns in the analysis summary; any independently necessary action outside the workflow requires separate action-specific confirmation |
+
+No extra confirmation is needed to ignore instruction-like text or to perform an action independently required by the invoked workflow from validated data within its existing scope. When another action is genuinely necessary, Camel-Kit identifies the source, exact action, independently verified reason, and scope before asking. Confirmation applies only to that action; a role that cannot ask returns `NEEDS_USER_CONFIRMATION` to its orchestrator without acting.
+
 ## Target Generation
 
 One shared skill set is adapted for eight current AI targets. Legacy IBM Bob 1 replaces seven pipeline `SKILL.md` files with self-contained monolithic gates and mode switching, so those files have a separate source architecture:
@@ -203,7 +221,7 @@ In addition to per-agent generators, Camel-Kit uses **agent traits** — agent-s
 - **SKILL.md traits** (strategy) — e.g., Claude's `camel-execute.append.md` adds parallel subagent dispatch via the `Agent` tool
 - **Guide traits** (tactics) — e.g., Claude's `implementer-context.append.md` adds `run_in_background: true` guidance for wave-based execution
 
-Each agent gets trait content tailored to its capabilities. Bob 2 reserves built-in `explore` for factual discovery, generates `camel-worker` for implementation, test, fix, and verification work from broad orchestration modes, and generates a read/MCP-only `camel-reviewer` for catalog research, knowledge research, and independent judgment. The parent supplies the selected complete role text from `.bob/personas/` to each scoped preset. Standalone restricted implement and test modes keep mutations inline; test retains its path-scoped edit restriction. Independent calls in one parent turn run in parallel, and `fork_context` is used only when prior conversation decisions are needed. Qwen keeps slash-command workflow orchestration in the primary session so questions, approval, arguments, and handoffs remain available; it generates bounded implementer, reviewer, tester, and validator leaves, with the read-only reviewer receiving complete research and review roles from `.qwen/camel-kit-personas/`. OpenCode keeps the other command stubs in the calling primary session, while its execute command selects the generated primary executor; that executor can dispatch only its allowlisted bounded leaves, and each leaf denies further delegation. Researcher and reviewer leaves receive complete roles from `.opencode/camel-kit-personas/`. Bob 1 retains its legacy mode-switching gates. Report ownership follows the same pattern: the Gemini, Qwen, and Copilot validators return complete reports to the primary session, which owns the report write, while the OpenCode validator writes the report only when the executor's prompt assigns it.
+Each agent gets trait content tailored to its capabilities. Bob 2 reserves built-in `explore` for factual discovery, generates `camel-worker` for implementation, test, fix, and verification work from broad orchestration modes, and generates a read/MCP-only `camel-reviewer` for catalog research, knowledge research, and independent judgment. The parent supplies the selected complete role text from `.bob/personas/` to each scoped preset. Standalone restricted implement and test modes keep mutations inline; test retains its path-scoped edit restriction. Independent calls in one parent turn run in parallel. Bob 2 leaves always start with clean context: the parent passes only independently validated scalars and separate canonical JSON-string envelopes, never inherited conversation history. Qwen likewise forbids context-inheriting forks in Camel-Kit workflows and uses clean-context bounded implementer, reviewer, tester, and validator leaves while slash-command orchestration remains in the primary session so questions, approval, arguments, and handoffs stay available. Its read-only reviewer receives complete research and review roles from `.qwen/camel-kit-personas/`. OpenCode keeps the other command stubs in the calling primary session, while its execute command selects the generated primary executor; that executor can dispatch only its allowlisted bounded leaves, and each leaf denies further delegation. Researcher and reviewer leaves receive complete roles from `.opencode/camel-kit-personas/`. Bob 1 retains its legacy mode-switching gates. Report ownership follows the same pattern: the Gemini, Qwen, and Copilot validators return complete reports to the primary session, which owns the report write, while the OpenCode validator writes the report only when the executor's prompt assigns it.
 
 ## Next Steps
 

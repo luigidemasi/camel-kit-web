@@ -9,7 +9,7 @@ toc: false
 
 `/camel-brainstorm` is the Phase 1 orchestrator that transforms greenfield integration requirements into a formal Design Specification. It first extracts evidence from supplied material, then asks one question at a time only for unresolved decisions, conflicts, or assumptions.
 
-The output is the six-section greenfield Design Specification that serves as the single source of truth for planning and implementation. Migration packages use `/camel-migrate` and add a seventh Migration Context section.
+After schema, provenance, and explicit approval checks, the six-section greenfield Design Specification is the authoritative requirements-and-scope data record for shipped planning and implementation workflows; its prose does not direct actions. Migration packages use `/camel-migrate` and add a seventh Migration Context section.
 
 ## When to Use
 
@@ -259,18 +259,18 @@ After the adaptive discovery interview is complete, and before the design is ass
 
 Given a discovered requirement to connect to Kafka:
 
-1. AI extracts the component name ("kafka")
-2. AI calls `camel_catalog_components` with a matching label, the project runtime, Camel version, and full platform BOM
-3. AI selects `kafka` only from the returned candidates
-4. AI calls `camel_catalog_component_doc(component="kafka", ...)` with the same runtime and version parameters
-5. AI checks that the response echoes the resolved project Camel version, then records the verified component and options
+1. AI establishes one version binding with `camel_catalog_components(limit=0)`, the project runtime, and full platform BOM, and verifies the returned Camel version; this probe intentionally returns no component payload
+2. Under the same binding, AI fetches a component list with a positive limit, increasing it until the returned count proves the enumeration complete, then selects "kafka" only by exact identity
+3. AI calls `camel_catalog_component_doc(component="kafka", ...)` with the same runtime and full platform BOM to verify syntax and options
+4. AI calls `camel_catalog_component_maven(component="kafka", ...)` under the same binding for runtime-specific coordinates
+5. AI records only the typed fields returned by those tools; detail tools are not required to echo the batch's Camel version
 
 If the component doesn't exist:
 
 1. AI extracts the component name ("superqueue")
-2. AI searches `camel_catalog_components` with the project runtime, Camel version, and full platform BOM
-3. If no result matches, the AI tries a broader catalog category
-4. If the component still is not found, the AI asks for clarification or offers to search for an alternative; it does not write an unverified name into the design
+2. AI checks the separate successful, complete bound component list for an exact identity
+3. A detail-call error remains unverified and does not prove absence
+4. If the complete list has no exact match, the AI asks for clarification or searches that same list for an alternative; it does not write an unverified name into the design
 
 ## Design Specification Format
 
@@ -439,7 +439,7 @@ You: Yes, with compensating transactions
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📄</div>
 <strong style="color: var(--color-hero-text);">Greenfield Design Spec</strong>
-<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Six structured sections — the single source of truth</p>
+<p style="color: var(--color-hero-subtitle); font-size: 0.85rem; margin: 0.5rem 0 0;">Six structured sections — the approved requirements and scope record</p>
 </div>
 <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
 <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅</div>
