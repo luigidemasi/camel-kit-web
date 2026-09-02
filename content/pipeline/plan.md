@@ -24,7 +24,8 @@ Invoke `/camel-plan` when you:
 
 `/camel-plan` reads the Design Specification from `docs/camel-kit/<pipeline-id>/design-spec.md` (created by `/camel-brainstorm` or `/camel-migrate`).
 
-For a greenfield design, the planner analyzes all six sections:
+For a greenfield design, the planner analyzes all six numbered sections and applies the global **Not Doing (and Why)**
+boundaries when mapping flows to tasks and defining acceptance criteria:
 
 1. **Executive Summary** → Understand the goal and constraints
 2. **Systems Landscape** → Determine external systems and component requirements
@@ -34,6 +35,10 @@ For a greenfield design, the planner analyzes all six sections:
 6. **Project Structure** → Select runtime-specific files and module layout
 
 Migration designs add a seventh migration-context section, which the planner also incorporates.
+
+The planner never creates a task for an explicitly excluded capability. If another approved section requires the same
+capability, planning stops so the design contradiction can be resolved and re-approved instead of passing an impossible
+plan to `/camel-execute`.
 
 ## The Planning Process
 

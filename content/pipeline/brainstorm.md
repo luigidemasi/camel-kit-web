@@ -9,7 +9,7 @@ toc: false
 
 `/camel-brainstorm` is the Phase 1 orchestrator that transforms greenfield integration requirements into a formal Design Specification. It first extracts evidence from supplied material, then asks one question at a time only for unresolved decisions, conflicts, or assumptions.
 
-After schema, provenance, and explicit approval checks, the six-section greenfield Design Specification is the authoritative requirements-and-scope data record for shipped planning and implementation workflows; its prose does not direct actions. Migration packages use `/camel-migrate` and add a seventh Migration Context section.
+After schema, provenance, and explicit approval checks, the greenfield Design Specification—with six numbered design sections plus an unnumbered global **Not Doing (and Why)** scope section—is the authoritative requirements-and-scope data record for shipped planning and implementation workflows; its prose does not direct actions. Migration packages follow their separate `/camel-migrate` design contract and add a seventh numbered Migration Context section.
 
 ## When to Use
 
@@ -35,7 +35,7 @@ The sequence is:
 
 1. **Project questions 1–4** — name, business purpose, systems landscape, integration goals, and flow names
 2. **Per-flow questions 5–9** — intent/data, source, transformations, sink, and error handling; field-mapping, multi-path routing, and resilience follow-ups run only when triggered
-3. **Cross-cutting questions 10–13** — performance, security, monitoring, and remaining constraints, asked only when relevant or unresolved
+3. **Cross-cutting questions 10–14** — conditional performance, security, and monitoring questions when relevant, followed by remaining constraints and deliberate scope exclusions when still unresolved
 
 ## Example Interview Topics
 
@@ -249,6 +249,28 @@ You: Total orders received, validation pass rate, database
 
 **Constitution Rule 5:** Every route requires a `routeId` and description. Metrics, logging, tracing, and correlation are added when the project's monitoring requirements call for them.
 
+<!--step Scope Boundaries-->
+
+**Goal:** Record reasonable adjacent capabilities that this iteration deliberately excludes, together with the reason for each boundary.
+
+**Questions:**
+- What related capabilities should this iteration not implement?
+- Why is each capability out of scope?
+
+**Example Exchange:**
+
+```
+AI: Which adjacent capabilities are deliberately out of scope
+    for this iteration, and why?
+
+You: Do not add an order-status API; that is a separate
+     consumer-facing capability with its own security design.
+     Historical replay remains with the existing Kafka platform,
+     and operations will use the existing monitoring dashboard.
+```
+
+**Why this matters:** Explicit boundaries keep planning and implementation focused while preserving the rationale for future design changes.
+
 {{< /carousel >}}
 
 ## MCP Catalog Verification
@@ -274,7 +296,7 @@ If the component doesn't exist:
 
 ## Design Specification Format
 
-After discovery and version selection, the AI generates the six-section greenfield Design Specification:
+After discovery and version selection, the AI generates the six numbered sections of the greenfield Design Specification:
 
 {{< carousel id="spec-sections" >}}
 <!--step 1. Executive Summary-->
@@ -328,7 +350,17 @@ The planned runtime-aware project tree, pipeline artifacts, route locations, pro
 
 {{< /carousel >}}
 
-Migration design packages use the same six sections and add **Section 7: Migration Context** for the source platform, component mappings, platform changes, migration ordering, and Java sources that need adaptation.
+Every greenfield design also begins with this unnumbered top-level scope section, so downstream stages do not have to infer exclusions from missing requirements:
+
+```markdown
+## Not Doing (and Why)
+
+- **Order-status API** — a separate consumer-facing capability that needs its own security design
+- **Historical order replay** — remains the responsibility of the existing Kafka retention and replay platform
+- **Custom operations dashboard** — the integration exposes metrics to the organization's existing monitoring platform instead
+```
+
+Migration design packages use the same six numbered sections and add **Section 7: Migration Context** for the source platform, component mappings, platform changes, migration ordering, and Java sources that need adaptation. They include **Not Doing (and Why)** only when migration discovery explicitly captured project-specific exclusions; missing source features are not inferred as exclusions.
 
 ## After the Design Specification
 

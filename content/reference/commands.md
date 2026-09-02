@@ -18,9 +18,9 @@ Design an integration through an AI-guided interview. This is **Phase 1** of the
 
 1. Analyzes supplied material first; complete requirements may need no clarification questions
 2. Resolves project questions 1–4, then questions 5–9 for each flow, with conditional transformation, routing, and resilience follow-ups
-3. Asks cross-cutting questions 10–13 only when relevant or still unresolved
+3. Asks conditional questions 10–12 when relevant, then required questions 13–14 about constraints and deliberate scope exclusions when still unresolved
 4. Verifies every selected Camel artifact via MCP catalog (Iron Law 1)
-5. Produces the six-section greenfield Design Specification
+5. Produces the greenfield Design Specification with six numbered sections plus the unnumbered global **Not Doing (and Why)** scope section
 6. With an explicit pipeline ID, stops after approval; without one, continues through the chained pipeline
 
 **Output:** `docs/camel-kit/<pipeline-id>/design-spec.md`
@@ -32,8 +32,8 @@ Generate an implementation plan from an approved design spec. This is **Phase 2*
 
 **Process:**
 
-1. Reads the approved design spec
-2. Decomposes into implementation tasks with acceptance criteria
+1. Reads the approved design spec, including global **Not Doing (and Why)** boundaries when present
+2. Decomposes only in-scope capabilities into implementation tasks with acceptance criteria
 3. Runs wave analysis to identify dependency order and concurrency candidates
 4. Specifies two-stage review per task (spec compliance then quality)
 5. Continues to `/camel-execute` when running inside an orchestrated pipeline
@@ -50,7 +50,7 @@ Execute the implementation plan with orchestrated task dispatch. This is **Phase
 **Process:**
 
 1. Analyzes plan for dependency waves and target-capable concurrency
-2. For each task: implement → adversarial review → spec compliance review → code quality review
+2. For each task, applies any global **Not Doing (and Why)** boundaries, then runs implementation → adversarial review → spec compliance review → code quality review
 3. Loads internal skills as needed (`camel-implement`, `camel-test`, `camel-verify`)
 4. Runs internal runtime verification, then transitions to `/camel-validate` only in a same-conversation chained flow
 
