@@ -112,7 +112,6 @@ JBoss Fuse has no dedicated `--source-platform` value: Fuse projects are Camel 2
 - Incremental or strangler guidance only when an existing external traffic or partition control is currently confirmed and the target conditions are confirmed design constraints with named owners and pre-cutover validation; this is design candidacy, not cutover readiness
 - Static source, configuration, and graph evidence is by itself at most `Inferred` evidence that an external control is operative; `Single cutover required` needs complete current `Confirmed` absent-or-unsafe evidence for a closed, operator-confirmed ingress/control inventory inside named source and operational-control boundaries
 - No strategy classification proves operational readiness, and `Undetermined - evidence needed` produces no concrete cutover guidance
-- Flow-aware analysis assembled into one migration package, approval, plan, and execution
 - An operator-owned deployment, cutover, rollback, reconciliation, soak, and retirement runbook; the skill does not execute those actions
 
 **Migration-package artifacts:**

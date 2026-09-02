@@ -82,12 +82,11 @@ The AI begins the migration pipeline, coordinating all subsequent steps automati
 
 The migration command:
 1. Detects the source platform and artifact types
-2. Analyzes dependencies, entry points, references, and source-retirement candidates
-3. Records behavioral assumptions and evidence gaps in `migration-analysis.md`
-4. Builds one requirements, strategy, design, and operations package with flow-specific sections
-5. Presents that complete package for one package approval
-6. Creates one implementation plan and executes all tasks in dependency waves
-7. Runs one project-wide runtime verification pass, then produces the final static validation report
+2. Analyzes dependencies, entry points, references, and source-retirement candidates; records behavioral assumptions and evidence gaps in `migration-analysis.md`
+3. Builds one requirements, strategy, design, and operations package with flow-specific sections
+4. Presents that complete package for one package approval
+5. Creates one implementation plan and executes all tasks in dependency waves
+6. Runs one project-wide runtime verification pass, then produces the final static validation report
 
 <!--step Vendor Detection and Artifact Discovery-->
 
