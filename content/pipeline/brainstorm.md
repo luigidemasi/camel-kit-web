@@ -35,7 +35,7 @@ The sequence is:
 
 1. **Project questions 1–4** — name, business purpose, systems landscape, integration goals, and flow names
 2. **Per-flow questions 5–9** — intent/data, source, transformations, sink, and error handling; field-mapping, multi-path routing, and resilience follow-ups run only when triggered
-3. **Cross-cutting questions 10–14** — performance, security, monitoring, remaining constraints, and deliberate scope exclusions, asked only when relevant or unresolved
+3. **Cross-cutting questions 10–14** — conditional performance, security, and monitoring questions when relevant, followed by remaining constraints and deliberate scope exclusions when still unresolved
 
 ## Example Interview Topics
 
@@ -350,7 +350,7 @@ The planned runtime-aware project tree, pipeline artifacts, route locations, pro
 
 {{< /carousel >}}
 
-Every greenfield design also contains this unnumbered top-level scope section, so downstream stages do not have to infer exclusions from missing requirements:
+Every greenfield design also begins with this unnumbered top-level scope section, so downstream stages do not have to infer exclusions from missing requirements:
 
 ```markdown
 ## Not Doing (and Why)
@@ -360,7 +360,7 @@ Every greenfield design also contains this unnumbered top-level scope section, s
 - **Custom operations dashboard** — the integration exposes metrics to the organization's existing monitoring platform instead
 ```
 
-Migration design packages use the same six numbered sections and add **Section 7: Migration Context** for the source platform, component mappings, platform changes, migration ordering, and Java sources that need adaptation.
+Migration design packages use the same six numbered sections and add **Section 7: Migration Context** for the source platform, component mappings, platform changes, migration ordering, and Java sources that need adaptation. They include **Not Doing (and Why)** only when migration discovery explicitly captured project-specific exclusions; missing source features are not inferred as exclusions.
 
 ## After the Design Specification
 

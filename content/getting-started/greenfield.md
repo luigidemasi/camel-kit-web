@@ -134,6 +134,8 @@ You: Do not add an order-status API; it needs a separate
 ```
 {{< /accordion >}}
 
+If no deliberate exclusions remain, the design records **None identified** instead of inventing scope boundaries.
+
 After requirements are complete and before assembling the design, the AI verifies every source and sink component against the MCP catalog. In this example, it confirms that `kafka` exists for the selected Camel version and runtime.
 
 <!--step Review and Approve the Design Specification-->
@@ -149,7 +151,7 @@ After discovery, the AI generates a formal **Design Specification** with six num
 | **5. Constitution Compliance** | How every flow satisfies the eight project rules |
 | **6. Project Structure** | Planned routes, configuration, tests, and supporting artifacts |
 
-The design also includes an unnumbered top-level **Not Doing (and Why)** section. Each entry names a deliberately excluded capability and records its rationale, so implementation and spec review treat it as a scope boundary rather than an invitation to add an adjacent feature.
+At the top of the spec, an unnumbered **Not Doing (and Why)** section records each deliberately excluded capability and its rationale, so implementation and spec review treat it as a scope boundary rather than an invitation to add an adjacent feature.
 
 Review this carefully. Once you approve, the AI proceeds to planning. To approve: *"Looks good, let's proceed!"*
 

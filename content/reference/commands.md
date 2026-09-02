@@ -18,7 +18,7 @@ Design an integration through an AI-guided interview. This is **Phase 1** of the
 
 1. Analyzes supplied material first; complete requirements may need no clarification questions
 2. Resolves project questions 1–4, then questions 5–9 for each flow, with conditional transformation, routing, and resilience follow-ups
-3. Asks cross-cutting questions 10–14, including deliberate scope exclusions and their rationale, only when relevant or still unresolved
+3. Asks conditional questions 10–12 when relevant, then required questions 13–14 about constraints and deliberate scope exclusions when still unresolved
 4. Verifies every selected Camel artifact via MCP catalog (Iron Law 1)
 5. Produces the greenfield Design Specification with six numbered sections plus the unnumbered global **Not Doing (and Why)** scope section
 6. With an explicit pipeline ID, stops after approval; without one, continues through the chained pipeline
