@@ -33,7 +33,7 @@ The validation stage runs the applicable checks across these categories:
 - Security findings, including hardcoded credentials and unsafe endpoint settings
 - Route anti-patterns and all constitution rules
 - Project naming, error-handling, property, and route-complexity norms when `.camel-kit/project-graph.json` exists
-- Dead-code analysis when the project graph exists
+- Graph-covered structural retirement-candidate analysis when the project graph exists
 
 Validation is at least as strict as generation: a construct that Camel-Kit refuses to generate must not pass validation merely because it was added by hand.
 

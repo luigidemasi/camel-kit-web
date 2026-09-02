@@ -82,8 +82,8 @@ The AI begins the migration pipeline, coordinating all subsequent steps automati
 
 The migration command:
 1. Detects the source platform and artifact types
-2. Analyzes dependencies, entry points, references, and source-retirement candidates; records behavioral assumptions and evidence gaps in `migration-analysis.md`
-3. Builds one requirements, strategy, design, and operations package with flow-specific sections
+2. Records source-backed requirements in `business-requirements.md`
+3. Records dependencies, entry points, references, behavioral assumptions, evidence gaps, and source-retirement candidates in `migration-analysis.md`, completes the evidence-gated strategy, then builds the design and operations artifacts
 4. Presents that complete package for one package approval
 5. Creates one implementation plan and executes all tasks in dependency waves
 6. Runs one project-wide runtime verification pass, then produces the final static validation report
@@ -451,8 +451,8 @@ The migration workflow automates platform conversion through six steps:
 
 1. **Initialize** — add Camel-Kit to your existing project
 2. **Detect** — discover artifacts and identify the source platform
-3. **Analyze** — use graph-assisted or graph-less discovery to record dependencies, behavioral risks, evidence gaps, and source-retirement candidates in `migration-analysis.md`
-4. **Design and prepare operations** — write `business-requirements.md`, `design-spec.md`, and `migration-runbook.md`, including the evidence-gated migration strategy
+3. **Record requirements** — write source-backed requirements in `business-requirements.md`
+4. **Analyze, design, and prepare operations** — use graph-assisted or graph-less discovery to write `migration-analysis.md`, complete the evidence-gated strategy in `business-requirements.md`, then write `design-spec.md` and `migration-runbook.md`
 5. **Plan and implement** — create one implementation plan, then generate Camel routes and Citrus tests in dependency waves through `/camel-execute`
 6. **Verify and validate** — record one project-wide runtime verification outcome, then run `/camel-validate` for the final report-only static quality analysis
 

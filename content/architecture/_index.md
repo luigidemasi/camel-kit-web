@@ -71,7 +71,7 @@ Code intelligence via a property graph built from **9 content parsers and 2 post
 
 **Optional** — all skills work without it. When available:
 - DI-aware dependency tracking (who injects what, through which interface)
-- Dead code detection and impact analysis
+- Graph-covered structural retirement-candidate reporting and impact analysis
 - Structured migration context for route-by-route analysis
 - Dynamic validation thresholds
 
