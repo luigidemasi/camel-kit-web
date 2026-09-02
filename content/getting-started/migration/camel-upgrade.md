@@ -24,12 +24,22 @@ Camel-Kit analyzes the following artifacts from your Camel 2.x/3.x project:
 |----------|-------------|
 | Camel Context XML (Spring/Blueprint) | Route definitions, endpoint configurations, error handlers |
 | Java DSL routes (RouteBuilder) | Programmatic route definitions |
-| Properties files | Configuration properties, endpoint URIs, credentials |
+| Properties files | Configuration properties, endpoint URIs, authentication requirements, and secret references |
 | Blueprint XML | OSGi service wiring, bean definitions |
 | Karaf features | Dependency bundles, OSGi feature declarations |
 | fabric8 descriptors | Container metadata, deployment configuration |
 
-The AI assistant parses all these artifacts together to understand the complete application structure before generating the modernized output.
+The AI assistant inspects these artifacts together to build an evidence-qualified view of the discovered application structure before generating the modernized output. Coverage and parse gaps remain explicit.
+
+## Evidence, Retirement, and Cutover Planning
+
+Before proposing a target design, Camel-Kit records Camel 2.x/3.x behavioral assumptions and evidence gaps in `migration-analysis.md`. Each entry links a stable ID to the affected route or interface, source evidence, a `Confirmed`, `Inferred`, or `Unknown` status, the impact if the assumption is false, and the validation and owner still required. A component rename or matching endpoint shape is not treated as proof of API or behavioral compatibility.
+
+The source-retirement section uses bounded XML, Java, and configuration scanning to corroborate entry roots from structurally parsed external and scheduled consumers, then follows constant `direct:` and `seda:` route references. A `Retirement candidate` requires complete relevant supported source closure and no supported path from any corroborated entry root. Dynamic endpoints, reflective or custom dispatch, unresolved beans or services, parse failures, and callers outside the selected boundary remain `Unknown`; a current graph can only corroborate and accelerate the source evidence.
+
+The `Migration Strategy` in `business-requirements.md` classifies a scope as `Incremental candidate` only when current evidence or explicit operator confirmation establishes an existing external control—for example, an operator-controlled gateway or load balancer, deterministic JMS selector or Kafka partition, mutually exclusive source directory, or pre-consumption source-side routing predicate—and the target conditions are confirmed design constraints with named owners and pre-cutover validation. A consumer endpoint, route predicate after consumption, static configuration, source scan, or graph can reveal a possible mechanism, but by itself is at most `Inferred` evidence that the control is currently operative. The classification is design candidacy, not cutover readiness.
+
+`Single cutover required`, `Undetermined - evidence needed`, and `migration-runbook.md` follow the [shared evidence, authorization, and retirement rules](../); Camel platform evidence does not relax them.
 
 ## Deprecated Component Updates
 

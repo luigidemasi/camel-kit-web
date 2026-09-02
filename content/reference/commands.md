@@ -90,7 +90,7 @@ Use `/camel-start` when you are unsure which skill to invoke. New work routes to
 
 <!--step /camel-migrate — Migration-->
 
-Migration-specific discovery and design for existing integrations.
+Migration-specific discovery, evidence-qualified analysis, design, and operator handoff for existing integrations.
 
 **Supported source platforms:**
 
@@ -105,9 +105,28 @@ JBoss Fuse has no dedicated `--source-platform` value: Fuse projects are Camel 2
 
 **Features:**
 - Auto-detect source vendor
-- Graph-based flow analysis
+- Bounded source discovery with graph corroboration and acceleration when available
 - DataWeave and BizTalk map parsing
-- Flow-aware analysis assembled into one migration design package, approval, plan, and execution
+- Behavioral assumptions and evidence gaps classified as `Confirmed`, `Inferred`, or `Unknown`
+- Source-retirement findings with an `Evidence State`: `Retirement candidate` requires complete relevant supported source closure and no supported path from any corroborated entry root; incomplete, conflicting, dynamic, unparsable, or out-of-bound evidence remains `Unknown`
+- Incremental or strangler guidance only when an existing external traffic or partition control is currently confirmed and the target conditions are confirmed design constraints with named owners and pre-cutover validation; this is design candidacy, not cutover readiness
+- Static source, configuration, and graph evidence is by itself at most `Inferred` evidence that an external control is operative; `Single cutover required` needs complete current `Confirmed` absent-or-unsafe evidence for a closed, operator-confirmed ingress/control inventory inside named source and operational-control boundaries
+- No strategy classification proves operational readiness, and `Undetermined - evidence needed` produces no concrete cutover guidance
+- Flow-aware analysis assembled into one migration package, approval, plan, and execution
+- An operator-owned deployment, cutover, rollback, reconciliation, soak, and retirement runbook; the skill does not execute those actions
+
+**Migration-package artifacts:**
+
+- `docs/camel-kit/<pipeline-id>/business-requirements.md` — flow requirements and the durable migration-strategy classification
+- `docs/camel-kit/<pipeline-id>/migration-analysis.md` — risk and evidence register plus the source-retirement candidate audit
+- `docs/camel-kit/<pipeline-id>/design-spec.md` — target technical design and tests
+- `docs/camel-kit/<pipeline-id>/migration-runbook.md` — the fourth package artifact and operational handoff, with validated secret references only and never raw credential material
+
+Every required operational fact that is missing, conflicting, stale, `Inferred`, `Unknown`, or not validated in the target environment is written as `Unknown — operator decision required: <missing fact>` and blocks each dependent action.
+
+Provenance runs from requirements → analysis → design → runbook. The implementation plan is a sibling of the runbook: it derives only from the design and never consumes the runbook. Upstream amendments make dependent artifacts stale; a direct design amendment stales the runbook and plan separately, and provenance initialization alone never clears staleness. Each artifact must be genuinely regenerated and revalidated before it is marked current.
+
+Package approval authorizes downstream planning and implementation, not provisioning, deployment, traffic switching, rollback, reconciliation, or source retirement. Retirement is a separate named operator decision after operational validation, reconciliation, and soak.
 
 {{< /carousel >}}
 
@@ -390,7 +409,7 @@ camel-kit graph generate                        # Rebuild project graph
 camel-kit graph find --type CAMEL_ROUTE         # Find nodes by type
 camel-kit graph neighbors <node-id>             # Get connected nodes
 camel-kit graph route-flow <route-id>           # Trace a route's flow
-camel-kit graph dead-code                       # Detect unused code
+camel-kit graph dead-code                       # Report graph-based unused-code candidates
 camel-kit graph project-norms                   # Get project norms for validation
 camel-kit graph project-context                 # Get context for implementation
 camel-kit graph route-context <route-id>        # Get context for testing
@@ -398,6 +417,8 @@ camel-kit graph migration-context <route-id>    # Structured migration context (
 camel-kit graph visualize                       # Generate interactive HTML visualization
 camel-kit plan analyze <plan-file>              # Analyze plan for parallel execution waves
 ```
+
+`graph dead-code` reports structural candidates within graph coverage; it does not prove that code is dead or safe to remove. `/camel-migrate` additionally records entry points, reachable elements, broken references, evidence gaps, coverage, and graph-less source-discovery results in `migration-analysis.md`.
 
 {{< /carousel >}}
 

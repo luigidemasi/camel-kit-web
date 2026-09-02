@@ -26,6 +26,16 @@ Camel-Kit analyzes the following MuleSoft artifacts:
 | Connector configurations | XML configs |
 | POM dependencies | `pom.xml` |
 
+## Evidence, Retirement, and Cutover Planning
+
+Before proposing a target design, Camel-Kit records Mule behavioral assumptions and evidence gaps in `migration-analysis.md`. Each entry links a stable ID to the affected flow or interface, source evidence, a `Confirmed`, `Inferred`, or `Unknown` status, the impact if the assumption is false, and the validation and owner still required. API compatibility is not assumed merely because a listener path or connector has a plausible Camel mapping.
+
+The source-retirement section uses bounded XML and source scanning to corroborate Mule entry roots from parsed message sources and follow constant `flow-ref` targets to flows and sub-flows. A `Retirement candidate` requires complete relevant supported source closure and no supported path from any corroborated entry root. Dynamic flow names, custom modules, parse failures, missing domain or shared configuration, and callers outside the selected boundary remain `Unknown`; a current graph can only corroborate and accelerate the source evidence.
+
+The `Migration Strategy` in `business-requirements.md` classifies a scope as `Incremental candidate` only when current evidence or explicit operator confirmation establishes an existing external control—for example, an operator-controlled gateway or proxy, deterministic broker partition, mutually exclusive source directory, or pre-consumption source-side routing predicate—and the target conditions are confirmed design constraints with named owners and pre-cutover validation. A listener declaration, flow source, static configuration, source scan, or graph can reveal a possible mechanism, but by itself is at most `Inferred` evidence that the control is currently operative; an in-flow predicate after consumption is not a traffic seam. The classification is design candidacy, not cutover readiness.
+
+`Single cutover required`, `Undetermined - evidence needed`, and `migration-runbook.md` follow the [shared evidence, authorization, and retirement rules](../); Mule platform evidence does not relax them.
+
 ## Connector Mapping
 
 Camel-Kit maps MuleSoft connectors to their Apache Camel equivalents:

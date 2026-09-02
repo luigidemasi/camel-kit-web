@@ -27,6 +27,16 @@ Migrate from Microsoft BizTalk Server to Apache Camel 4.x using Camel-Kit's auto
 | Schemas | `.xsd` | Message format definitions |
 | Bindings | `.xml` | Port and adapter configurations |
 
+## Evidence, Retirement, and Cutover Planning
+
+Before proposing a target design, Camel-Kit records BizTalk behavioral assumptions and evidence gaps in `migration-analysis.md`. Each entry links a stable ID to the affected orchestration or interface, source evidence, a `Confirmed`, `Inferred`, or `Unknown` status, the impact if the assumption is false, and the validation and owner still required. Adapter similarity or a plausible receive-port mapping is not treated as proof of API or behavioral compatibility.
+
+The source-retirement section uses bounded source scanning to corroborate entry roots from Receive Locations and activating receives in deployment bindings, then follows constant orchestration calls and supported artifact references. A `Retirement candidate` requires complete relevant supported source closure and no supported path from any corroborated entry root. Missing bindings or assemblies, Direct Binding or subscription behavior not proven by bindings, dynamic .NET calls, parse failures, and callers outside the selected boundary remain `Unknown`; a current graph can only corroborate and accelerate the source evidence.
+
+The `Migration Strategy` in `business-requirements.md` classifies a scope as `Incremental candidate` only when current evidence or explicit operator confirmation establishes existing external routing or a mutually exclusive Receive Location, subscription filter, or partition that can assign traffic before consumption, and the target conditions are confirmed design constraints with named owners and pre-cutover validation. Binding data can corroborate what is deployed, but bindings, source artifacts, static configuration, or graph structure are by themselves at most `Inferred` evidence that a traffic control is currently operative. The classification is design candidacy, not cutover readiness.
+
+`Single cutover required`, `Undetermined - evidence needed`, and `migration-runbook.md` follow the [shared evidence, authorization, and retirement rules](../); BizTalk platform evidence does not relax them.
+
 ## Adapter Mapping
 
 For each BizTalk adapter, the AI proposes a catalog-verified Camel component when a direct mapping exists. Otherwise it records the gap and asks for a target-platform decision.
