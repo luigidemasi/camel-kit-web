@@ -24,7 +24,7 @@ Invoke `/camel-execute` when you:
 
 ## Input: Implementation Plan
 
-`/camel-execute` reads the Implementation Plan from `docs/camel-kit/<pipeline-id>/implementation-plan.md` (created by `/camel-plan`).
+`/camel-execute` reads the Implementation Plan from `docs/camel-kit/<pipeline-id>/implementation-plan.md` (created by `/camel-plan`) and the approved Design Specification that the plan came from. When that design contains a global **Not Doing (and Why)** list, the executor checks it before adding a capability and treats each applicable exclusion as a scope boundary.
 
 The executor analyzes:
 - **Task list** - What to implement
@@ -50,7 +50,7 @@ tasks load `camel-test`. Each task receives:
 - Task description
 - Acceptance criteria
 - Component list (from the plan)
-- Design Specification (context)
+- The applicable Design Specification context, including global **Not Doing (and Why)** boundaries when present
 
 **Example: Task 1 (REST Endpoint)**
 
@@ -140,7 +140,7 @@ This pre-filter does not replace the ordered stages below: spec compliance must 
 <!--tab Spec Review-->
 ## Stage 1: Spec Compliance Review
 
-The executor validates the generated route against the task's acceptance criteria.
+The executor validates the generated route against the task's acceptance criteria and applicable design boundaries. When the design contains **Not Doing (and Why)**, adding a listed capability is a spec-compliance failure, even when that capability appears useful; the executor removes it or escalates a genuine plan/design conflict instead of silently expanding scope.
 
 **Validation Checklist:**
 

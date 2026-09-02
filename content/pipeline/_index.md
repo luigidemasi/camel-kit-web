@@ -71,7 +71,7 @@ The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship'
 
 ## Approval Gate
 
-The design phase has an approval gate. After `/camel-brainstorm` completes, the AI presents the greenfield **Design Specification** with six sections: Executive Summary, Systems Landscape, Flow Designs, Cross-Cutting Concerns, Constitution Compliance, and Project Structure. Migration design packages add Section 7, Migration Context.
+The design phase has an approval gate. After `/camel-brainstorm` completes, the AI presents the greenfield **Design Specification** with six numbered sections—Executive Summary, Systems Landscape, Flow Designs, Cross-Cutting Concerns, Constitution Compliance, and Project Structure—plus an unnumbered global **Not Doing (and Why)** scope section. Migration design packages add numbered Section 7, Migration Context, and include **Not Doing (and Why)** only when migration discovery explicitly captured project-specific exclusions; missing source features are not inferred as exclusions.
 
 You must explicitly approve before the pipeline continues. You can request changes — the AI revises and re-presents.
 
