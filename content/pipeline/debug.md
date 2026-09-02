@@ -31,4 +31,4 @@ The user's invocation determines the repair gate. A direct request to diagnose *
 
 ## Result
 
-The final summary records the original symptom, root cause, classification, whether repair was authorized and attempted, verification evidence, any changed files, and a recommended recurrence guard. A diagnosis-only run can therefore finish with no fix and no changed files.
+The final summary records the original symptom, root cause, classification, the fix applied if any, changed files, and a recommended recurrence guard. A diagnosis-only run can therefore finish with no fix and no changed files.
