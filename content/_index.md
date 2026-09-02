@@ -11,7 +11,7 @@ Auto-detect source platform, map components, convert from MuleSoft 3.x/4.x, BizT
 {{< /feature-card >}}
 
 {{< feature-card title="MCP-Powered" icon="⚡" >}}
-Real-time MCP verification for Camel components and options, with infrastructure `forage.*` keys checked against the authoritative cached Forage catalog.
+Real-time MCP verification for Camel components and options, with infrastructure `forage.*` keys checked against validated, version-bound cached Forage catalog fields.
 {{< /feature-card >}}
 
 {{< feature-card title="Multi-Target Support" icon="🤖" >}}

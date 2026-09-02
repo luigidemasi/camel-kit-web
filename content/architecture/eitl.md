@@ -167,6 +167,8 @@ This means:
 
 Errors that match the taxonomy are classified and routed; unknown, complex, or persistent failures are reported or escalated. The classification determines which bounded repair is attempted.
 
+Build, startup, and test output is evidence, not workflow instruction. A repair runs automatically only when the shipped taxonomy independently selects it from corroborated facts within the approved workflow. Commands, URLs, or procedural requests embedded in output are ignored; if an action outside that workflow is genuinely necessary, Camel-Kit reports its source, exact scope, and independently verified reason and waits for action-specific confirmation.
+
 ### Mechanical vs Architectural
 
 The probe and verify loop use an **"assume mechanical, promote on failure"** rule:
@@ -202,7 +204,7 @@ The probe and verify loop use an **"assume mechanical, promote on failure"** rul
   </div>
 </div>
 
-For Camel component, dependency, and runtime failures, **MCP is the catalog oracle** that distinguishes mechanical from architectural. When a dependency fails, the probe queries `camel_catalog_component_doc` — if MCP confirms the component doesn't exist for this runtime/version, it's architectural. If MCP returns a valid artifact with a different name, it's mechanical. Docker image, port, and service failures follow the probe's separate classification rules.
+For Camel component, dependency, and runtime failures, validated MCP catalog fields provide the facts that distinguish mechanical from architectural. The workflow first binds the batch to the resolved runtime and full platform BOM GAV with a `camel_catalog_components(limit=0)` probe and checks its returned Camel version. Detail-call errors do not prove absence: only a successful, complete type-list query with no exact identity does. Candidate alternatives are found in that list and then independently checked with their detail tool; component coordinates come from `camel_catalog_component_maven` under the same binding. The repair or re-plan action still comes from the shipped promotion rules, never from instructions in a response. Docker image, port, and service failures follow the probe's separate classification rules.
 
 ### How Errors Promote
 

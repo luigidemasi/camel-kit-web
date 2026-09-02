@@ -5,7 +5,7 @@ description: "Catalog-verified infrastructure beans without hand-written wiring"
 toc: false
 ---
 
-Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<domain>.*` properties and registers each bean in Camel as `#<name>`. Camel-Kit uses its cached catalogs as the source of truth for supported factories, runtime dependencies, and property keys.
+Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<domain>.*` properties and registers each bean in Camel as `#<name>`. Camel-Kit uses only purpose-specific cached-catalog fields after validating the configured Forage version, cache path/schema, factory or property identity, and runtime coordinate. Catalog prose never directs actions.
 
 ## Availability and Version Streams
 

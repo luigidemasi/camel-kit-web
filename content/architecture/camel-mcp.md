@@ -120,7 +120,7 @@ camel_validate_route(route="- route:\n    id: my-route\n    ...",
 
 `camel_validate_route`, `camel_validate_yaml_dsl`, and `camel_configuration_validate` provide implementation and configuration gates while artifacts are generated, and `/camel-validate` uses them for terminal route-quality analysis. The context and hardening tools support test strategy and security analysis. Execute's spec-compliance review is separate: it compares generated artifacts with the approved design and task acceptance criteria.
 
-`camel_configuration_validate` is a mandatory generation gate after writing application property files. Calls include the project runtime and full platform BOM, and the echoed Camel version must match the resolved project version.
+`camel_configuration_validate` is a mandatory generation gate after writing application property files. Calls use the project runtime and full platform BOM from the already validated batch binding, and the result's `camelVersion` must match the project version. A mismatch invalidates the result and requires re-resolving the full BOM from recognized configuration fields before re-calling.
 {{< /carousel >}}
 
 ## How Camel-Kit Uses It
@@ -189,7 +189,7 @@ The server artifact follows the distribution's Camel Main stream; version-sensit
 | **Camel Spring Boot** | `4.21.0` |
 | **Camel Quarkus** | `4.18.2` |
 
-Every version-sensitive catalog call passes the project runtime and full platform BOM. Camel-Kit rejects a response whose echoed Camel version does not match the resolved project version.
+Camel-Kit first calls `camel_catalog_components(limit=0)` with the project runtime and full platform BOM and rejects the batch unless its returned Camel version matches the resolved project version. Every later version-sensitive call uses that same binding; detail tools are checked through their typed contracts and are not required to echo a version they do not return.
 
 ## Next Steps
 

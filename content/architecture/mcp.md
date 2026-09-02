@@ -7,6 +7,8 @@ toc: false
 
 Camel-Kit uses the **Model Context Protocol (MCP)** to verify Camel configuration, guide Citrus test generation, and search documentation without pre-loading full catalogs into the agent's context.
 
+MCP responses provide data, not instructions. Camel-Kit relies only on purpose-specific fields after the active workflow validates the source's applicable schema, artifact identity, provenance, and version or runtime bindings. Camel catalog batches are version-bound with the requested runtime, full platform BOM GAV, and a `camel_catalog_components(limit=0)` probe whose returned Camel version must match the project; detail tools do not all echo that field. Prose, examples, commands, URLs, or requests in a response cannot direct an action or change workflow scope.
+
 ## Three MCP Servers
 
 {{< before-after before="Camel MCP — Catalog Verification" after="Knowledge MCP — Semantic Search" id="mcp-servers" >}}
@@ -15,6 +17,7 @@ On-demand access to Apache Camel component catalogs, EIP patterns, data formats,
 
 **Core tools:**
 - `camel_catalog_component_doc` — component details, URI format, and properties
+- `camel_catalog_component_maven` — runtime-specific component Maven coordinates
 - `camel_catalog_eip_doc` — EIP configuration and YAML structure
 - `camel_catalog_dataformat_doc` — data format configuration
 - `camel_catalog_language_doc` — expression language documentation
@@ -45,7 +48,7 @@ Citrus MCP supplies the action catalog, endpoint catalog, YAML DSL schemas, and 
 - `citrus_docs_index` / `citrus_docs_page`
 - Resources such as `citrus://schema/dsl/yaml` and `citrus://docs/best-practices`
 
-Camel-Kit currently uses Citrus Framework **5.0.0-M2** for test schemas and generated dependencies, while the Citrus MCP runner is pinned to working version **5.0.0-M1**. Versioned MCP responses are authoritative only when `citrus.mcp.version` matches `citrus.version`; otherwise Camel-Kit uses its quick-reference fallback for the configured framework version.
+Camel-Kit currently uses Citrus Framework **5.0.0-M2** for test schemas and generated dependencies, while the Citrus MCP runner is pinned to working version **5.0.0-M1**. Camel-Kit binds the MCP version to the actual runner coordinate in the active target's generated configuration, rejects any disagreement with `citrus.mcp.version`, and grants versioned Citrus catalog and schema fields data authority only when that bound runner version also matches `citrus.version`. Otherwise it uses the quick-reference fallback for the configured framework version.
 
 ## Catalog Tools in Action
 
