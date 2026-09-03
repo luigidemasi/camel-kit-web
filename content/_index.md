@@ -19,7 +19,7 @@ Shared skills are adapted for IBM Bob 2, Claude Code, OpenAI Codex CLI, Gemini C
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}
-9 parsers + 2 post-processors build a DI-aware property graph — dependency injection tracking, interface-consumer expansion, structured migration context, dead code detection.
+9 parsers + 2 post-processors build a DI-aware property graph — dependency injection tracking, interface-consumer expansion, structured migration context, and graph-covered structural retirement candidates.
 {{< /feature-card >}}
 
 {{< feature-card title="Runtime Verification" icon="✅" >}}

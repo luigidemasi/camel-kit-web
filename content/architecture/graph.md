@@ -4,7 +4,7 @@ weight: 3
 description: "Property graph code analysis with 9 parsers and DI-aware migration context"
 ---
 
-Camel-Kit includes a **property graph code intelligence layer** that analyzes integration projects using 9 content parsers and 2 post-processors. The graph provides deep insights for migration planning, dead code detection, impact analysis, and **dependency injection wiring** — but it's **optional**. All skills work without the graph.
+Camel-Kit includes a **property graph code intelligence layer** that analyzes integration projects using 9 content parsers and 2 post-processors. The graph provides deep insights for migration planning, graph-covered structural retirement-candidate analysis, impact analysis, and **dependency injection wiring** — but it's **optional**. All skills work without the graph.
 
 ![Graph visualization of a MuleSoft project — nodes represent flows, connectors, Maven artifacts, and config properties](../../images/graph-visualize.png)
 
@@ -78,7 +78,7 @@ The graph layer is exposed via a CLI with 15 subcommands:
 | **route-flow** | For an exact `CAMEL_ROUTE` node ID, emit ordered `FROM`, `PROCESSOR`, and `TO` steps |
 | **impact** | Compute bounded transitive reachability, up to 50 nodes per direction; direction defaults to both |
 | **route-topology** | Report route-to-route connections with target route, endpoint scheme, and URI |
-| **dead-code** | Detect unused non-framework `camel-*` artifacts, unmatched `direct`/`seda` consumers, and unused `camel.*` properties |
+| **dead-code** | Report graph-covered structural candidates for non-framework `camel-*` artifacts, unmatched `direct`/`seda` consumers, and unused `camel.*` properties |
 
 ### Context Commands
 
@@ -127,9 +127,10 @@ Query commands read that file. Regenerate it after source changes so queries ref
 ## Analysis Capabilities
 
 {{< tabs id="graph-analysis" >}}
-<!--tab Dead Code Detection-->
+<!--tab Structural Retirement Candidates-->
 
-The `dead-code` command analyzes the graph to find:
+The `dead-code` command reports graph-covered structural candidates in its existing JSON categories:
+Treat every result as a candidate within graph coverage, not proof that code or configuration is dead or safe to remove.
 
 ### 1. Unused Camel Maven Artifacts
 

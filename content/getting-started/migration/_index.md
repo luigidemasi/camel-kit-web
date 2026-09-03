@@ -4,7 +4,7 @@ weight: 2
 description: "Migrate existing integrations to Apache Camel"
 ---
 
-The migration workflow converts existing integrations from other platforms to Apache Camel 4.x using YAML DSL. Instead of manual rewriting, the AI analyzes your existing artifacts, builds a dependency graph, and assembles one migration design package with flow-specific sections. After you approve that complete package once, Camel-Kit creates one implementation plan, executes its tasks in dependency waves, runs one project-wide runtime verification pass, and finishes with report-only static validation. Verification and validation record failures, skipped checks, and unavailable tools rather than claiming that every run is fully validated.
+The migration workflow converts existing integrations from other platforms to Apache Camel 4.x using YAML DSL. Instead of manual rewriting, the AI performs bounded discovery across your existing artifacts, uses a usable project graph as corroborating evidence and an accelerator, and assembles one evidence-qualified migration package with flow-specific sections. After you approve that complete package once, Camel-Kit creates one implementation plan, executes its tasks in dependency waves, runs one project-wide runtime verification pass, and finishes with report-only static validation. Verification and validation record failures, skipped checks, and unavailable tools rather than claiming that every run is fully validated.
 
 **Supported platforms:**
 - MuleSoft Mule 3.x/4.x
@@ -78,19 +78,19 @@ Invoke the migration orchestrator:
 /camel-migrate
 ```
 
-The AI begins the migration pipeline, coordinating all subsequent steps automatically. You'll be prompted for platform-specific configuration (connector endpoints, credentials, environment mappings) during the process.
+The AI begins the migration pipeline, coordinating all subsequent steps automatically. You'll be asked for platform-specific connector endpoints, authentication requirements, environment mappings, and validated secret references. Never provide raw credential material to the generated documents.
 
 The migration command:
 1. Detects the source platform and artifact types
-2. Analyzes dependencies between flows
-3. Builds one source-analysis and design package with flow-specific sections
-4. Presents that complete package for one design approval
+2. Records source-backed requirements in `business-requirements.md`
+3. Records dependencies, entry points, references, behavioral assumptions, evidence gaps, and source-retirement candidates in `migration-analysis.md`, completes the evidence-gated strategy, then builds the design and operations artifacts
+4. Presents that complete package for one package approval
 5. Creates one implementation plan and executes all tasks in dependency waves
 6. Runs one project-wide runtime verification pass, then produces the final static validation report
 
 <!--step Vendor Detection and Artifact Discovery-->
 
-The AI scans your project to identify the source platform and discover all integration artifacts:
+The AI scans the selected source boundary to identify the platform and discover supported integration artifacts:
 
 ```
 Detecting source platform...
@@ -109,7 +109,7 @@ Discovered:
 - **BizTalk**: Scans for orchestrations (.odx), schemas (.xsd), maps (.btm), and bindings
 - **Camel 2.x/3.x**: Scans for route definitions (XML, Java DSL), Camel components, and Spring/Blueprint configs
 
-Discovery results feed into the next step: dependency graph analysis.
+Discovery results feed into the next step: dependency, reachability, and evidence analysis.
 
 ### Context and confirmation boundary
 
@@ -119,7 +119,9 @@ Normal parsing and graph analysis defined by the invoked workflow continue withi
 
 <!--step Graph Analysis-->
 
-The AI builds a dependency graph from discovered artifacts, identifying data flow and execution dependencies:
+Bounded source scanning establishes the dependency and reachability evidence for the supported constructs. When a current project graph is available, the AI uses it to corroborate and accelerate that analysis. If the graph is missing, stale, malformed, or a query fails, the migration records that limitation rather than treating it as evidence that no risks or candidates exist.
+
+An available graph can identify data flow and execution dependencies such as:
 
 ```
 Analyzing dependencies...
@@ -147,6 +149,8 @@ Topological sort (migration order):
 - **Impact analysis** — understand which flows are affected by changes
 - **Service wiring** — DI-aware analysis traces dependencies through `@Inject`/`@Autowired` annotations and across interface boundaries, catching service chains that route-level analysis alone would miss
 
+The source-retirement audit uses the same report contract for graph-assisted and graph-less runs. It separates confirmed entry points and reachable elements, retirement candidates, broken references, and evidence gaps. Each finding records a stable ID, type, identifier, source path, evidence, `Evidence State`, and required human validation; coverage and parse failures are recorded with the findings. `Retirement candidate` requires complete relevant supported source closure and no supported path from any corroborated entry root. Incomplete coverage, conflicting evidence, dynamic references, parse failures, or relevant material outside the selected boundary remains `Unknown`. A candidate is not proof that the artifact is dead or safe to delete, and Camel-Kit never removes source artifacts automatically.
+
 The `migration-context` command performs a bounded, bidirectional BFS around one route, with depth 3 by default and at most 50 related nodes. It returns local graph context — detected routes, components, services, Maven artifacts, configuration properties, and warnings — rather than a complete dependency chain. The command performs no MCP call; when needed, the migration skill can query the Knowledge MCP later as a separate documentation lookup.
 
 If circular dependencies are detected, the AI prompts you to break the cycle (see Troubleshooting below).
@@ -169,22 +173,47 @@ Open design questions:
 5. What are the success/failure criteria?
 
 Generating docs/camel-kit/<pipeline-id>/business-requirements.md...
+Generating docs/camel-kit/<pipeline-id>/migration-analysis.md...
 Generating docs/camel-kit/<pipeline-id>/design-spec.md...
+Generating docs/camel-kit/<pipeline-id>/migration-runbook.md...
 Presenting the complete package for approval...
 ```
 
 **Design-package artifacts:**
-- **`business-requirements.md`** — business logic extracted from the complete source, organized with flow-specific requirements
+- **`business-requirements.md`** — business logic supported by the inspected source evidence, organized with flow-specific requirements and a durable migration-strategy decision
+- **`migration-analysis.md`** — behavioral assumptions, evidence gaps, and source-retirement findings with stable IDs and evidence-qualified status
 - **`design-spec.md`** — technical specifications for the complete migration, including per-flow components, EIPs, and test cases
+- **`migration-runbook.md`** — operator-owned scope, prerequisites, configuration and data readiness, deployment sequence, cutover entry/actions/exit criteria, operational validation, rollback triggers/actions/verification, reconciliation, escalation, soak, and source-retirement decisions
 
-Camel-Kit presents both documents together and waits for one explicit design approval. That approval authorizes the single downstream plan, execution, verification, and validation sequence.
+Each risk entry records a stable ID, affected flow or interface, behavioral assumption or evidence gap, category, evidence and source, `Confirmed`, `Inferred`, or `Unknown` status, impact if false, required validation, owner, and disposition. Missing or conflicting evidence remains visible. This identifies evidence gaps and behavioral assumptions; static analysis cannot guarantee that it has discovered undocumented behavior or proved source-to-target equivalence.
+
+The `Migration Strategy` in `business-requirements.md` classifies each reconciled ingress scope as `Incremental candidate`, `Single cutover required`, or `Undetermined - evidence needed`. An `Incremental candidate` must record all eight facts as `Confirmed` current behavior or, where allowed, explicit target design constraints:
+
+1. A controllable pre-consumption external traffic control and its operator
+2. The exact deterministic routing or partition unit
+3. Mutually exclusive old/new ownership of each selected unit
+4. The aligned state, in-flight, and correlation boundary
+5. Delivery and ordering effects while traffic is divided or switched
+6. Duplicate-delivery exposure and the applicable idempotency control
+7. Comparable legacy-versus-target telemetry
+8. A rollback signal and reversible traffic control with an identified operator
+
+The existing control, its current owner, the routing unit, and the reversible-control part of rollback require current operational corroboration or explicit operator confirmation. Target ownership, state, delivery, idempotency, telemetry, and rollback-signal conditions may instead be confirmed as evidence-backed design constraints with named owners and concrete pre-cutover validation. This identifies design candidacy, not cutover readiness. Static source, configuration, or graph evidence can show that a mechanism is declared, but by itself is at most `Inferred` evidence that the control is currently operative. Integration size alone is not a safe seam.
+
+`Single cutover required` is valid only within named, validated source and operational-control boundaries whose ingress and control inventory is closed and operator-confirmed, with complete current `Confirmed` evidence that every seam candidate inside those boundaries is absent or unsafe. Anything outside those boundaries or not currently confirmed remains `Undetermined - evidence needed` and receives no concrete cutover guidance. Neither an incremental-candidate nor a single-cutover classification proves deployment, cutover, or rollback readiness.
+
+The runbook is the fourth migration-package artifact, generated from the validated final design after the target runtime is rechecked. It is an operational handoff, not an automatic deployment mechanism, and preserves the strategy classifications, their `MIG-###` and `SRC-###` evidence IDs, and each referenced finding's evidence status. Every required operational fact that is missing, conflicting, stale, `Inferred`, `Unknown`, or not yet validated in the target environment is written exactly as `Unknown — operator decision required: <missing fact>`. Each sentinel-bearing fact is listed under unresolved operator decisions and blocks every dependent deployment, cutover, rollback, reconciliation, soak, or retirement action. Camel-Kit does not invent commands, endpoints, environment values, thresholds, durations, contacts, owners, or decisions. Credential material is never copied into the runbook; only validated secret references may be recorded.
+
+Artifact provenance is `business-requirements.md` → `migration-analysis.md` → `design-spec.md` → `migration-runbook.md`. `implementation-plan.md` is a sibling of the runbook: it derives only from `design-spec.md` and never consumes the runbook. An upstream amendment marks its dependent artifacts stale; a direct design amendment marks the runbook and implementation plan stale separately. Initializing provenance does not clear staleness—each artifact must be genuinely regenerated and revalidated before it is marked current.
+
+Camel-Kit presents the completed package together and waits for one explicit package approval. That approval authorizes the single downstream plan, execution, verification, and validation sequence; it does not authorize infrastructure provisioning, deployment, production traffic switching, rollback, reconciliation, or source retirement. Source retirement remains a separate named operator decision after operational validation, data and message reconciliation, and soak criteria are satisfied.
 
 <!--step Plan and Execute-->
 
-After the complete requirements and design are approved, the AI automatically invokes the planning and execution pipeline (the same pipeline used for greenfield development). For a Spring Boot or Quarkus target, generated routes and tests use the Maven source layout:
+After the complete migration package is approved, the AI automatically invokes the planning and execution pipeline (the same pipeline used for greenfield development). For a Spring Boot or Quarkus target, generated routes and tests use the Maven source layout:
 
 ```
-Planning complete migration package
+Planning approved design spec
   → /camel-plan
   → Plan created: docs/camel-kit/<pipeline-id>/implementation-plan.md
 
@@ -198,13 +227,13 @@ Executing dependency waves...
 For Camel Main, routes and `application.properties` are generated at the module root; tests remain under `src/test/resources`.
 
 **What happens:**
-1. `/camel-plan` creates one detailed implementation plan from the approved migration design package
+1. `/camel-plan` creates one detailed implementation plan from the approved `design-spec.md`; it does not consume `migration-runbook.md`
 2. `/camel-execute` groups all plan tasks into dependency waves
 3. Each wave generates the required Camel YAML routes and Citrus integration tests; independent tasks can run concurrently when the selected AI target supports it
 4. After all tasks finish, `/camel-execute` runs one project-wide runtime verification pass and records the outcome
 5. The pipeline invokes `/camel-validate` once for final static quality analysis
 
-There is no flow-by-flow approval or deployment loop. The single design approval authorizes the complete downstream sequence.
+There is no flow-by-flow approval or automated deployment loop. The single package approval authorizes the complete downstream implementation and validation sequence; operators retain control of the runbook's deployment and traffic actions.
 
 <!--step Internal Verification and Validation-->
 
@@ -251,16 +280,21 @@ Camel-Kit keeps flow-specific analysis and design detail while planning the migr
 
 **Benefits:**
 - **Traceability** — each migrated route maps back to its source flow and design section
+- **Evidence visibility** — stable analysis IDs preserve assumptions, gaps, and retirement candidates across the package
 - **Dependency-safe execution** — prerequisite tasks finish before dependent tasks start
 - **Bounded parallelism** — independent tasks may share a wave without implying that every AI target runs them concurrently
 - **Complete-system evidence** — one project-wide verification section in `execution-report.md` covers the assembled migration before final static validation
+- **Operator handoff** — the runbook carries validated evidence and unresolved production decisions into deployment planning
 
 **Progress tracking:**
 
 ```
 Migration package: 12 flows
-Design: approved
-Plan: implementation-plan.md
+Analysis: migration-analysis.md complete; 3 unknowns require named operator decisions
+Strategy: Incremental candidate (design candidacy; pre-cutover validation pending)
+Package approval: approved
+Runbook: generated and approved; operationally blocked by 3 named operator decisions
+Plan: implementation-plan.md (derived only from design-spec.md)
 Execution: dependency wave 3/4
 Runtime verification: pending
 Final validation: pending
@@ -275,6 +309,17 @@ This progress describes tasks within one migration package; it does not imply th
 Common issues and resolutions during migration:
 
 {{< carousel id="migration-troubleshooting" >}}
+
+<!--step Graph Unavailable or Incomplete-->
+
+**Symptom:**
+
+```
+Warning: Project graph unavailable or incomplete
+Continuing with bounded source discovery
+```
+
+**Resolution:** The migration records the graph failure, scans the supported source artifacts directly, and emits the same source-retirement sections with explicit coverage and parse failures. Review any evidence gaps and validate candidate-unused artifacts with owners and runtime evidence. An empty candidate list under incomplete coverage does not mean that every source artifact is reachable.
 
 <!--step Graph Analysis Fails (Circular Dependency)-->
 
@@ -368,12 +413,12 @@ Verification failed: Behavioral test failure
   Actual: 500 Internal Server Error
 ```
 
-**Cause:** The migrated route may have incorrect configuration (endpoint URLs, credentials, transformation logic) or missing dependencies.
+**Cause:** The migrated route may have incorrect endpoint, authentication, secret-reference, transformation, or dependency configuration.
 
 **Resolution:**
 1. Review the test failure details (stack trace, logs)
 2. Check the migrated route configuration against the original flow
-3. Verify that connector credentials and endpoints are correctly configured
+3. Verify the connector endpoint, authentication requirements, and validated secret reference without copying raw credential material into generated documents
 4. Run the test in debug mode to inspect data at each step
 5. If the issue is environmental (e.g., missing database), document it in the verification section of `execution-report.md` before deciding whether to proceed
 
@@ -406,8 +451,8 @@ The migration workflow automates platform conversion through six steps:
 
 1. **Initialize** — add Camel-Kit to your existing project
 2. **Detect** — discover artifacts and identify the source platform
-3. **Graph** — analyze dependencies and determine migration order
-4. **Design** — write one `business-requirements.md` and `design-spec.md` package with flow-specific sections
+3. **Record requirements** — write source-backed requirements in `business-requirements.md`
+4. **Analyze, design, and prepare operations** — use graph-assisted or graph-less discovery to write `migration-analysis.md`, complete the evidence-gated strategy in `business-requirements.md`, then write `design-spec.md` and `migration-runbook.md`
 5. **Plan and implement** — create one implementation plan, then generate Camel routes and Citrus tests in dependency waves through `/camel-execute`
 6. **Verify and validate** — record one project-wide runtime verification outcome, then run `/camel-validate` for the final report-only static quality analysis
 
