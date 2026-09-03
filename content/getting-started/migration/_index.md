@@ -78,7 +78,7 @@ Invoke the migration orchestrator:
 /camel-migrate
 ```
 
-The AI begins the migration pipeline, coordinating all subsequent steps automatically. You'll be asked for platform-specific connector endpoints, authentication requirements, environment mappings, and validated secret references or storage locations. Never provide raw credential material to the generated documents.
+The AI begins the migration pipeline, coordinating all subsequent steps automatically. You'll be asked for platform-specific connector endpoints, authentication requirements, environment mappings, and validated secret references. Never provide raw credential material to the generated documents.
 
 The migration command:
 1. Detects the source platform and artifact types
@@ -418,7 +418,7 @@ Verification failed: Behavioral test failure
 **Resolution:**
 1. Review the test failure details (stack trace, logs)
 2. Check the migrated route configuration against the original flow
-3. Verify the connector endpoint, authentication requirements, and validated secret reference or storage location without copying raw credential material into generated documents
+3. Verify the connector endpoint, authentication requirements, and validated secret reference without copying raw credential material into generated documents
 4. Run the test in debug mode to inspect data at each step
 5. If the issue is environmental (e.g., missing database), document it in the verification section of `execution-report.md` before deciding whether to proceed
 

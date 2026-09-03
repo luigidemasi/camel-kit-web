@@ -383,7 +383,7 @@ camel-kit doc stale --reason "design changed" --cascade <file>
 camel-kit doc unstale <file>
 ```
 
-`--from` is optional; include it when the new document derives from an upstream pipeline artifact. `--cascade` follows each document's `generated.from` chain and marks downstream artifacts stale. Regenerated artifacts are cleared with `doc unstale`.
+`--from` is optional; include it when the new document derives from an upstream pipeline artifact. `doc stale` always marks its target; `--cascade` also follows each document's `generated.from` chain and marks downstream artifacts stale. Regenerated artifacts are cleared with `doc unstale`.
 
 
 <!--step camel-kit nextId-->
@@ -408,7 +408,7 @@ camel-kit graph generate                        # Rebuild project graph
 camel-kit graph find --type CAMEL_ROUTE         # Find nodes by type
 camel-kit graph neighbors <node-id>             # Get connected nodes
 camel-kit graph route-flow <route-id>           # Trace a route's flow
-camel-kit graph dead-code                       # Report graph-based unused-code candidates
+camel-kit graph dead-code                       # Report graph-covered structural retirement candidates
 camel-kit graph project-norms                   # Get project norms for validation
 camel-kit graph project-context                 # Get context for implementation
 camel-kit graph route-context <route-id>        # Get context for testing
