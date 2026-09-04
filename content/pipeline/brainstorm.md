@@ -285,7 +285,11 @@ Given a discovered requirement to connect to Kafka:
 2. Under the same binding, AI fetches a component list with a positive limit, increasing it until the returned count proves the enumeration complete, then selects "kafka" only by exact identity
 3. AI calls `camel_catalog_component_doc(component="kafka", ...)` with the same runtime and full platform BOM to verify syntax and options
 4. AI calls `camel_catalog_component_maven(component="kafka", ...)` under the same binding for runtime-specific coordinates
-5. AI records only the typed fields returned by those tools; detail tools are not required to echo the batch's Camel version
+5. AI records the catalog binding (runtime, full platform BOM, and returned Camel version) and a `VERIFIED` result with tool provenance for each selected artifact in section 5's **Catalog Verification Evidence** block. Only validated catalog fields are used; detail tools are not required to echo the batch's Camel version
+
+The block has one deduplicated row for every component, EIP, data format, and language in the flow designs, under a
+`binding=MATCHED` line. Failed verification becomes an open design question; the artifact stays out of the flow design
+until verified. The evidence records catalog tool calls, without constructing documentation URLs.
 
 If the component doesn't exist:
 
@@ -338,6 +342,10 @@ Project-wide performance, security, monitoring, and constraint decisions. When n
 <!--step 5. Constitution Compliance-->
 
 An explicit checklist showing how every flow is designed to meet all eight Constitution rules, including catalog verification and the Forage infrastructure ladder.
+
+The **Catalog Verification Evidence** block records the matched catalog version, runtime, and full platform BOM, plus
+each flow artifact's identity, `VERIFIED` result, and verification tool provenance. You can inspect this evidence before
+approving the spec; migration designs use the same section 5 block.
 
 - Route Structure and Single Responsibility
 - Separation of Concerns and Naming Conventions

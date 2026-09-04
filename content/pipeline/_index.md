@@ -75,6 +75,11 @@ The design phase has an approval gate. After `/camel-brainstorm` completes, the 
 
 You must explicitly approve before the pipeline continues. You can request changes — the AI revises and re-presents.
 
+Section 5, **Constitution Compliance**, includes **Catalog Verification Evidence**: a matched runtime/full platform
+BOM/Camel-version binding and one `VERIFIED` row with tool provenance for every component, EIP, data format, and language
+in the flow designs. Greenfield and migration designs share this evidence location, so approval includes the catalog
+basis for the selected artifacts.
+
 In a chained flow, design approval authorizes the remaining stages without additional approval gates. `/camel-plan` generates the task breakdown and transitions to `/camel-execute`; execute dispatches internal runtime verification, then continues to `/camel-validate` for static quality analysis. An independently invoked known stage writes its own output and stops instead of creating a new chain.
 
 ## Iron Laws
