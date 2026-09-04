@@ -11,11 +11,11 @@ Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<dom
 
 `camel-kit init` records `forage.version` and caches the matching catalogs under `.camel-kit/.cache/forage/{version}/`. If no version is mapped or the cache is absent, Camel-Kit skips the Forage rung instead of inventing configuration.
 
-| Camel version | Forage version |
-|--------------|----------------|
-| Camel 4.22.0 | 1.6.0 |
-| Camel 4.18.4 | 1.4.1 |
-| Camel 4.18.2 | 1.3 |
+| Runtime / Camel version | Forage version |
+|-------------------------|----------------|
+| Camel Main / Spring Boot 4.22.0 | 1.6.0 |
+| Camel Main / Spring Boot 4.18.4 | 1.4.1 |
+| Camel Quarkus 4.18.2 | 1.3 |
 | Unmapped streams | Forage unavailable; use the next configuration rung |
 
 The version mappings in `distribution.properties` are authoritative.
