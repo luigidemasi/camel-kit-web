@@ -26,7 +26,7 @@ On-demand access to Apache Camel component catalogs, EIP patterns, data formats,
 
 <!--after-->
 
-Hybrid semantic search over **28,388 indexed documents** — Apache Camel documentation, guides, CVE advisories, and release notes.
+Hybrid semantic search over **30,520 indexed documents** — Apache Camel documentation, guides, CVE advisories, and release notes.
 
 **5 workflow-allowlisted tools** (the server also exposes endpoint validation and index-info tools for direct MCP clients):
 - `camel_docs_search` — hybrid semantic search (20% BM25 + 80% KNN vector)
