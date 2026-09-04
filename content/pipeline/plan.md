@@ -31,7 +31,7 @@ boundaries when mapping flows to tasks and defining acceptance criteria:
 2. **Systems Landscape** → Determine external systems and component requirements
 3. **Flow Designs** → Identify implementation tasks and contracts
 4. **Cross-Cutting Concerns** → Plan errors, security, resilience, observability, and configuration
-5. **Constitution Compliance** → Carry the approved architectural constraints into each task
+5. **Constitution Compliance** → Carry the approved architectural constraints into each task, with **Catalog Verification Evidence** recording the matched runtime, full platform BOM, returned Camel version, and each artifact's `VERIFIED` result and tool provenance
 6. **Project Structure** → Select runtime-specific files and module layout
 
 Migration designs add a seventh migration-context section, which the planner also incorporates.

@@ -148,7 +148,7 @@ After discovery, the AI generates a formal **Design Specification** with six num
 | **2. Systems Landscape** | Systems, protocols, and source/target roles |
 | **3. Flow Designs** | Per-flow source, sink, processing, data, configuration, error handling, and verified technical choices |
 | **4. Cross-Cutting Concerns** | Applicable performance, security, monitoring, and constraints |
-| **5. Constitution Compliance** | How every flow satisfies the eight project rules |
+| **5. Constitution Compliance** | How every flow satisfies the eight project rules, plus Catalog Verification Evidence: matched runtime, full platform BOM, returned Camel version, and each artifact's `VERIFIED` result and tool provenance |
 | **6. Project Structure** | Planned routes, configuration, tests, and supporting artifacts |
 
 At the top of the spec, an unnumbered **Not Doing (and Why)** section records each deliberately excluded capability and its rationale, so implementation and spec review treat it as a scope boundary rather than an invitation to add an adjacent feature.
