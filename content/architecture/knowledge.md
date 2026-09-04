@@ -5,7 +5,7 @@ description: "Apache Camel documentation search via hybrid semantic search"
 toc: false
 ---
 
-The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. The current index manifest reports **28,388 documents** covering Camel **4.14 through 4.21**. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
+The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. The current index manifest reports **30,520 documents** covering Camel **4.18 through 4.22**. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
 
 ## 7 MCP Tools
 
@@ -21,7 +21,7 @@ Look up documentation for a specific Apache Camel component. Returns reference d
 | Param | Required | Example |
 |-------|----------|---------|
 | `component` | yes | `kafka`, `http`, `amqp` |
-| `version` | no | `4.14` (omit for all versions) |
+| `version` | no | `4.22` (omit for all versions) |
 | `runtime` | no | `quarkus` or `spring-boot` |
 
 **Example:**
@@ -41,7 +41,7 @@ Search across Apache Camel component references, EIP patterns, user manuals, mig
 | Param | Required | Example |
 |-------|----------|---------|
 | `query` | yes | `configure SSL for HTTP component` |
-| `version` | no | `4.14` |
+| `version` | no | `4.22` |
 | `max_results` | no | `5` (default, maximum 25) |
 
 **Example:**
@@ -82,7 +82,7 @@ Get release notes for a specific Apache Camel version, including indexed feature
 
 | Param | Required | Example |
 |-------|----------|---------|
-| `version` | yes | `4.14`, `4.18.2` |
+| `version` | yes | `4.18`, `4.22.0` |
 | `max_results` | no | `20` (default, maximum 25) |
 
 **Example:**
@@ -187,7 +187,7 @@ The blended candidates are reranked by a local MiniLM cross-encoder before the r
 
 ## What's Indexed
 
-The checked-in manifest reports **28,388 Lucene documents** across Camel 4.14, 4.15, 4.16, 4.17, 4.18, 4.19, 4.20, and 4.21.
+The checked-in manifest reports **30,520 Lucene documents** across Camel 4.18, 4.19, 4.20, 4.21, and 4.22.
 
 {{< tabs id="index-contents" >}}
 <!--tab Component Docs-->

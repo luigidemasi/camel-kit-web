@@ -58,7 +58,7 @@ Skills are not code — they are structured prompts with step-by-step procedures
 | Server | Purpose | Content |
 |--------|---------|---------|
 | **Camel MCP** | Catalog verification, route validation | Component catalog |
-| **Knowledge MCP** | Hybrid semantic search | 28,388 indexed documents |
+| **Knowledge MCP** | Hybrid semantic search | 30,520 indexed documents |
 | **Citrus MCP** | Test action and endpoint verification | Citrus catalogs, schemas, and guidance |
 
 Significant context reduction — metadata loaded upfront, MCP queried on demand.

@@ -195,7 +195,7 @@ camel-kit init --here [options]
 | `--source-platform` | `auto` | Source platform for migration graph analysis: `mulesoft`, `camel`, `biztalk`, or `auto` |
 | `--force` | `false` | Overwrite existing project without prompting |
 | `--silent` | `false` | Suppress all output — useful for CI/scripted environments |
-| `-p`, `--property` | - | Override a distribution property; repeat the option for multiple overrides (e.g., `-p camel.main.version=4.21.0`) |
+| `-p`, `--property` | - | Override a distribution property; repeat the option for multiple overrides (e.g., `-p camel.main.version=4.22.0`) |
 | `-c`, `--config` | `~/.camel-kit/config.properties` | Load configuration from a properties file (e.g., `-c my-config.properties`) |
 
 `-V` and `--version` are global options; use `camel-kit --version`, not an `init` option.
