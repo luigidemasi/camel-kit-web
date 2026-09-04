@@ -47,10 +47,12 @@ Reusable utilities under `skills/shared/`:
 |-------|---------|
 | `iron-laws.md` | 6 non-negotiable pipeline rules |
 | `context-authority.md` | Data validation, instruction boundaries, and action-specific confirmation |
+| `camel-security-checklist.md` | Canonical Camel security rules and configuration snippets for design, validation, and review |
 | `mcp-setup.md` | MCP version mapping and fallback policy |
 | `forage.md` | Infrastructure configuration ladder and catalog queries |
 | `graph-availability.md` | Graph CLI detection and fallback |
 | `pipeline-infrastructure.md` | Pipeline IDs, state, provenance, and staleness |
+| `discovery-completeness.md` | Discovery and completeness semantics shared by brainstorm interviews and Ship discovery |
 | `datamapper-canonicalize.md` | Choose Groovy or XSLT from schemas and field count; pre-compute XPaths for XSLT |
 | `flow-test-data.md` | Test data generation patterns |
 | `yaml-structure.md` | YAML DSL structure rules |
