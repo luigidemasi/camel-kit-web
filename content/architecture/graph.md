@@ -138,7 +138,7 @@ Treat every result as a candidate within graph coverage, not proof that code or 
 
 **Example:**
 ```
-Unused dependency: org.apache.camel:camel-ftp:4.21.0
+Unused dependency: org.apache.camel:camel-ftp:4.22.0
   └─ No component usage is linked to this artifact
 ```
 

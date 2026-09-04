@@ -13,8 +13,9 @@ Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<dom
 
 | Camel version | Forage version |
 |--------------|----------------|
-| Camel 4.21.0 | 1.5.0 |
-| Camel 4.18.2 and 4.18.3 | 1.3 |
+| Camel 4.22.0 | 1.6.0 |
+| Camel 4.18.4 | 1.4.1 |
+| Camel 4.18.2 | 1.3 |
 | Unmapped streams | Forage unavailable; use the next configuration rung |
 
 The version mappings in `distribution.properties` are authoritative.
