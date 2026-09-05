@@ -263,9 +263,11 @@ Three oversight policies control where the controller pauses:
 
 | Policy | Behavior |
 |--------|----------|
-| `always` | Pause for approval after design, plan, execute, and validate — including before publication |
+| `always` | Pause after design, plan, execute, and validate, and on material ambiguity — including before publication |
 | `smart` | Pause after plan and execute, and on material ambiguity |
 | `never` | Record reasonable defaults instead of pausing, but still stop on missing tools, failed mandatory checks, or actions requiring authority you did not grant |
+
+Unanswered questions and applied defaults are retained by stage and shown in the final summary and `--status <run-id>`. Later stages receive these worker-reported decisions as context.
 
 See [Ship Workflow](./ship/) for the full documentation.
 
