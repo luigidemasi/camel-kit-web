@@ -122,7 +122,7 @@ The run pauses after plan (before any implementation) and after execute. Materia
 
 **Best for:** Well-understood integrations where you accept recorded defaults.
 
-The controller may choose and record reasonable defaults instead of pausing. It still stops for missing tools, failed mandatory checks, or actions requiring authority you did not grant — `never` does not publish unconditionally, and a failed mandatory validation check fails the run.
+The worker receives the active oversight policy and records each unanswered question with the reasonable default it applied instead of pausing for material ambiguity. These defaults remain worker decisions, not human-confirmed answers. The run still stops for missing tools, failed mandatory checks, or actions requiring authority you did not grant; a recorded default does not grant permission to act.
 
 {{< /tabs >}}
 
@@ -135,6 +135,8 @@ Ship run state lives outside your project, under the first of:
 3. `~/.local/state/camel-kit/ship`
 
 Each run has an ID (shown when the run starts and in every summary). `.camel-kit/pipeline.json` in the project is only the manual-mode active-pipeline pointer — Ship never stores run state there.
+
+Stage records retain the material-ambiguity flag and grouped unanswered questions. The final command summary and `--status` output list those questions by stage with the defaults applied, or indicate that no default was applied. Under `always` and `smart`, answer questions from a paused run with `--resume <run-id> --text "..."`.
 
 ### Status and abort
 
