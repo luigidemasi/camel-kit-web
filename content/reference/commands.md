@@ -158,7 +158,8 @@ Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wr
 | Harness | Surface |
 |---------|---------|
 | Claude Code, Gemini CLI, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
-| IBM Bob / Bob 2 | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| IBM Bob IDE / Bob 1 | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| Bob Shell 2.0.2 (`--ai bob2`) | Native `$camel-ship` skill that forwards the invocation's options to the CLI once; see [Bob setup and regeneration](../../getting-started/#bob-shell-202) |
 | Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
 | OpenAI Codex CLI, GitHub Copilot CLI | Native skills only (`$camel-ship`, `.github/skills/`) — no generated command files |
 
