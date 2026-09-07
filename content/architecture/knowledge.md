@@ -253,13 +253,19 @@ Embedding and reranking run locally through ONNX Runtime. Queries are not sent t
 
 The Lucene 9.12.1 index is published as `knowledge-index.zip` plus an `index.json` manifest in a GitHub Release. It is **not embedded in the normal MCP Maven artifact**. Normal Camel-Kit setup does not require cloning the knowledge repository or running the indexer.
 
-`camel-kit init` (or `camel kit init`) generates the target's MCP configuration with the pinned Knowledge MCP JBang coordinate. When that server starts, it resolves the index in this order:
+`camel-kit init` (or `camel kit init`) generates the target's MCP configuration with the pinned Knowledge MCP JBang coordinate. The server resolves and opens the index lazily, on the first knowledge query that uses it, in this order:
 
 1. `knowledge.index.path` — open an explicit local index directory directly.
-2. `knowledge.index.url` — fetch the manifest, compare its version with the local cache, download `knowledge-index.zip` when needed, verify its SHA-256, and atomically activate it.
+2. `knowledge.index.url` — fetch the manifest, compare its version with the local cache, download `knowledge-index.zip` when needed, verify its SHA-256, extract it into a version directory, and replace the active-version marker.
 3. A legacy classpath index, when one is present in an older bundled artifact.
 
-The default manifest is `https://github.com/luigidemasi/camel-kit-knowledge/releases/latest/download/index.json`, and downloaded versions are opened directly from `~/.camel-kit/knowledge-index/`. A failed manifest check falls back to the active cached version when one exists. A first offline start needs either a populated cache or `knowledge.index.path` pointing to a local index.
+The first query can therefore take longer while the index downloads and the local search models initialize. A successful MCP `initialize` handshake or `tools/list` response does not prove the index is ready. Call `camel_docs_index_info` to trigger initialization and check the installed index. If the manifest is unreachable and no index is available, the knowledge query reports an index-opening failure even though the handshake and tool listing succeeded.
+
+The default manifest is `https://github.com/luigidemasi/camel-kit-knowledge/releases/latest/download/index.json`, and downloaded versions are opened directly from `~/.camel-kit/knowledge-index/`. A failed manifest check falls back to the active cached version when one exists. A first offline query needs either a populated cache or `knowledge.index.path` pointing to a local index.
+
+Activation writes a temporary marker beside `current`, then replaces `current` with an atomic filesystem move. If atomic marker replacement is unsupported or fails, activation fails and the previous marker remains intact. The extracted version directory uses an atomic move where supported, with a plain-move fallback before the marker switch. These guarantees depend on the cache filesystem; they do not guarantee durability across power loss. The current and previous index versions are retained after a successful update.
+
+The manifest ETag is saved only after its version is active and is reused only for that version and manifest URL. Failed downloads, checksum checks, or marker replacements leave the previous validator unchanged, so a later attempt can retry the same release. Legacy ETags without a version and URL binding are ignored and refreshed through an unconditional manifest check.
 
 | Property | Purpose | Default |
 |----------|---------|---------|
@@ -277,7 +283,7 @@ Index rebuilding is a contributor and release-maintainer task. From a checkout o
 
 The rebuild resolves active Camel versions, fetches immutable release tags, renders documentation, downloads Camel Catalog metadata, parses release notes and CVE advisories, enriches available JIRA and NVD data, generates or reuses cached embeddings, and writes the Lucene files plus the manifest skeleton under `index/src/main/resources/`.
 
-The release workflow performs a rebuild, runs the retrieval-quality gate with working vectors required, and publishes the ZIP and completed manifest. Local source builds are not the normal end-user installation path.
+Rebuild on a branch, commit the generated index with a signed commit, and have it reviewed and merged before release. The manually dispatched `Index Release` workflow runs from `main`: it builds the reviewed, committed index without `-Prebuild-index`, runs the retrieval-quality gate with working vectors required, verifies that the index files remain unchanged, then packages and publishes the ZIP and completed manifest. Local source builds are not the normal end-user installation path.
 
 **Knowledge repository modules:**
 
