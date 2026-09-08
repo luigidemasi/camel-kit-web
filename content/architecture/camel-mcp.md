@@ -187,7 +187,11 @@ The server artifact follows the distribution's Camel Main stream; version-sensit
 | **Camel MCP version** | `4.22.0` |
 | **Camel Main default** | `4.22.0` |
 | **Camel Spring Boot** | `4.22.0` |
-| **Camel Quarkus** | `4.18.2` |
+| **Camel Quarkus** | `4.18.3` |
+| **Quarkus platform BOM** | `3.33.3.2` |
+
+The Quarkus Camel version follows the published `io.quarkus.platform:quarkus-camel-bom:3.33.3.2`,
+which manages Camel `4.18.3` and Camel Quarkus extensions `3.33.2`.
 
 Camel-Kit first calls `camel_catalog_components(limit=0)` with the project runtime and full platform BOM and rejects the batch unless its returned Camel version matches the resolved project version. Every later version-sensitive call uses that same binding; detail tools are checked through their typed contracts and are not required to echo a version they do not return.
 
