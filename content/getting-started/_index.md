@@ -59,7 +59,7 @@ The easiest way to install Camel-Kit:
 jbang app install camel-kit@luigidemasi/camel-kit
 ```
 
-This adds the `camel-kit` command to your PATH. The GitHub alias installs the latest deployed `0.3.2-SNAPSHOT`, which may lag `main` until the next deployment. Build from source when you need the exact current revision; both current channels provide the commands and AI targets described by this site.
+This adds the `camel-kit` command to your PATH. The GitHub alias installs the latest deployed `0.4.0-SNAPSHOT`, which may lag `main` until the next deployment. Build from source when you need the exact current revision; new target integrations require a source build until their snapshot is deployed.
 
 **Verify installation:**
 ```bash
@@ -82,7 +82,7 @@ camel plugin add kit \
   --description "Design Apache Camel Integrations with AI"
 ```
 
-Stable `0.3.1` exposes only `camel kit init` and the `bob`, `gemini`, and `claude` targets. It does not provide the current `0.3.2-SNAPSHOT` command or nine-agent surface; do not use a dynamic Maven version when you need current-source behavior.
+Stable `0.3.1` exposes only `camel kit init` and the `bob`, `gemini`, and `claude` targets. It does not provide the current `0.4.0-SNAPSHOT` command or eight-agent surface; do not use a dynamic Maven version when you need current-source behavior.
 
 <!--step Initialize Project-->
 ## Initialize Your First Project
@@ -111,8 +111,7 @@ The init command checks for prerequisites (Java 17+, JBang, Camel JBang, Camel t
 | Agent | Flag |
 |-------|------|
 | IBM Bob 2 | `--ai bob2` (default) |
-| IBM Bob 1 | `--ai bob` (legacy) |
-| Gemini CLI | `--ai gemini` |
+| Google Antigravity | `--ai antigravity` |
 | Claude Code | `--ai claude` |
 | OpenAI Codex CLI | `--ai codex` |
 | GitHub Copilot CLI | `--ai copilot` |
@@ -272,3 +271,10 @@ camel-kit init --here --ai claude --source-platform mulesoft
 → [Migration Workflow guide](./migration/)
 
 {{< /before-after >}}
+
+### Retired agent targets
+
+Current source replaces Gemini with [Google Antigravity](antigravity/) and removes IBM Bob v1.
+Reinitialize existing projects with `camel-kit init --here --ai antigravity --force` or
+`camel-kit init --here --ai bob2 --force`, then run `camel-kit doctor`. These target changes require a source build
+containing the update until a distribution with the change is published.

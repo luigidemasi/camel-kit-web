@@ -312,7 +312,8 @@ The Camel Knowledge skill (shown as `/camel-knowledge` or the target's equivalen
 | Qwen Code | Loads `.qwen/camel-kit-personas/knowledge-researcher.md` and dispatches the foreground `camel-reviewer` leaf |
 | OpenCode | Loads `.opencode/camel-kit-personas/knowledge-researcher.md` and uses the foreground `researcher` task |
 | IBM Bob 2 | Loads `.bob/personas/knowledge-researcher.md` and uses the generated read/MCP-only `camel-reviewer` subagent |
-| IBM Bob 1 and Pi | Run the lookup inline because these targets do not expose a native subagent surface |
+| Google Antigravity | Loads `.agents/camel-kit-personas/knowledge-researcher.md` and dispatches the native `camel-reviewer` |
+| Pi | Runs the lookup inline because Pi has no native subagent surface |
 | Other supported targets | Follow their generated dispatch contract when a suitable subagent is available, otherwise use the documented inline fallback |
 
 The research role returns a concise answer and source references instead of copying raw search results into the orchestrator context. A failed lookup is reported as missing evidence; it must not be replaced with fabricated documentation.

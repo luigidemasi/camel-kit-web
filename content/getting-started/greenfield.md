@@ -191,7 +191,7 @@ Route and configuration tasks use `camel-implement`; test tasks use `camel-test`
 Every task then goes through the applicable review stages:
 
 1. **Implements** - Generates the task's declared artifact with its assigned skill
-2. **Adversarial Review** - A fresh-context moderator and parallel critics inspect the task diff where supported; single-conversation targets such as Bob 1 and Pi run the critic lenses sequentially and record the missing isolation. Verified failures return to implementation before staged review.
+2. **Adversarial Review** - A fresh-context moderator and parallel critics inspect the task diff where supported; single-conversation targets such as Pi run the critic lenses sequentially and record the missing isolation. Verified failures return to implementation before staged review.
 3. **Spec Compliance Review** - Validates the route matches the task's acceptance criteria without adding capabilities excluded by **Not Doing (and Why)**
 4. **Code Quality Review** - Checks constitution compliance (single responsibility, observability, external config, etc.)
 

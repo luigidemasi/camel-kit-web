@@ -157,8 +157,8 @@ Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wr
 
 | Harness | Surface |
 |---------|---------|
-| Claude Code, Gemini CLI, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
-| IBM Bob 1 legacy (`--ai bob`) | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| Google Antigravity | Native `camel-ship` skill forwards the supplied options to the CLI once |
+| Claude Code, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
 | IBM Bob IDE (`--ai bob2`, verified 2.1.0) | Native `/camel-ship` skill that forwards the invocation's options to the CLI once; same-name compatibility stubs are skipped |
 | Bob Shell 2.0.2 (`--ai bob2`) | Native `$camel-ship` skill that forwards the invocation's options to the CLI once; see [Bob setup and regeneration](../../getting-started/#bob-shell-202) |
 | Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
@@ -172,7 +172,7 @@ See `camel-kit ship` under CLI Commands for the full option reference.
 
 ## CLI Commands
 
-The standalone `camel-kit` forms describe the current source-tracking `0.3.2-SNAPSHOT` channel. Equivalent `camel kit` forms require a plugin built from that current source; published stable `0.3.1` exposes only `camel kit init`. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
+The standalone `camel-kit` forms describe the current source-tracking `0.4.0-SNAPSHOT` channel. Equivalent `camel kit` forms require a plugin built from that current source; published stable `0.3.1` exposes only `camel kit init`. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
 
 {{< carousel id="cli-cmds" >}}
 <!--step camel-kit init-->
@@ -190,7 +190,7 @@ camel-kit init --here [options]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--ai`, `-a` | `bob2` | AI target: `bob2`, `bob` (legacy), `gemini`, `claude`, `codex`, `copilot`, `pi`, `qwen`, or `opencode` |
+| `--ai`, `-a` | `bob2` | AI target: `bob2`, `antigravity`, `claude`, `codex`, `copilot`, `pi`, `qwen`, or `opencode` |
 | `--citrus-version` | `5.0.1` | Citrus Framework version for test schemas and generated test dependencies |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
@@ -250,7 +250,7 @@ my-integration/
     wrapper/
       maven-wrapper.properties
   AGENTS.md # Cross-agent skill routing and iron laws
-  CLAUDE.md # Agent-specific configuration (or GEMINI.md / QWEN.md)
+  CLAUDE.md # Additional Claude-specific configuration (Qwen uses QWEN.md)
   .claude/
     settings.json # Claude Code permissions
     commands/ # Slash commands (Claude Code)

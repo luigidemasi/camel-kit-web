@@ -49,7 +49,7 @@ The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship'
 **Goal:** Generate the planned code and collect review and runtime evidence
 
 - Wave-based execution with concurrency only on capable targets
-- Adversarial critic pre-filter per task, using nested moderator/critic contexts where supported, parent-owned reviewer dispatch on other multi-agent targets, and a sequential fallback on single-conversation targets such as Bob 1 and Pi
+- Adversarial critic pre-filter per task, using nested moderator/critic contexts where supported, parent-owned reviewer dispatch on other multi-agent targets, and a sequential fallback on single-conversation targets such as Pi
 - Ordered two-stage review per task (spec compliance, then code quality)
 - Generation of routes, tests, and configuration
 
@@ -130,7 +130,7 @@ If stage 1 fails, regenerate without running stage 2.
 
 <!--tab 5. Adversarial Review-->
 
-Every generated code artifact passes an adversarial review before spec compliance and quality review. Targets with nested moderator dispatch use fresh moderator and critic contexts; targets whose parent owns orchestration call bounded reviewers and synthesize their evidence there. Single-conversation targets such as Bob 1 and Pi apply the same critic lenses sequentially and record the missing isolation. Bob 1 implements that fallback in its monolithic gate. The critics look for route architecture, security, performance, boundary, and behavioral-equivalence failures.
+Every generated code artifact passes an adversarial review before spec compliance and quality review. Targets with nested moderator dispatch use fresh moderator and critic contexts; targets whose parent owns orchestration call bounded reviewers and synthesize their evidence there. Single-conversation targets such as Pi apply the same critic lenses sequentially and record the missing isolation. The critics look for route architecture, security, performance, boundary, and behavioral-equivalence failures.
 
 <!--tab 6. Surgical Changes-->
 

@@ -37,7 +37,7 @@ Cross-agent routing specification shared across every supported AI target.
 - **Iron Laws** — non-negotiable pipeline rules
 - **MCP setup** — Camel, Knowledge, and Citrus server configuration
 
-The supported target generators adapt this layered skill architecture to their native surfaces. Legacy Bob 1 instead replaces seven shared pipeline skill files with self-contained monolithic gates and mode switching.
+The supported target generators adapt this layered skill architecture to their native surfaces.
 
 <!--step Layer 2: Skills-->
 
