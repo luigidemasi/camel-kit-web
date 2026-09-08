@@ -6,7 +6,7 @@ description: "camel-kit ship — a local controller-owned run from requirements 
 
 ## Overview
 
-Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.3.2-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
+Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.4.0-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
 The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — are thin delegates. They forward your options to the registered CLI command once and return its output. The AI agent does not orchestrate the workflow: the local controller is the sole owner of stages, run state, oversight, evidence, publication, and recovery.
 
@@ -218,7 +218,8 @@ The live gate is a manual, maintainer-run test — not a CI default and not some
 
 The harness-native commands are thin wrappers around the local CLI command — none of them implements a second workflow:
 
-- **Claude Code, Gemini CLI, Qwen Code, OpenCode, IBM Bob 1 legacy** generate a `/camel-ship` command stub that forwards your options to the registered command once. Gemini and Qwen interpolate arguments directly; Bob 1 forwards the options in prose because its command format only supports positional placeholders.
+- **Claude Code, Qwen Code, OpenCode** generate a `/camel-ship` command stub that forwards your options to the registered command once.
+- **Google Antigravity** invokes the native `camel-ship` skill, which forwards the supplied options to the CLI once.
 - **Bob IDE** (`--ai bob2`, verified 2.1.0) exposes the native `/camel-ship` skill, which forwards your options to the CLI once. It skips migration of same-name compatibility stubs, so the native skill supplies the instructions.
 - **Bob Shell 2.0.2** (`--ai bob2`) exposes the native `$camel-ship` skill through `/skills` and the `$camel-*` picker. It forwards the invocation's options to the CLI once. See [Bob setup and regeneration](../../getting-started/#bob-shell-202) if the skill is hidden in an older workspace.
 - **Codex and GitHub Copilot CLI** expose Ship through their native skills (`$camel-ship`, `.github/skills/`) — no generated command files.

@@ -164,8 +164,7 @@ If a component doesn't exist, the AI asks for clarification instead of guessing.
 |-------|------------|--------|
 | Claude Code | `.mcp.json` | JSON with `mcpServers` |
 | IBM Bob 2 | `.bob/mcp.json` | JSON |
-| IBM Bob 1 | `.bob/mcp.json` | JSON |
-| Gemini CLI | `.gemini/settings.json` | JSON |
+| Google Antigravity | `.agents/mcp_config.json` | JSON |
 | OpenAI Codex CLI | `.codex/config.toml` | TOML under `mcp_servers` |
 | GitHub Copilot CLI | `.github/mcp.json` | JSON |
 | Pi | `.mcp.json` | JSON via `pi-mcp-adapter` with `directTools` allowlists |

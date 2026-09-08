@@ -29,7 +29,7 @@ See [Commands](commands) for the full reference. Summary of available commands:
 
 **CLI:**
 
-The `camel kit` forms below require a plugin built from the current `0.3.2-SNAPSHOT` source. Published stable `0.3.1` exposes only `camel kit init`.
+The `camel kit` forms below require a plugin built from the current `0.4.0-SNAPSHOT` source. Published stable `0.3.1` exposes only `camel kit init`.
 
 - `camel-kit init` — Initialize a new project
 - `camel-kit ship` — Start, inspect, resume, or abort a local Camel Ship run
@@ -60,7 +60,7 @@ Non-negotiable rules enforced across all pipeline phases:
 2. **Constitution Compliance** — every route passes all 8 rules
 3. **No Code Without Design Approval and an Existing Plan** — no implementation before an approved design and task-based plan
 4. **Spec Compliance Before Quality** — spec review first, then code quality review
-5. **Adversarial Code Review** — fresh-context critics where supported, or a same-session fallback on single-conversation targets such as Bob 1 and Pi, review generated code before staged review
+5. **Adversarial Code Review** — fresh-context critics where supported, or a same-session fallback on single-conversation targets such as Pi, review generated code before staged review
 6. **Surgical Changes** — touch only what the approved task requires
 
 ## Next Steps

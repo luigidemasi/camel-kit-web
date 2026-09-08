@@ -19,7 +19,7 @@
       </div>
       <div class="text-center max-w-[200px]">
         <div class="font-bold text-sm mb-1" style="color: var(--color-accent);">Agent-Agnostic</div>
-        <div class="text-xs" style="color: var(--color-text-secondary);">Shared skills across current targets; legacy Bob 1 uses seven self-contained monolithic gates</div>
+        <div class="text-xs" style="color: var(--color-text-secondary);">Shared skills adapted to eight native agent integrations</div>
       </div>
     </div>
     {{ $agents := slice
@@ -27,11 +27,10 @@
       (dict "name" "Claude Code" "id" "claude" "logo" "images/agents/claude.svg")
       (dict "name" "OpenAI Codex CLI" "id" "codex" "logo" "images/agents/codex.svg" "invert" true)
       (dict "name" "GitHub Copilot CLI" "id" "copilot" "logo" "images/agents/copilot.png")
-      (dict "name" "Gemini CLI" "id" "gemini" "logo" "images/agents/gemini.svg")
+      (dict "name" "Google Antigravity" "id" "antigravity" "logo" "images/agents/antigravity.png")
       (dict "name" "Pi" "id" "pi" "logo" "images/agents/pi.svg")
       (dict "name" "Qwen Code" "id" "qwen" "logo" "images/agents/qwen.svg")
       (dict "name" "OpenCode" "id" "opencode" "logo" "images/agents/opencode.svg")
-      (dict "name" "IBM Bob 1 (legacy)" "id" "bob" "logo" "images/agents/ibm-bob.svg")
     }}
     <ul aria-label="Supported AI targets" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-10 pt-8 list-none" style="border-top: 1px solid var(--color-border);">
       {{ range $agents }}
@@ -139,7 +138,7 @@
       </div>
       <div class="tab-panel active" role="tabpanel" data-tab-panel="install-1">
         <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.3.2-SNAPSHOT alias (may lag main)
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.4.0-SNAPSHOT alias (may lag main)
 jbang app install camel-kit@luigidemasi/camel-kit
 camel-kit init my-project --ai claude</code></pre>
         </div>
@@ -155,7 +154,7 @@ camel kit init my-project --ai claude</code></pre>
       </div>
       <div class="tab-panel" role="tabpanel" data-tab-panel="install-3">
         <div class="rounded-lg p-6" style="background-color: var(--color-code-bg);">
-          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.3.2-SNAPSHOT alias (may lag main)
+          <pre class="!bg-transparent !p-0"><code class="!bg-transparent font-mono text-sm"># Current 0.4.0-SNAPSHOT alias (may lag main)
 jbang camel-kit@luigidemasi/camel-kit init my-project --ai claude</code></pre>
         </div>
       </div>

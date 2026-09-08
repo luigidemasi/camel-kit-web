@@ -130,7 +130,7 @@ catalog rather than from a fixed sample route.
 <!--tab Adversarial Review-->
 ## Adversarial Code Review Pre-Filter
 
-After implementation, the executor selects the applicable critic lanes. Targets that support nested moderator dispatch use a fresh moderator and fresh critics. Targets such as Bob 2, Qwen, and OpenCode keep orchestration in the parent: it makes bounded reviewer calls for the selected lanes and synthesizes their evidence itself. Single-conversation targets apply the same lenses sequentially and record the missing isolation; Bob 1 does so in its monolithic execute gate.
+After implementation, the executor selects the applicable critic lanes. Targets that support nested moderator dispatch use a fresh moderator and fresh critics. Targets such as Bob 2, Antigravity, Qwen, and OpenCode keep orchestration in the parent: it makes bounded reviewer calls for the selected lanes and synthesizes their evidence itself. Single-conversation targets apply the same lenses sequentially and record the missing isolation.
 
 - **PASS** or **PASS_WITH_TRADEOFFS** proceeds to Stage 1, carrying any documented trade-offs forward.
 - **FAIL** returns verified findings to the implementer for remediation, then repeats the adversarial review before staged review begins.

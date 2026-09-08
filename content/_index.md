@@ -15,7 +15,7 @@ Real-time MCP verification for Camel components and options, with infrastructure
 {{< /feature-card >}}
 
 {{< feature-card title="Multi-Target Support" icon="🤖" >}}
-Shared skills are adapted for IBM Bob 2, Claude Code, OpenAI Codex CLI, Gemini CLI, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode. Legacy IBM Bob 1 replaces seven shared pipeline skill files with self-contained monolithic gates and mode switching.
+Shared skills are adapted for IBM Bob 2, Claude Code, OpenAI Codex CLI, Google Antigravity, GitHub Copilot CLI, Pi, Qwen Code, and OpenCode.
 {{< /feature-card >}}
 
 {{< feature-card title="Graph Intelligence" icon="🔍" >}}

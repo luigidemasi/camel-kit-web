@@ -9,13 +9,13 @@ Camel-Kit supports OpenAI Codex CLI as a native AI target. It installs project s
 
 ## Initialize a Codex Project
 
-Install the current source-tracking `0.3.2-SNAPSHOT` channel from the [Getting Started guide](../), then use the standalone CLI:
+Install the current source-tracking `0.4.0-SNAPSHOT` channel from the [Getting Started guide](../), then use the standalone CLI:
 
 ```bash
 camel-kit init my-integration --ai codex
 ```
 
-The Maven Central Camel JBang plugin is currently stable `0.3.1`. That release supports only the `bob`, `gemini`, and `claude` targets, so it does not provide `camel kit init --ai codex`. A plugin built from the current `0.3.2-SNAPSHOT` source generates the same Codex assets as the standalone CLI, but it is a development build rather than the published stable plugin.
+The Maven Central Camel JBang plugin is currently stable `0.3.1`. That release supports only the `bob`, `gemini`, and `claude` targets, so it does not provide `camel kit init --ai codex`. A plugin built from the current `0.4.0-SNAPSHOT` source generates the same Codex assets as the standalone CLI, but it is a development build rather than the published stable plugin.
 
 To add Camel-Kit to the current repository instead, run:
 

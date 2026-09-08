@@ -418,7 +418,7 @@ The AI saves the Implementation Plan to `docs/camel-kit/<pipeline-id>/implementa
 Planning controls differ by target:
 
 - **Claude Code:** the chained trait stays out of native plan mode and does not call `ExitPlanMode`, avoiding a second approval gate
-- **Gemini CLI:** use Shift+Tab to switch approval mode
+- **Google Antigravity:** keep decisions in the primary conversation and use its permission settings
 - **Qwen Code:** use `/approval-mode` to adjust
 
 In the default chained flow, however, the plan proceeds directly to execution without pausing.
@@ -452,7 +452,7 @@ executing again.
 
 ## Customizing the Planner
 
-The planning logic is defined in the selected target's generated `camel-plan/SKILL.md`; for Claude Code, that path is `.claude/skills/camel-plan/SKILL.md`. Bob 1 uses the same skill name for its legacy monolithic gate. You can customize:
+The planning logic is defined in the selected target's generated `camel-plan/SKILL.md`; for Claude Code, that path is `.claude/skills/camel-plan/SKILL.md`. You can customize:
 
 - **Task granularity** - Break flows into finer or coarser tasks
 - **Wave strategy** - Prefer sequential execution or mark same-wave tasks as concurrency candidates
