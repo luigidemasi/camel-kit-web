@@ -128,11 +128,9 @@ The worker receives the active oversight policy and records each unanswered ques
 
 ## Run State, Status, and Resume
 
-Ship run state lives outside your project, under the first of:
+Ship run state lives inside your project, under `.camel-kit/ship/state/`. Set `CAMEL_KIT_SHIP_STATE_HOME` to keep it somewhere else. The `.camel-kit/ship/` subtree is reserved for the controller: it is never copied into the staged workspace, never part of the staleness digests, and never published, and the state directory carries a `.gitignore` that ignores its own content. Any other state directory inside the project is rejected.
 
-1. `$CAMEL_KIT_SHIP_STATE_HOME`
-2. `$XDG_STATE_HOME/camel-kit/ship`
-3. `~/.local/state/camel-kit/ship`
+Runs recorded by earlier releases under `$XDG_STATE_HOME/camel-kit/ship` or `~/.local/state/camel-kit/ship` are not found at the new location. Set `CAMEL_KIT_SHIP_STATE_HOME` to that path to finish them.
 
 Each run has an ID (shown when the run starts and in every summary). `.camel-kit/pipeline.json` in the project is only the manual-mode active-pipeline pointer — Ship never stores run state there.
 
