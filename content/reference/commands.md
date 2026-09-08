@@ -191,7 +191,7 @@ camel-kit init --here [options]
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--ai`, `-a` | `bob2` | AI target: `bob2`, `bob` (legacy), `gemini`, `claude`, `codex`, `copilot`, `pi`, `qwen`, or `opencode` |
-| `--citrus-version` | `5.0.0-M2` | Citrus Framework version for test schemas and generated test dependencies |
+| `--citrus-version` | `5.0.1` | Citrus Framework version for test schemas and generated test dependencies |
 | `--here` | `false` | Initialize in current directory |
 | `--no-fetch` | `false` | Skip external catalog fetching |
 | `--source-platform` | `auto` | Source platform for migration graph analysis: `mulesoft`, `camel`, `biztalk`, or `auto` |
@@ -202,7 +202,7 @@ camel-kit init --here [options]
 
 `-V` and `--version` are global options; use `camel-kit --version`, not an `init` option.
 
-The Citrus Framework and MCP runner have separate distribution properties: `citrus.version` defaults to `5.0.0-M2`, while `citrus.mcp.version` is temporarily pinned to `5.0.0-M1`. See [Citrus MCP version compatibility](../../architecture/mcp/#citrus-mcp-version-compatibility) for fallback behavior when the versions differ.
+The Citrus Framework and MCP runner have separate distribution properties: `citrus.version` and `citrus.mcp.version` both default to `5.0.1`. See [Citrus MCP version compatibility](../../architecture/mcp/#citrus-mcp-version-compatibility) for fallback behavior when the versions differ.
 
 **Prerequisite check:**
 

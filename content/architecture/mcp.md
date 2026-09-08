@@ -48,7 +48,7 @@ Citrus MCP supplies the action catalog, endpoint catalog, YAML DSL schemas, and 
 - `citrus_docs_index` / `citrus_docs_page`
 - Resources such as `citrus://schema/dsl/yaml` and `citrus://docs/best-practices`
 
-Camel-Kit currently uses Citrus Framework **5.0.0-M2** for test schemas and generated dependencies, while the Citrus MCP runner is pinned to working version **5.0.0-M1**. Camel-Kit binds the MCP version to the actual runner coordinate in the active target's generated configuration, rejects any disagreement with `citrus.mcp.version`, and grants versioned Citrus catalog and schema fields data authority only when that bound runner version also matches `citrus.version`. Otherwise it uses the quick-reference fallback for the configured framework version.
+Camel-Kit uses Citrus Framework **5.0.1** for test schemas and generated dependencies and Citrus MCP runner **5.0.1**. The temporary M1 compatibility pin has been removed. Camel-Kit binds the MCP version to the actual runner coordinate in the active target's generated configuration, rejects any disagreement with `citrus.mcp.version`, and grants versioned Citrus catalog and schema fields data authority only when that bound runner version also matches `citrus.version`. Otherwise it uses the quick-reference fallback for the configured framework version.
 
 ## Catalog Tools in Action
 
