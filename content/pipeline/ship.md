@@ -220,7 +220,8 @@ The live gate is a manual, maintainer-run test — not a CI default and not some
 
 The harness-native commands are thin wrappers around the local CLI command — none of them implements a second workflow:
 
-- **Claude Code, Gemini CLI, Qwen Code, OpenCode, IBM Bob IDE** generate a `/camel-ship` command stub that forwards your options to the registered command once. Gemini and Qwen interpolate arguments directly; Bob IDE forwards the options in prose because its command format only supports positional placeholders.
+- **Claude Code, Gemini CLI, Qwen Code, OpenCode, IBM Bob 1 legacy** generate a `/camel-ship` command stub that forwards your options to the registered command once. Gemini and Qwen interpolate arguments directly; Bob 1 forwards the options in prose because its command format only supports positional placeholders.
+- **Bob IDE** (`--ai bob2`, verified 2.1.0) exposes the native `/camel-ship` skill, which forwards your options to the CLI once. It skips migration of same-name compatibility stubs, so the native skill supplies the instructions.
 - **Bob Shell 2.0.2** (`--ai bob2`) exposes the native `$camel-ship` skill through `/skills` and the `$camel-*` picker. It forwards the invocation's options to the CLI once. See [Bob setup and regeneration](../../getting-started/#bob-shell-202) if the skill is hidden in an older workspace.
 - **Codex and GitHub Copilot CLI** expose Ship through their native skills (`$camel-ship`, `.github/skills/`) — no generated command files.
 - **Pi** exposes Ship only through `/skill:camel-ship`. There is deliberately no Pi `/camel-ship` prompt, because Pi's prompt-file argument expansion flattens quoted option values.

@@ -99,8 +99,10 @@ user_invocable: false
 
 This example shows shared source metadata. For Bob 2, generated copies set both
 `user_invocable: true` and `user-invocable: true` for all nine public command skills,
-while the four internal helpers retain `false`. Bob Shell 2.0.2 uses those native
-skills in `/skills` and the `$camel-*` picker; `.bob/commands/` stubs remain for Bob IDE.
+while the four internal helpers retain `false`. Bob Shell uses those native skills
+in `/skills` and the `$camel-*` picker; Bob IDE exposes them through `/camel-*`.
+Verified Shell 2.0.2 and IDE 2.1.0 skip migrating same-name command stubs when a native
+skill already exists. Legacy stubs remain installed for compatibility.
 See [Bob setup and regeneration](../../getting-started/#bob-shell-202).
 
 <!--step SKILL.md Body-->

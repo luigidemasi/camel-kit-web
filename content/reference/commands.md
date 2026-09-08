@@ -158,7 +158,8 @@ Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wr
 | Harness | Surface |
 |---------|---------|
 | Claude Code, Gemini CLI, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
-| IBM Bob IDE / Bob 1 | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| IBM Bob 1 legacy (`--ai bob`) | Generated stub that forwards the supplied options in prose (Bob documents only positional placeholders) |
+| IBM Bob IDE (`--ai bob2`, verified 2.1.0) | Native `/camel-ship` skill that forwards the invocation's options to the CLI once; same-name compatibility stubs are skipped |
 | Bob Shell 2.0.2 (`--ai bob2`) | Native `$camel-ship` skill that forwards the invocation's options to the CLI once; see [Bob setup and regeneration](../../getting-started/#bob-shell-202) |
 | Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
 | OpenAI Codex CLI, GitHub Copilot CLI | Native skills only (`$camel-ship`, `.github/skills/`) — no generated command files |
@@ -366,6 +367,12 @@ camel kit doctor [--project-dir <path>] [--json]
 
 Doctor checks generated configuration, target-native entry points, registered workspace templates, skills, MCP configuration and allowlists, graph availability, command-prefix settings, prerequisites, and stale generated references. For Codex it also validates `.codex/config.toml`, prompt approval defaults, and `.codex/agents/*.toml`. Legacy Qwen/OpenCode configurations that predate current filter and permission fields produce upgrade warnings; malformed current configurations fail. A workspace generated before Citrus MCP support produces a warning for the missing `citrus` server on every JSON-configured agent, while a present but malformed `citrus` server fails. For OpenCode, all existing configuration layers are evaluated as one effective configuration and each finding names the file that defines the rule. It prints `PASS`, `WARN`, and `FAIL` findings with remediation; any failure returns exit code 1.
 
+
+For Bob 2, Doctor reports a `FAIL` for each public skill hidden by an effective
+`user-invocable: false` value, naming its `SKILL.md` and providing regeneration
+instructions. It honors `metadata.user-invocable` before the top-level field and
+reports empty public skill files or unparseable metadata. The four internal helpers
+remain hidden.
 
 <!--step camel-kit doc-->
 
