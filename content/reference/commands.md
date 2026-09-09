@@ -162,7 +162,8 @@ Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wr
 | IBM Bob IDE (`--ai bob2`, verified 2.1.0) | Native `/camel-ship` skill that forwards the invocation's options to the CLI once; same-name compatibility stubs are skipped |
 | Bob Shell 2.0.2 (`--ai bob2`) | Native `$camel-ship` skill that forwards the invocation's options to the CLI once; see [Bob setup and regeneration](../../getting-started/#bob-shell-202) |
 | Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
-| OpenAI Codex CLI, GitHub Copilot CLI | Native skills only (`$camel-ship`, `.github/skills/`) — no generated command files |
+| GitHub Copilot CLI | Native `/camel-ship` project skill; eligible sessions relay controller tasks through a read-only custom agent; see [native Ship](../../pipeline/ship/#github-copilot-cli-native-subagents) |
+| OpenAI Codex CLI | Native `$camel-ship` skill — no generated command files |
 
 **Upgrading from the prompt-owned Ship:** earlier releases generated an agent-orchestrated Ship workflow. After upgrading, regenerate the workspace with `camel-kit init --here --ai <same-agent> --force` (or `camel kit init ...`); `--force` rewrites generated assets, so commit or back up customizations first. Re-initialization removes the obsolete Ship guides, harness traits, and Bob 2 Ship mode assets. A pre-controller `.camel-kit/ship-state.json` (or a non-manual `.camel-kit/pipeline.json`) makes Ship fail closed — archive it outside the project first.
 

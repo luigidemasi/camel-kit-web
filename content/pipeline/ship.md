@@ -8,7 +8,7 @@ description: "camel-kit ship — a local controller-owned run from requirements 
 
 Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.4.0-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
-The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — delegate workflow decisions to the registered CLI. Eligible Bob 2 sessions relay pending tasks to their own native subagents. Other execution models retain a single CLI invocation. The local controller owns stages, run state, oversight, evidence, publication and recovery.
+The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — delegate workflow decisions to the registered CLI. Eligible Bob 2 and GitHub Copilot CLI sessions relay pending tasks to their own native subagents. Other execution models retain a single CLI invocation. The local controller owns stages, run state, oversight, evidence, publication and recovery.
 
 Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process sandbox, or a release-attestation system. Provider credentials stay with the active native host or the external Pi worker and its provider tooling; Ship does not persist them or include them in command arguments, logs, reports, or project artifacts.
 
@@ -54,7 +54,7 @@ Initial context is optional: a bare `camel-kit ship` starts a short discovery co
 
 | Option | Default | Description |
 |---|---|---|
-| `--backend pi\|bob2-native` | `pi` | Execution mode for a new run; existing runs retain their mode |
+| `--backend pi\|bob2-native\|copilot-native` | `pi` | Execution mode for a new run; existing runs retain their mode |
 | `--json` | off | Structured run state and any pending native task |
 | `--submit RUN_ID --result PATH` | none | Relay one native child result; exclusive with other lifecycle operations |
 | `--pi PATH` | discovered on `PATH` | Pi executable for the Pi backend |
@@ -86,6 +86,22 @@ With `--json`, a failed workflow returns structured run state and exit code 1. R
 After reconnecting, inspect the run with `--status --json`. If this reports `handoff-read-failed`, the controller could not verify the pending task. Plain `--status` can still show the recorded run. To recover, use `--resume --json` to mark the damaged attempt failed, inspect its failure message, then explicitly resume again to create a fresh task. Keep the integrity checks and stored evidence intact.
 
 If the parent disconnects, retain the existing child call or its result envelope. Do not spawn the same pending task again after losing its transcript. A pending task keeps its deadline; after it expires, `--resume` fails the attempt, and a second resume creates a fresh task. Bob handles native child cancellation. The Ship CLI cannot terminate that child, but `--abort` invalidates the run and rejects later results. Read-only children cannot leave an orphan writing into the candidate. Oversight questions and explicit resumes remain with the parent and user.
+
+## GitHub Copilot CLI Native Subagents
+
+The development integration tracked in [core #226](https://github.com/luigidemasi/camel-kit/issues/226) uses the same controller task/result contract, oversight, deterministic checks and guarded publication as Bob native Ship. A development build is required.
+
+**Verified on 2026-09-09 with GitHub Copilot CLI 1.0.83 on Linux:** the registered skill completed all four native stages, paused for explicit SMART approvals, passed all five mandatory checks including Camel startup and Citrus, and published independently verified files. Native cancellation, timeout/recovery, repeated submissions, stale/conflicting results, abort/late results, plan-mode refusal and read/tool restrictions were also exercised. This evidence covers the tested CLI version and fixture; it does not certify other hosts or versions.
+
+After upgrading, preserve customizations and regenerate with `camel-kit init --here --ai copilot --force`, or `camel kit init --here --ai copilot --force` for the JBang plugin. In a trusted, authenticated Copilot CLI session, invoke `/camel-ship` from the project skill. The session must expose `task` and the generated `camel-ship-worker` custom agent, and already authorize the complete workflow. Plan mode supports only read-only `ship --status`; workflow operations require a session authorized to implement. Restricted custom agents cannot use Ship to escape their scope; normal permission prompts, repository hooks, MCP configuration and existing Camel roles remain in effect.
+
+For an eligible new run, the skill selects `--backend copilot-native --json` unless you choose a backend explicitly. It relays the complete controller prompt through `task` with `agent_type: "camel-ship-worker"` and `mode: "sync"`. Model and reasoning overrides are omitted so the current session's settings apply. This starts a fresh child context, not another Copilot CLI process. The child has only the `read` and `search` tool aliases and returns text proposals. Ship writes the private candidate and runs validation before publication. A fresh context is not an OS sandbox: read access follows the parent's allowed paths. Do not broaden those paths or substitute another role to recover a task.
+
+Copilot runs persist `COPILOT_NATIVE`; Bob and Pi runs keep their own modes. If native dispatch is absent, new authorized runs retain the existing CLI/Pi model. An existing Copilot run needs an eligible Copilot session to dispatch further work. The Linux, Camel Main/YAML/Simple/Citrus limits and accepted file proposal paths above also apply. Host versions remain caller-reported diagnostics.
+
+After interruption, inspect `--status --json`, wait for an existing child or submit its saved result envelope. Do not dispatch the same pending task again after losing its transcript. An unavailable result must reach the existing deadline; resume then fails that attempt, and another explicit resume creates a new task. Copilot's cancellation controls stop host-owned tasks; Ship cannot terminate them, but abort invalidates the run and rejects late results. Read-only children cannot mutate the candidate. The same failed-run JSON, damaged-handoff recovery and repeated runtime-option rules described above apply. Oversight pauses still require an explicit decision.
+
+See the [core Copilot native Ship guide](https://github.com/luigidemasi/camel-kit/blob/0e07872b45c3fca900a819fec1738d5e4ff1bb9c/docs/ship-copilot.md) and GitHub's [custom-agent documentation](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-custom-agents) for host behavior and configuration.
 
 ## The Stages
 
@@ -217,7 +233,7 @@ Ordinary process interruption is recoverable with the run ID, but Ship is not a 
 
 ## Worker Requirements and Support Tiers
 
-The default Ship worker is Pi on Linux. Eligible Bob 2 sessions can use the native handoff described above. Ship targets Camel Main at the configured `camel.main.version`. Resolution order is a CLI `-p camel.main.version=...` override, the `-c` file or default `~/.camel-kit/config.properties`, then the bundled distribution default; a valid override may select another supported value. Ship uses YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. It requires:
+The default Ship worker is Pi on Linux. Eligible Bob 2 and Copilot CLI sessions can use the native handoff described above. Ship targets Camel Main at the configured `camel.main.version`. Resolution order is a CLI `-p camel.main.version=...` override, the `-c` file or default `~/.camel-kit/config.properties`, then the bundled distribution default; a valid override may select another supported value. Ship uses YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. It requires:
 
 - A Linux host
 - For the Pi backend, Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
@@ -248,7 +264,8 @@ Harness-native entry points retain the local CLI as the workflow controller:
 - **Google Antigravity** invokes the native `camel-ship` skill, which forwards the supplied options to the CLI once.
 - **Bob IDE** (`--ai bob2`) exposes the native `/camel-ship` skill, which relays controller-issued tasks when native dispatch is eligible. It skips migration of same-name compatibility stubs, so the native skill supplies the instructions.
 - **Bob Shell 2** (`--ai bob2`) exposes the native `$camel-ship` skill through `/skills` and the `$camel-*` picker. It relays controller-issued tasks when native dispatch is eligible. See [Bob setup and regeneration](../../getting-started/#bob-shell-202) if the skill is hidden in an older workspace.
-- **Codex and GitHub Copilot CLI** expose Ship through their native skills (`$camel-ship`, `.github/skills/`) — no generated command files.
+- **GitHub Copilot CLI** exposes `/camel-ship` through `.github/skills/` and relays eligible runs through its dedicated read-only custom agent. See [Copilot native subagents](#github-copilot-cli-native-subagents).
+- **Codex** exposes Ship through its native `$camel-ship` skill, with no generated command files.
 - **Pi** exposes Ship only through `/skill:camel-ship`. There is deliberately no Pi `/camel-ship` prompt, because Pi's prompt-file argument expansion flattens quoted option values.
 
 ### Upgrading from the old harness commands
@@ -256,7 +273,7 @@ Harness-native entry points retain the local CLI as the workflow controller:
 Earlier releases shipped `/camel-ship` as a prompt-owned workflow that the AI agent orchestrated itself, with state in `.camel-kit`. That design is retired. To move an existing workspace to the current controller entry points:
 
 1. Back up or commit any customizations to generated assets — the next step rewrites them.
-2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship mode; other targets retain their delegates.
+2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship mode; Copilot receives its native relay skill and read-only custom agent. Other targets retain their delegates.
 3. If the workspace has a pre-controller `.camel-kit/ship-state.json`, or a `.camel-kit/pipeline.json` not in manual mode, archive it outside the project — Ship fails closed on that state and leaves it unchanged. Old runs are not resumable by the controller. Manual-mode `pipeline.json` stays supported for the standalone skills and `--start-from` imports.
 
 Initialization aborts if a managed agent directory (such as `.claude` or `.bob`) is a symbolic link — replace the link with a real directory first.
