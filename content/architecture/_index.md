@@ -100,7 +100,7 @@ Camel-Kit's agent-run integration workflow embodies a key principle: **the promp
 
 Compiled CLI infrastructure handles initialization, configuration, `doctor`, `doc`, `nextId`, and graph commands; it supports the prompt-owned workflow rather than replacing it.
 
-One deliberate exception: the Ship workflow. `/camel-ship` is a short delegate to the registered `camel-kit ship` command, and the workflow controller — stages, run state, oversight, evidence, and guarded publication — is compiled code in the Camel-Kit CLI, not a prompt. Every other routed command remains prompt-owned.
+One deliberate exception: the Ship workflow. `/camel-ship` is a short delegate to the registered `camel-kit ship` command, and the workflow controller — stages, run state, oversight, evidence, and guarded publication — is compiled code in the Camel-Kit CLI, not a prompt. Eligible Bob 2 and Copilot CLI sessions relay controller-issued tasks to read-only native subagents and submit their structured results. Ship retains candidate writes, validation and publication, and each run keeps its recorded backend. Copilot uses a synchronous custom-agent task with inherited path permissions; its fresh context is not filesystem isolation. See [native Ship execution](../pipeline/ship/#github-copilot-cli-native-subagents). Every other routed command remains prompt-owned.
 
 This means:
 
