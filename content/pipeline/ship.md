@@ -29,6 +29,7 @@ During a normal Ship run you never invoke `/camel-brainstorm`, `/camel-plan`, `/
 ```
 camel-kit ship [--text TEXT]... [--document PATH]... [--ask always|smart|never] [--start-from STAGE]
 camel-kit ship --resume RUN_ID | --status RUN_ID | --abort RUN_ID
+camel-kit ship --submit RUN_ID --result PATH [--json]
 ```
 
 Initial context is optional: a bare `camel-kit ship` starts a short discovery conversation. You can pass text, one or more documents, or both — a requirements document is never mandatory. Supplied material is included in discovery input before any questions, and the worker reports only grouped unresolved questions.
@@ -39,13 +40,15 @@ Initial context is optional: a bare `camel-kit ship` starts a short discovery co
 |---|---|
 | `--text TEXT` | Add text context (repeatable) |
 | `--document PATH` | Add document context (repeatable) |
-| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid when starting a run, including with `--start-from` — not with `--resume`, `--status`, or `--abort` |
+| `--ask POLICY` | Oversight policy: `always`, `smart`, or `never` (default `smart`); valid only when starting a new run, including with `--start-from` |
 | `--resume RUN_ID` | Resume an existing run |
 | `--status RUN_ID` | Show an existing run |
 | `--abort RUN_ID` | Abort an existing run |
 | `--start-from STAGE` | Start a new run at `discovery`, `design`, or `plan` |
 
-`--resume`, `--status`, `--abort`, and `--start-from` are mutually exclusive — at most one per invocation. `--text` and `--document` are valid when starting or resuming a run, not with `--status` or `--abort`.
+`--resume`, `--status`, `--abort`, `--start-from`, and `--submit` are mutually exclusive — at most one per invocation. `--text` and `--document` are valid only when starting or resuming a run.
+
+`--submit` and `--result` must be supplied together. Submission does not accept `--text`, `--document`, or `--ask`.
 
 ### Runtime and configuration
 
