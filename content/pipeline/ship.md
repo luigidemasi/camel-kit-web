@@ -78,6 +78,10 @@ The initial native contract accepts complete text proposals for approved route a
 
 Each run persists its backend. Legacy runs remain Pi runs; an existing native run requires an eligible Bob session to continue. Resume never silently switches backends. Identical accepted submissions are safe to retry; conflicting, stale and cross-task results are rejected.
 
+With `--json`, a failed workflow returns structured run state and exit code 1. Read valid JSON on exit code 0 or 1 and show `run.message` when `run.status` is `FAILED`; dispatch no child for that failed run. Some command errors return only stderr, so an exit code of 1 does not guarantee JSON output. Report those errors without dispatching work. A failed run continues only through an explicit resume.
+
+After reconnecting, inspect the run with `--status --json`. If this reports `handoff-read-failed`, the controller could not verify the pending task. Plain `--status` can still show the recorded run. To recover, use `--resume --json` to mark the damaged attempt failed, inspect its failure message, then explicitly resume again to create a fresh task. Keep the integrity checks and stored evidence intact.
+
 If the parent disconnects, retain the existing child call or its result envelope. Do not spawn the same pending task again after losing its transcript. A pending task keeps its deadline; after it expires, `--resume` fails the attempt, and a second resume creates a fresh task. Bob handles native child cancellation. The Ship CLI cannot terminate that child, but `--abort` invalidates the run and rejects later results. Read-only children cannot leave an orphan writing into the candidate. Oversight questions and explicit resumes remain with the parent and user.
 
 ## The Stages
