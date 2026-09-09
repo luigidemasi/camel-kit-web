@@ -66,7 +66,7 @@ Runtime and config options apply when starting, resuming or submitting a native 
 
 ## Bob 2 Native Subagents
 
-This section describes the development integration tracked in [core #223](https://github.com/luigidemasi/camel-kit/issues/223). Authenticated Bob host acceptance is still pending; native-host compatibility is not yet verified or released.
+This section describes the development integration tracked in [core #223](https://github.com/luigidemasi/camel-kit/issues/223). Authenticated acceptance on 2026-09-09 exercised Bob Shell 2.0.2 on Linux through the registered Ship skill: four native stages, oversight pauses and explicit resume, deterministic validation and publication. Interruption, timeout recovery, abort, repeated submissions and rejection of stale/conflicting results were also checked. A development build is required; Bob IDE and other host versions have not undergone the same live acceptance test.
 
 After upgrading Camel-Kit, regenerate Bob assets with `camel-kit init --here --ai bob2 --force` (or `camel kit init --here --ai bob2 --force` for a plugin installation). Preserve customizations before regeneration. Bob Shell exposes Ship through `/skills` or `$camel-ship`; Bob IDE uses `/camel-ship`.
 
