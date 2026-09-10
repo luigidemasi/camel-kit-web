@@ -117,7 +117,7 @@ Claude Code runs persist `CLAUDE_NATIVE`; Bob, Copilot and Pi runs keep their ow
 
 After interruption or a resumed session, inspect `--status --json`, wait for an existing child's completion notification or submit its saved result envelope. Do not dispatch the same pending task again after losing its transcript. An unavailable result must reach the existing deadline; resume then fails that attempt, and another explicit resume creates a new task. The `/tasks` panel and `TaskStop` stop host-owned subagents; Ship cannot terminate them, but abort invalidates the run and rejects late results. Read-only children cannot mutate the candidate. The same failed-run JSON, damaged-handoff recovery and repeated runtime-option rules described above apply. Oversight pauses still require an explicit decision.
 
-See the [core Claude Code native Ship guide](https://github.com/luigidemasi/camel-kit/blob/main/docs/ship-claude.md) and Claude Code's [subagent documentation](https://code.claude.com/docs/en/sub-agents) for host behavior and configuration.
+See the [core Claude Code native Ship guide](https://github.com/luigidemasi/camel-kit/blob/230bbf284b3e0961987d63d6fccd6162dd94f0e1/docs/ship-claude.md) and Claude Code's [subagent documentation](https://code.claude.com/docs/en/sub-agents) for host behavior and configuration.
 
 ## The Stages
 
