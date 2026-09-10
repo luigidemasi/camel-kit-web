@@ -8,7 +8,7 @@ description: "camel-kit ship — a local controller-owned run from requirements 
 
 Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.4.0-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
-The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — delegate workflow decisions to the registered CLI. Eligible Bob 2 and GitHub Copilot CLI sessions relay pending tasks to their own native subagents. Other execution models retain a single CLI invocation. The local controller owns stages, run state, oversight, evidence, publication and recovery.
+The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — delegate workflow decisions to the registered CLI. Eligible Bob 2, GitHub Copilot CLI and Claude Code sessions relay pending tasks to their own native subagents. Other execution models retain a single CLI invocation. The local controller owns stages, run state, oversight, evidence, publication and recovery.
 
 Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process sandbox, or a release-attestation system. Provider credentials stay with the active native host or the external Pi worker and its provider tooling; Ship does not persist them or include them in command arguments, logs, reports, or project artifacts.
 
@@ -54,7 +54,7 @@ Initial context is optional: a bare `camel-kit ship` starts a short discovery co
 
 | Option | Default | Description |
 |---|---|---|
-| `--backend pi\|bob2-native\|copilot-native` | `pi` | Execution mode for a new run; existing runs retain their mode |
+| `--backend pi\|bob2-native\|copilot-native\|claude-native` | `pi` | Execution mode for a new run; existing runs retain their mode |
 | `--json` | off | Structured run state and any pending native task |
 | `--submit RUN_ID --result PATH` | none | Relay one native child result; exclusive with other lifecycle operations |
 | `--pi PATH` | discovered on `PATH` | Pi executable for the Pi backend |
@@ -102,6 +102,22 @@ Copilot runs persist `COPILOT_NATIVE`; Bob and Pi runs keep their own modes. If 
 After interruption, inspect `--status --json`, wait for an existing child or submit its saved result envelope. Do not dispatch the same pending task again after losing its transcript. An unavailable result must reach the existing deadline; resume then fails that attempt, and another explicit resume creates a new task. Copilot's cancellation controls stop host-owned tasks; Ship cannot terminate them, but abort invalidates the run and rejects late results. Read-only children cannot mutate the candidate. The same failed-run JSON, damaged-handoff recovery and repeated runtime-option rules described above apply. Oversight pauses still require an explicit decision.
 
 See the [core Copilot native Ship guide](https://github.com/luigidemasi/camel-kit/blob/0e07872b45c3fca900a819fec1738d5e4ff1bb9c/docs/ship-copilot.md) and GitHub's [custom-agent documentation](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-custom-agents) for host behavior and configuration.
+
+## Claude Code Native Subagents
+
+The development integration tracked in [core #222](https://github.com/luigidemasi/camel-kit/issues/222) uses the same controller task/result contract, oversight, deterministic checks and guarded publication as Bob and Copilot native Ship. A development build is required.
+
+**Verified on 2026-09-10 with Claude Code 2.1.267 on Linux:** the registered `/camel-ship` skill completed all four native stages through the `camel-ship-worker` subagent, paused for explicit SMART approvals, passed all five mandatory checks including Camel startup and Citrus, and published independently verified files. Prompts were forwarded byte-exact, accepted receipts equal the children's responses, and the children used only `Read`, `Glob` and `Grep`. Interruption after dispatch, deadline expiry and explicit retry, repeated submissions, stale/conflicting results, abort/late results, plan-mode refusal and the worker tool boundary were also exercised. A fresh session resumed an interrupted run through the registered skill after its expired attempt was recorded, completed the replacement DISCOVERY child, and stopped when the controller rejected a DESIGN result that arrived after its deadline; abort then rejected further submissions. This evidence covers the tested Claude Code version and fixture; it does not certify other hosts or versions.
+
+After upgrading, preserve customizations and regenerate with `camel-kit init --here --ai claude --force`, or `camel kit init --here --ai claude --force` for the JBang plugin. In a trusted, authenticated Claude Code session, invoke `/camel-ship`; the generated `.claude/skills/camel-ship/SKILL.md` takes precedence over the compatibility command stub of the same name. The session must expose the `Agent` tool and the generated `camel-ship-worker` project subagent, and already authorize the complete workflow. Plan mode supports only read-only `ship --status`; workflow operations require a session allowed to implement, and the skill never leaves plan mode or changes the permission mode itself. Normal permission prompts, `.claude/settings.json` rules, hooks, MCP configuration and existing Camel roles remain in effect; the generated settings do not pre-approve the Ship command.
+
+For an eligible new run, the skill selects `--backend claude-native --json` unless you choose a backend explicitly. It relays the complete controller prompt through the `Agent` tool with `subagent_type: "camel-ship-worker"`, leaving `model` and `isolation` unset so the current session's model applies and the child reads the project directory. This starts a fresh subagent context, not another Claude Code process. The subagent declares exactly `tools: Read, Grep, Glob`, which Claude Code enforces, and returns text proposals. Ship writes the private candidate and runs validation before publication. A fresh context is not an OS sandbox: read access follows the parent's working directory, additional directories and permission rules. Do not broaden those or substitute another subagent to recover a task.
+
+Claude Code runs persist `CLAUDE_NATIVE`; Bob, Copilot and Pi runs keep their own modes. If native dispatch is absent, new authorized runs retain the existing CLI/Pi model. An existing Claude Code run needs an eligible Claude Code session to dispatch further work. The Linux, Camel Main/YAML/Simple/Citrus limits and accepted file proposal paths above also apply. Host versions remain caller-reported diagnostics.
+
+After interruption or a resumed session, inspect `--status --json`, wait for an existing child's completion notification or submit its saved result envelope. Do not dispatch the same pending task again after losing its transcript. An unavailable result must reach the existing deadline; resume then fails that attempt, and another explicit resume creates a new task. The `/tasks` panel and `TaskStop` stop host-owned subagents; Ship cannot terminate them, but abort invalidates the run and rejects late results. Read-only children cannot mutate the candidate. The same failed-run JSON, damaged-handoff recovery and repeated runtime-option rules described above apply. Oversight pauses still require an explicit decision.
+
+See the [core Claude Code native Ship guide](https://github.com/luigidemasi/camel-kit/blob/main/docs/ship-claude.md) and Claude Code's [subagent documentation](https://code.claude.com/docs/en/sub-agents) for host behavior and configuration.
 
 ## The Stages
 
@@ -233,7 +249,7 @@ Ordinary process interruption is recoverable with the run ID, but Ship is not a 
 
 ## Worker Requirements and Support Tiers
 
-The default Ship worker is Pi on Linux. Eligible Bob 2 and Copilot CLI sessions can use the native handoff described above. Ship targets Camel Main at the configured `camel.main.version`. Resolution order is a CLI `-p camel.main.version=...` override, the `-c` file or default `~/.camel-kit/config.properties`, then the bundled distribution default; a valid override may select another supported value. Ship uses YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. It requires:
+The default Ship worker is Pi on Linux. Eligible Bob 2, Copilot CLI and Claude Code sessions can use the native handoff described above. Ship targets Camel Main at the configured `camel.main.version`. Resolution order is a CLI `-p camel.main.version=...` override, the `-c` file or default `~/.camel-kit/config.properties`, then the bundled distribution default; a valid override may select another supported value. Ship uses YAML DSL, Simple expressions, no Java artifacts, and a required Citrus test for every route. It requires:
 
 - A Linux host
 - For the Pi backend, Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
@@ -260,7 +276,8 @@ The live gate is a manual, maintainer-run test — not a CI default and not some
 
 Harness-native entry points retain the local CLI as the workflow controller:
 
-- **Claude Code, Qwen Code, OpenCode** generate a `/camel-ship` command stub that forwards your options to the registered command once.
+- **Claude Code** exposes `/camel-ship` through `.claude/skills/` and relays eligible runs through its dedicated read-only `camel-ship-worker` subagent. See [Claude Code native subagents](#claude-code-native-subagents). The compatibility command stub of the same name only points at that skill.
+- **Qwen Code, OpenCode** generate a `/camel-ship` command stub that forwards your options to the registered command once.
 - **Google Antigravity** invokes the native `camel-ship` skill, which forwards the supplied options to the CLI once.
 - **Bob IDE** (`--ai bob2`) exposes the native `/camel-ship` skill, which relays controller-issued tasks when native dispatch is eligible. It skips migration of same-name compatibility stubs, so the native skill supplies the instructions.
 - **Bob Shell 2** (`--ai bob2`) exposes the native `$camel-ship` skill through `/skills` and the `$camel-*` picker. It relays controller-issued tasks when native dispatch is eligible. See [Bob setup and regeneration](../../getting-started/#bob-shell-202) if the skill is hidden in an older workspace.
@@ -273,7 +290,7 @@ Harness-native entry points retain the local CLI as the workflow controller:
 Earlier releases shipped `/camel-ship` as a prompt-owned workflow that the AI agent orchestrated itself, with state in `.camel-kit`. That design is retired. To move an existing workspace to the current controller entry points:
 
 1. Back up or commit any customizations to generated assets — the next step rewrites them.
-2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship mode; Copilot receives its native relay skill and read-only custom agent. Other targets retain their delegates.
+2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship mode; Copilot and Claude Code receive their native relay skill and read-only worker agent. Other targets retain their delegates.
 3. If the workspace has a pre-controller `.camel-kit/ship-state.json`, or a `.camel-kit/pipeline.json` not in manual mode, archive it outside the project — Ship fails closed on that state and leaves it unchanged. Old runs are not resumable by the controller. Manual-mode `pipeline.json` stays supported for the standalone skills and `--start-from` imports.
 
 Initialization aborts if a managed agent directory (such as `.claude` or `.bob`) is a symbolic link — replace the link with a real directory first.

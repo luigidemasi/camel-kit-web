@@ -158,7 +158,8 @@ Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wr
 | Harness | Surface |
 |---------|---------|
 | Google Antigravity | Native `camel-ship` skill forwards the supplied options to the CLI once |
-| Claude Code, Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
+| Claude Code | Native `/camel-ship` project skill; eligible sessions relay controller tasks through the read-only `camel-ship-worker` subagent; see [native Ship](../../pipeline/ship/#claude-code-native-subagents) |
+| Qwen Code, OpenCode | Generated `/camel-ship` stub that interpolates your arguments into the CLI invocation |
 | IBM Bob IDE (`--ai bob2`, verified 2.1.0) | Native `/camel-ship` skill that forwards the invocation's options to the CLI once; same-name compatibility stubs are skipped |
 | Bob Shell 2.0.2 (`--ai bob2`) | Native `$camel-ship` skill that forwards the invocation's options to the CLI once; see [Bob setup and regeneration](../../getting-started/#bob-shell-202) |
 | Pi | `/skill:camel-ship` only — no `/camel-ship` prompt is generated, because Pi's prompt-file argument expansion flattens quoted option values |
