@@ -126,6 +126,7 @@ Bob Shell 2.0.2 and Bob IDE 2.1.0. In Bob Shell, start from the
 initialized project root, open `/skills` or type `$camel-`, and select one of the nine
 public skills: `camel-start`, `camel-brainstorm`, `camel-migrate`, `camel-plan`,
 `camel-execute`, `camel-validate`, `camel-ship`, `camel-knowledge`, and `camel-debug`.
+
 **Ship is a [Technology Preview](../pipeline/ship/#overview)** and is not recommended for production use. Use `$camel-start` for the established staged workflow.
 
 Enter the request after the skill name, for example:

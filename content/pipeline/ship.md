@@ -77,7 +77,7 @@ This section describes the development integration tracked in [core #223](https:
 
 After upgrading Camel-Kit, regenerate Bob assets with `camel-kit init --here --ai bob2 --force` (or `camel kit init --here --ai bob2 --force` for a plugin installation). Preserve customizations before regeneration. Bob Shell exposes Ship through `/skills` or `$camel-ship`; Bob IDE uses `/camel-ship`.
 
-In the normal agent mode or the generated Camel Ship mode, the skill can select `--backend bob2-native --json`. The active mode must authorize the complete workflow and permit `camel-ship-worker`. Existing restricted phase modes retain their permissions. The skill cannot broaden a worker or switch modes to escape a restriction. If native dispatch is absent or disabled, a new authorized run retains the existing CLI execution model.
+In the normal agent mode or the generated Camel Ship (Technology Preview) mode, the skill can select `--backend bob2-native --json`. The active mode must authorize the complete workflow and permit `camel-ship-worker`. Existing restricted phase modes retain their permissions. The skill cannot broaden a worker or switch modes to escape a restriction. If native dispatch is absent or disabled, a new authorized run retains the existing CLI execution model.
 
 The controller returns one task with a run, stage, attempt, input digest, deadline and unique task ID. The parent calls Bob's `spawn_subagent` with the dedicated `camel-ship-worker` preset and `fork_context: false`, then submits its observed result. The preset has only read tools: children cannot edit, run commands, invoke MCP or delegate. The controller writes the proposed artifacts into its private candidate and computes their manifest and hashes before deterministic validation.
 
@@ -294,7 +294,7 @@ Harness-native entry points retain the local CLI as the workflow controller:
 Earlier releases shipped `/camel-ship` as a prompt-owned workflow that the AI agent orchestrated itself, with state in `.camel-kit`. That design is retired. To move an existing workspace to the current controller entry points:
 
 1. Back up or commit any customizations to generated assets — the next step rewrites them.
-2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship mode; Copilot and Claude Code receive their native relay skill and read-only worker agent. Other targets retain their delegates.
+2. Re-initialize with the same agent: `camel-kit init --here --ai <same-agent> --force` (or use `camel kit init ...` from a current-source plugin). Re-initialization removes obsolete Ship guides, traits and rules. Bob 2 receives its native relay skill, read-only worker and Camel Ship (Technology Preview) mode; Copilot and Claude Code receive their native relay skill and read-only worker agent. Other targets retain their delegates.
 3. If the workspace has a pre-controller `.camel-kit/ship-state.json`, or a `.camel-kit/pipeline.json` not in manual mode, archive it outside the project — Ship fails closed on that state and leaves it unchanged. Old runs are not resumable by the controller. Manual-mode `pipeline.json` stays supported for the standalone skills and `--start-from` imports.
 
 Initialization aborts if a managed agent directory (such as `.claude` or `.bob`) is a symbolic link — replace the link with a real directory first.
