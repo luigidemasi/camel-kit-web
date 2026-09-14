@@ -1,7 +1,7 @@
 ---
 title: "Pipeline"
 weight: 2
-description: "The design-to-code pipeline — manual stages, plus the controller-owned Ship workflow"
+description: "The design-to-code pipeline — manual stages, plus the Technology Preview Ship workflow"
 toc: false
 ---
 
@@ -10,7 +10,7 @@ toc: false
 The Camel-Kit pipeline transforms integration requirements into generated code and review evidence through an orchestrated workflow. You can run it two ways:
 
 - **Manual:** Enter through `/camel-start`, `/camel-brainstorm` without an ID, or `/camel-migrate` without an ID for a chained flow. Other independently invoked stages write their output and stop; only stages chained in the same conversation auto-transition.
-- **Ship (`/camel-ship`):** Delegate to the local `camel-kit ship` controller, which runs its own workflow — discovery, design, plan, execute, validate — with configurable oversight (`--ask always|smart|never`).
+- **Ship (`/camel-ship`, Technology Preview):** Delegate to the local `camel-kit ship` controller, which runs its own workflow — discovery, design, plan, execute, validate — with configurable oversight (`--ask always|smart|never`).
 
 The manual pipeline is agent-run and enforces the Iron Laws at each stage; Ship's stages, state, and gates are owned by the local controller.
 
@@ -246,6 +246,8 @@ AI: /camel-debug
 
 ## Ship Workflow: `/camel-ship`
 
+**Technology Preview:** Camel Ship is still being stabilized. Its behavior and interfaces may change, and it is not recommended for production use. For the established staged workflow, start with `/camel-start`.
+
 `/camel-ship` is a thin delegate: it forwards your options to the registered `camel-kit ship` (or `camel kit ship`) command once. The local controller — not the AI agent — owns the run's stages, state, oversight, evidence, and publication:
 
 ```bash
@@ -280,4 +282,4 @@ Dive into each stage:
 - [/camel-execute](./execute/) — Stage 3: Code generation
 - [Runtime Verification](./verify/) — Internal build/test feedback loop
 - [/camel-validate](./validate/) — Stage 4: Static quality analysis
-- [Ship Workflow](./ship/) — Controller-owned run from requirements to published code
+- [Ship Workflow](./ship/) — Technology Preview of a controller-owned run from requirements to published code

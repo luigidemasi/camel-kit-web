@@ -1,10 +1,14 @@
 ---
-title: "Ship Workflow"
+title: "Ship Workflow (Technology Preview)"
 weight: 7
-description: "camel-kit ship — a local controller-owned run from requirements to published code"
+description: "camel-kit ship — Technology Preview of a local workflow controller"
 ---
 
 ## Overview
+
+**Technology Preview:** Camel Ship is still being stabilized. Its behavior and interfaces may change, and it is not recommended for production use. For the established staged workflow, start with `/camel-start`.
+
+This preview status applies to every Ship backend. Tested host/runtime combinations and passing validation checks do not imply production readiness.
 
 Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.4.0-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
@@ -14,7 +18,7 @@ Ship is a local orchestrator, not a daemon, a secrets service, a hostile-process
 
 ## When to Use
 
-Run Ship when you:
+Evaluate the Ship Technology Preview when you:
 
 - Want one resumable run from requirements to validated, published code
 - Need to resume an interrupted run by its run ID
@@ -22,7 +26,7 @@ Run Ship when you:
 
 During a normal Ship run you never invoke `/camel-brainstorm`, `/camel-plan`, `/camel-execute`, or `/camel-validate` yourself — the controller drives its own stages.
 
-**Manual alternative:** If you prefer the prompt-owned workflow or need to enter at a known stage, use `/camel-start` or invoke that stage directly. After the design approval, a chained manual run continues through downstream stages automatically.
+**Recommended workflow:** Use `/camel-start` or invoke a known stage directly. After the design approval, a chained manual run continues through downstream stages automatically.
 
 ## Command and Options
 
@@ -255,7 +259,7 @@ The default Ship worker is Pi on Linux. Eligible Bob 2, Copilot CLI and Claude C
 - For the Pi backend, Pi and Node executables (discovered on `PATH`, or set with `--pi`/`--node`)
 - Outbound access to Maven Central for catalog and validation-payload resolution
 
-Pi runtime compatibility is reported in tiers; native host metadata remains untested diagnostics:
+The following tiers describe Pi/Node compatibility within the Technology Preview, not Ship production readiness. `--accept-experimental` permits an unverified Pi/Node version; it does not enable Ship or change its preview status. Native host metadata remains untested diagnostics:
 
 | Tier | Meaning |
 |---|---|

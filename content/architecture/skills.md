@@ -20,7 +20,7 @@ Camel-Kit's skills are **composable Markdown instructions** that guide AI agents
 | Pipeline | **plan** | `/camel-plan` | Task decomposition → Implementation Plan |
 | Pipeline | **execute** | `/camel-execute` | Wave-based code generation with staged review |
 | Pipeline | **validate** | `/camel-validate` | Static route quality validation |
-| Utility | **ship** | `/camel-ship` | Thin CLI delegate to the local Ship controller |
+| Utility | **ship** | `/camel-ship` | Technology Preview — thin CLI delegate to the local Ship controller |
 | Utility | **knowledge** | `/camel-knowledge` | Apache Camel documentation queries |
 | Utility | **debug** | `/camel-debug` | Ad-hoc broken-route troubleshooting |
 

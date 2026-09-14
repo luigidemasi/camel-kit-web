@@ -151,6 +151,8 @@ Use it for startup failures, runtime exceptions, or incorrect behavior. Build an
 
 <!--step /camel-ship — Ship Delegate-->
 
+**Technology Preview:** Camel Ship is still being stabilized. Its behavior and interfaces may change, and it is not recommended for production use. For the established staged workflow, start with `/camel-start`.
+
 Delegate a Ship run to the local workflow controller. `/camel-ship` is a thin wrapper: it runs the registered `camel-kit ship` (or `camel kit ship`) command once with the options you supply, adds no defaults, and returns the command output. The local controller — not the agent — owns Ship stages, run state, oversight, evidence, and guarded publication. No harness command implements a second workflow.
 
 **Per-harness surfaces:**
@@ -310,6 +312,8 @@ No `.codex/commands/` directory is generated. See [OpenAI Codex CLI setup](../..
 
 <!--step camel-kit ship-->
 
+**Technology Preview:** Camel Ship is still being stabilized. Its behavior and interfaces may change, and it is not recommended for production use. For the established staged workflow, start with `/camel-start`. See [Ship preview status](../../pipeline/ship/#overview).
+
 Start, inspect, resume, or abort a local Camel Ship run. The controller performs discovery → design → plan → execute → validate and, after the configured approval and validation gates, publishes accepted changes to the project. The harness commands (`/camel-ship`, `$camel-ship`, `/skill:camel-ship`) are thin wrappers around this command.
 
 **Usage:**
@@ -456,7 +460,7 @@ camel-kit plan analyze docs/camel-kit/001-order-processing/implementation-plan.m
 /camel-start                     # Route a request to the right skill
 /camel-migrate                   # Migration discovery and design
 
-# Ship (local workflow controller)
+# Ship (Technology Preview)
 camel-kit ship --document requirements.md       # Start a controller-owned Ship run
 camel-kit ship --resume <run-id>                # Resume an interrupted run
 /camel-ship                      # Thin wrapper around camel-kit ship
