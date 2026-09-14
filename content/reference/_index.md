@@ -20,7 +20,7 @@ See [Commands](commands) for the full reference. Summary of available commands:
 - `/camel-start` — Route any integration request to the right skill
 - `/camel-migrate` — Migration-specific discovery and design
 
-**Ship:**
+**Ship (Technology Preview):**
 - `/camel-ship` — Thin wrapper around the local `camel-kit ship` workflow controller (discovery → design → plan → execute → validate)
 
 **Standalone:**
@@ -32,7 +32,7 @@ See [Commands](commands) for the full reference. Summary of available commands:
 The `camel kit` forms below require a plugin built from the current `0.4.0-SNAPSHOT` source. Published stable `0.3.1` exposes only `camel kit init`.
 
 - `camel-kit init` — Initialize a new project
-- `camel-kit ship` — Start, inspect, resume, or abort a local Camel Ship run
+- `camel-kit ship` — Technology Preview: start, inspect, resume, or abort a local Camel Ship run
 - `camel-kit doctor` — Validate a generated workspace
 - `camel-kit doc` / `camel kit doc` — Track pipeline artifact provenance and staleness
 - `camel-kit nextId` / `camel kit nextId` — Create the next numbered pipeline directory
