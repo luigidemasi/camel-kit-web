@@ -288,7 +288,7 @@ camel-kit init --here --ai claude --source-platform mulesoft
 
 ### Retired agent targets
 
-Current source replaces Gemini with [Google Antigravity](antigravity/) and removes IBM Bob v1.
+Camel Kit 0.4.0 replaces Gemini with [Google Antigravity](antigravity/) and removes IBM Bob v1.
 Reinitialize existing projects with `camel-kit init --here --ai antigravity --force` or
-`camel-kit init --here --ai bob2 --force`, then run `camel-kit doctor`. These target changes require a source build
-containing the update until a distribution with the change is published.
+`camel-kit init --here --ai bob2 --force`, then run `camel-kit doctor`. Both replacement targets
+are available in the 0.4.0 release. Build from source when you need unreleased changes.
