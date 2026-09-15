@@ -10,7 +10,7 @@ description: "camel-kit ship — Technology Preview of a local workflow controll
 
 This preview status applies to every Ship backend. Tested host/runtime combinations and passing validation checks do not imply production readiness.
 
-Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. A plugin built from current `0.4.0-SNAPSHOT` source exposes the equivalent `camel kit ship` form; published stable `0.3.1` exposes only `camel kit init`. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
+Ship is a local workflow controller. The command `camel-kit ship` starts, inspects, resumes, or aborts a Ship run on your machine. The `0.4.0` Camel JBang plugin exposes the equivalent `camel kit ship` form. One run takes an integration from requirements to published code through five controller-owned stages: discovery, design, plan, execute, and validate.
 
 The harness entry points — `/camel-ship`, `$camel-ship`, and `/skill:camel-ship` — delegate workflow decisions to the registered CLI. Eligible Bob 2, GitHub Copilot CLI and Claude Code sessions relay pending tasks to their own native subagents. Other execution models retain a single CLI invocation. The local controller owns stages, run state, oversight, evidence, publication and recovery.
 

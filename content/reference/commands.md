@@ -176,7 +176,7 @@ See `camel-kit ship` under CLI Commands for the full option reference.
 
 ## CLI Commands
 
-The standalone `camel-kit` forms describe the current source-tracking `0.4.0-SNAPSHOT` channel. Equivalent `camel kit` forms require a plugin built from that current source; published stable `0.3.1` exposes only `camel kit init`. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
+The standalone `camel-kit` and equivalent `camel kit` forms describe the `0.4.0` release. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
 
 {{< carousel id="cli-cmds" >}}
 <!--step camel-kit init-->
@@ -225,7 +225,7 @@ camel-kit init my-integration --ai claude
 # Create a project for OpenAI Codex CLI
 camel-kit init my-integration --ai codex
 
-# Current-source/snapshot plugin only; stable 0.3.1 does not include the Codex target
+# Requires Camel Kit plugin 0.4.0 or later
 camel kit init my-integration --ai codex
 
 # Create a project with the default IBM Bob 2 target

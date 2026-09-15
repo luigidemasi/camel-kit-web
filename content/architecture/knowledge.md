@@ -5,7 +5,21 @@ description: "Apache Camel documentation search via hybrid semantic search"
 toc: false
 ---
 
-The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. The current index manifest reports **30,520 documents** covering Camel **4.18 through 4.22**. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
+The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. Knowledge MCP **0.0.1** accompanies Camel Kit **0.4.0**. The September 15 index contains **20,366 documents**, with component and runtime documentation for supported Camel **4.18 and 4.22 LTS** lines and historical release notes from **4.18 through 4.22**. Use `camel_docs_index_info` to check the installed corpus. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
+
+## Server release
+
+Camel Kit `0.4.0` configures Knowledge MCP `0.0.1` automatically. To run it directly:
+
+```bash
+jbang io.github.luigidemasi:camel-kit-knowledge-mcp:0.0.1:runner
+```
+
+The server uses stdio and opens no HTTP listener by default. To opt into HTTP/SSE
+on localhost, add `-Dquarkus.http.host-enabled=true -Dquarkus.http.host=127.0.0.1`
+and `-Dquarkus.http.port=9090` before the artifact coordinate.
+The server version and downloadable index version are independent; use
+`camel_docs_index_info` to check the active index and search mode.
 
 ## 7 MCP Tools
 
@@ -72,7 +86,7 @@ Search Apache Camel CVE advisories by CVE ID, affected component, severity, or f
 camel_docs_cve_search(component="http", severity="HIGH")
 ```
 
-Returns advisory details and affected or fixed versions. The advisory content includes CVSS and CWE details only when NVD enrichment was available.
+Returns advisory details and affected or fixed versions. The advisory content includes CVSS and CWE details when NVD enrichment was available, either directly or through the CIRCL fallback during an index rebuild.
 
 <!--step camel_docs_release_info-->
 
@@ -212,7 +226,7 @@ Each advisory can include:
 - Severity
 - CVSS score, vector, and CWE classification in the advisory content when matching NVD enrichment is available
 
-Missing NVD enrichment does not remove the Apache advisory; those optional details are simply absent from its content.
+During a rebuild, the indexer reuses cached NVD records, then tries NVD directly. If NVD is unavailable or rate-limits the request, it falls back to [CIRCL Vulnerability-Lookup](https://circl.lu/services/cve-search/), using its FKIE mirror of NVD data. Mirror data can lag behind NVD. Missing enrichment from both sources does not remove the Apache advisory; those optional details are simply absent from its content.
 
 <!--tab Release Notes-->
 
@@ -290,6 +304,14 @@ Index rebuilding is a contributor and release-maintainer task. From a checkout o
 ```
 
 The rebuild resolves active Camel versions, fetches immutable release tags, renders documentation, downloads Camel Catalog metadata, parses release notes and CVE advisories, enriches available JIRA and NVD data, generates or reuses cached embeddings, and writes the Lucene files plus the manifest skeleton under `index/src/main/resources/`.
+
+Version selection is dynamic: each rebuild refreshes the [Camel website's release metadata](https://github.com/apache/camel-website/tree/main/content/releases), then selects every supported LTS line (`kind: lts` with an end-of-life date after today). It adds the latest release line only when that line is non-LTS. When the latest release is LTS, no non-LTS line is selected. Draft and future-dated entries are ignored when selecting lines. The indexer then resolves the latest matching release tags within those lines.
+
+For example, with 4.22 as the latest release, the supported 4.18 and 4.22 LTS lines are selected and 4.21 is excluded. When a non-LTS 4.23 release is published, it is picked up automatically on the next rebuild alongside the supported LTS lines. No version-list edit is needed.
+
+The selected lines control component documentation, runtime documentation, and Camel Catalog metadata. Historical release notes from the oldest selected line onward remain searchable, so an older non-LTS version such as 4.21 can still appear in `camel_docs_index_info` through its release history. CVE advisories are indexed independently of this version selection.
+
+CVE enrichment requires no API key. Requests to NVD and the CIRCL fallback are spaced at least 6.1 seconds apart, with a 15-second deadline per request including the body and a 5-second connection timeout. An HTTP error, timeout, invalid response, or missing record from NVD triggers the fallback. HTTP 429/503 responses put that service on cooldown using `Retry-After`, or 30 seconds when the header is absent or invalid. Each lookup attempts each available service once. Successful records are checked against the requested CVE ID and cached under `indexer/src/main/resources/apache-camel/cve-cache/` with their source, URL, and retrieval time. Existing caches remain usable; failed lookups are retried on a later rebuild. Updating the indexer alone does not change an already generated or installed index.
 
 Rebuild on a branch, commit the generated index with a signed commit, and have it reviewed and merged before release. The manually dispatched `Index Release` workflow runs from `main`: it builds the reviewed, committed index without `-Prebuild-index`, runs the retrieval-quality gate with working vectors required, verifies that the index files remain unchanged, then packages and publishes the ZIP and completed manifest. Local source builds are not the normal end-user installation path.
 

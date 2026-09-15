@@ -51,38 +51,49 @@ camel plugin add test
 <!--step Install Camel-Kit-->
 ## Install Camel-Kit
 
-**Current development channel: JBang App Install (Recommended)**
-
-The easiest way to install Camel-Kit:
+**Release 0.4.0: JBang App Install (Recommended)**
 
 ```bash
-jbang app install camel-kit@luigidemasi/camel-kit
+jbang app install camel-kit@luigidemasi/camel-kit/camel-kit-0.4.0
 ```
 
-This adds the `camel-kit` command to your PATH. The GitHub alias installs the latest deployed `0.4.0-SNAPSHOT`, which may lag `main` until the next deployment. Build from source when you need the exact current revision; new target integrations require a source build until their snapshot is deployed.
+This adds `camel-kit` to your PATH and pins the release catalog. Camel Kit `0.4.0` uses
+Knowledge MCP `0.0.1`. Ship remains a [Technology Preview](../pipeline/ship/#overview).
 
 **Verify installation:**
+
 ```bash
 camel-kit --version
+# 0.4.0
 ```
 
 **Run without installing:**
 
 ```bash
-jbang run camel-kit@luigidemasi/camel-kit init ...
+jbang run camel-kit@luigidemasi/camel-kit/camel-kit-0.4.0 init my-project --ai claude
 ```
 
-**Stable channel: Camel JBang plugin 0.3.1**
-
-Maven Central currently provides the stable `0.3.1` plugin. Pin that version explicitly:
+**Camel JBang plugin 0.4.0**
 
 ```bash
 camel plugin add kit \
-  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.3.1 \
+  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.4.0 \
   --description "Design Apache Camel Integrations with AI"
 ```
 
-Stable `0.3.1` exposes only `camel kit init` and the `bob`, `gemini`, and `claude` targets. It does not provide the current `0.4.0-SNAPSHOT` command or eight-agent surface; do not use a dynamic Maven version when you need current-source behavior.
+The standalone CLI and plugin provide the same commands and all eight AI targets below.
+When upgrading from `0.3.1`, replace the retired `bob` and `gemini` targets with `bob2`
+(the default) and `antigravity`. See [retired-target migration](antigravity/).
+
+**Development channel**
+
+```bash
+jbang app install --force camel-kit@luigidemasi/camel-kit
+```
+
+The unqualified alias follows the latest deployed `0.4.1-SNAPSHOT`, which may lag `main`.
+For an exact revision, clone the repository and build it with `./mvnw -B clean install`.
+Knowledge development continues at `0.0.2-SNAPSHOT`; released installations use `0.0.1`.
 
 <!--step Initialize Project-->
 ## Initialize Your First Project
