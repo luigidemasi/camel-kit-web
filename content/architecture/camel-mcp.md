@@ -41,7 +41,7 @@ It runs as a **local process**. JBang and the server may resolve and cache the M
 
 **Example:**
 ```
-camel_catalog_component_doc(component="kafka", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.0")
+camel_catalog_component_doc(component="kafka", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.1")
 → URI syntax, producer/consumer options, default values
 ```
 
@@ -58,7 +58,7 @@ Used during `/camel-brainstorm` to verify components selected for the design aft
 
 **Example:**
 ```
-camel_catalog_eip_doc(eip="choice", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.0")
+camel_catalog_eip_doc(eip="choice", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.1")
 → YAML DSL syntax, when/otherwise structure, examples
 ```
 
@@ -75,7 +75,7 @@ Used to verify patterns like `choice`, `split`, `aggregate`, `multicast` exist i
 
 **Example:**
 ```
-camel_catalog_dataformat_doc(dataformat="jackson", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.0")
+camel_catalog_dataformat_doc(dataformat="jackson", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.1")
 → Marshal/unmarshal options, objectMapper config, prettyPrint
 ```
 
@@ -92,7 +92,7 @@ Covers JSON (Jackson), XML (JAXB), CSV, Avro, Protobuf, and more.
 
 **Example:**
 ```
-camel_catalog_language_doc(language="simple", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.0")
+camel_catalog_language_doc(language="simple", runtime="main", platformBom="org.apache.camel:camel-catalog:4.22.1")
 → Simple expression syntax, operators, functions
 ```
 
@@ -114,7 +114,7 @@ Covers Simple, JSONPath, XPath, Header, Constant, and more.
 ```
 camel_validate_route(route="- route:\n    id: my-route\n    ...",
                      runtime="spring-boot",
-                     platformBom="org.apache.camel.springboot:camel-catalog-provider-springboot:4.22.0")
+                     platformBom="org.apache.camel.springboot:camel-catalog-provider-springboot:4.22.1")
 → Syntax OK, components verified, properties valid
 ```
 
@@ -185,9 +185,9 @@ The server artifact follows the distribution's Camel Main stream; version-sensit
 
 | Property | Current Value |
 |----------|--------------|
-| **Camel MCP version** | `4.22.0` |
-| **Camel Main default** | `4.22.0` |
-| **Camel Spring Boot** | `4.22.0` |
+| **Camel MCP version** | `4.22.1` |
+| **Camel Main default** | `4.22.1` |
+| **Camel Spring Boot** | `4.22.1` |
 | **Camel Quarkus** | `4.18.3` |
 | **Quarkus platform BOM** | `3.33.3.2` |
 

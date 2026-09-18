@@ -13,12 +13,14 @@ Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<dom
 
 | Runtime / Camel version | Forage version |
 |-------------------------|----------------|
+| Camel Main / Spring Boot 4.22.1 (default) | No published mapping; use component configuration or verified declarative beans |
 | Camel Main / Spring Boot 4.22.0 | 1.6.0 |
 | Camel Main / Spring Boot 4.18.4 | 1.4.1 |
 | Camel Quarkus 4.18.3 | 1.4.0 |
 | Unmapped streams | Forage unavailable; use the next configuration rung |
 
-The version mappings in `distribution.properties` are authoritative.
+The version mappings in `distribution.properties` are authoritative. Forage `1.6.0` declares Camel `4.22.0`;
+Camel-Kit does not assume support for `4.22.1` from that metadata.
 
 ## Configuration Ladder
 

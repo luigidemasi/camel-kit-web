@@ -87,6 +87,12 @@ When upgrading from `0.3.1`, replace the retired `bob` and `gemini` targets with
 
 **Upgrading from 0.4.0**
 
+Camel Main, Camel Spring Boot, and Camel MCP now default to `4.22.1`; the supported
+older LTS patch remains `4.18.4`. Spring Boot uses `4.1.1`, matching the published Camel
+Spring Boot release. Quarkus retains its independently aligned platform versions.
+Forage has no published mapping for Camel `4.22.1`, so new projects use verified component
+configuration or declarative beans instead; the existing `4.22.0` to Forage `1.6.0` mapping remains.
+
 Version `0.4.1` updates the shared generation and review guidance to prefer verified declarative
 bean construction after Forage and component configuration. See the
 [bean construction priority](../architecture/forage/#custom-bean-construction).
