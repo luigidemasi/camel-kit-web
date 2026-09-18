@@ -1,8 +1,8 @@
 # Camel Kit website
 
-Documentation for **Camel Kit 0.4.0** and **Camel Kit Knowledge 0.0.1**.
+Documentation for **Camel Kit 0.4.1** and **Camel Kit Knowledge 0.0.1**.
 Ship remains a Technology Preview. The next development versions are
-`0.4.1-SNAPSHOT` and `0.0.2-SNAPSHOT`, respectively.
+`0.4.2-SNAPSHOT` and `0.0.2-SNAPSHOT`, respectively.
 
 ## Build
 

@@ -4,14 +4,14 @@ description: "Set up native Antigravity skills and migrate from retired Gemini o
 weight: 25
 ---
 
-Camel Kit `0.4.0` supports Google Antigravity with `--ai antigravity` and IBM Bob 2 with `--ai bob2`
+Camel Kit `0.4.1` supports Google Antigravity with `--ai antigravity` and IBM Bob 2 with `--ai bob2`
 (the default). The `gemini` and `bob` targets have been removed. When upgrading from `0.3.1`, use the
 replacement targets and regenerate project assets as described below.
 
 ## Set up Antigravity
 
 Install Antigravity using [Google's getting-started guide](https://antigravity.google/docs/getting-started).
-Install Camel Kit `0.4.0` as described in the [installation instructions](../), then run:
+Install Camel Kit `0.4.1` as described in the [installation instructions](../), then run:
 
 ```bash
 camel-kit init my-integration --ai antigravity

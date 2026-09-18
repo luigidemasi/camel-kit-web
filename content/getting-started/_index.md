@@ -51,33 +51,33 @@ camel plugin add test
 <!--step Install Camel-Kit-->
 ## Install Camel-Kit
 
-**Release 0.4.0: JBang App Install (Recommended)**
+**Release 0.4.1: JBang App Install (Recommended)**
 
 ```bash
-jbang app install camel-kit@luigidemasi/camel-kit/camel-kit-0.4.0
+jbang app install camel-kit@luigidemasi/camel-kit/camel-kit-0.4.1
 ```
 
-This adds `camel-kit` to your PATH and pins the release catalog. Camel Kit `0.4.0` uses
+This adds `camel-kit` to your PATH and pins the release catalog. Camel Kit `0.4.1` uses
 Knowledge MCP `0.0.1`. Ship remains a [Technology Preview](../pipeline/ship/#overview).
 
 **Verify installation:**
 
 ```bash
 camel-kit --version
-# 0.4.0
+# 0.4.1
 ```
 
 **Run without installing:**
 
 ```bash
-jbang run camel-kit@luigidemasi/camel-kit/camel-kit-0.4.0 init my-project --ai claude
+jbang run camel-kit@luigidemasi/camel-kit/camel-kit-0.4.1 init my-project --ai claude
 ```
 
-**Camel JBang plugin 0.4.0**
+**Camel JBang plugin 0.4.1**
 
 ```bash
 camel plugin add kit \
-  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.4.0 \
+  --gav io.github.luigidemasi:camel-jbang-plugin-kit:0.4.1 \
   --description "Design Apache Camel Integrations with AI"
 ```
 
@@ -85,13 +85,25 @@ The standalone CLI and plugin provide the same commands and all eight AI targets
 When upgrading from `0.3.1`, replace the retired `bob` and `gemini` targets with `bob2`
 (the default) and `antigravity`. See [retired-target migration](antigravity/).
 
+**Upgrading from 0.4.0**
+
+Version `0.4.1` updates the shared generation and review guidance to prefer verified declarative
+bean construction after Forage and component configuration. See the
+[bean construction priority](../architecture/forage/#custom-bean-construction).
+Knowledge MCP remains at `0.0.1`.
+
+Reinstall the standalone CLI with `jbang app install --force camel-kit@luigidemasi/camel-kit/camel-kit-0.4.1`,
+or rerun the plugin installation above. To apply the updated guidance to an existing project,
+commit or back up customized generated files, then run `camel-kit init --here --ai <your-agent> --force`
+(or `camel kit init --here --ai <your-agent> --force`). This rewrites generated assets.
+
 **Development channel**
 
 ```bash
 jbang app install --force camel-kit@luigidemasi/camel-kit
 ```
 
-The unqualified alias follows the latest deployed `0.4.1-SNAPSHOT`, which may lag `main`.
+The unqualified alias follows the latest deployed `0.4.2-SNAPSHOT`, which may lag `main`.
 For an exact revision, clone the repository and build it with `./mvnw -B clean install`.
 Knowledge development continues at `0.0.2-SNAPSHOT`; released installations use `0.0.1`.
 
@@ -291,4 +303,4 @@ camel-kit init --here --ai claude --source-platform mulesoft
 Camel Kit 0.4.0 replaces Gemini with [Google Antigravity](antigravity/) and removes IBM Bob v1.
 Reinitialize existing projects with `camel-kit init --here --ai antigravity --force` or
 `camel-kit init --here --ai bob2 --force`, then run `camel-kit doctor`. Both replacement targets
-are available in the 0.4.0 release. Build from source when you need unreleased changes.
+are available since the 0.4.0 release. Build from source when you need unreleased changes.

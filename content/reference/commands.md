@@ -176,7 +176,7 @@ See `camel-kit ship` under CLI Commands for the full option reference.
 
 ## CLI Commands
 
-The standalone `camel-kit` and equivalent `camel kit` forms describe the `0.4.0` release. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
+The standalone `camel-kit` and equivalent `camel kit` forms describe the `0.4.1` release. See [Getting Started](../../getting-started/#install-camel-kit) for installation choices.
 
 {{< carousel id="cli-cmds" >}}
 <!--step camel-kit init-->

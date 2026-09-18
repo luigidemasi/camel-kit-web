@@ -29,7 +29,7 @@ See [Commands](commands) for the full reference. Summary of available commands:
 
 **CLI:**
 
-The `camel-kit` and `camel kit` forms below are available in the `0.4.0` standalone CLI and Camel JBang plugin.
+The `camel-kit` and `camel kit` forms below are available in the `0.4.1` standalone CLI and Camel JBang plugin.
 
 - `camel-kit init` — Initialize a new project
 - `camel-kit ship` — Technology Preview: start, inspect, resume, or abort a local Camel Ship run
