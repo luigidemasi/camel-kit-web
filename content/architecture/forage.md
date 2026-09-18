@@ -26,7 +26,7 @@ For every datasource, connection factory, AI service, CXF endpoint, or other inf
 
 1. **Forage catalog coverage** — emit catalog-verified `forage.*` properties and reference the registered bean as `#<name>`.
 2. **Camel component properties** — use `camel.component.<scheme>.*` scalar properties verified by Camel MCP.
-3. **Hand-wired bean** — use `camel.beans.<name>=#class:...` only when the first two rungs cannot construct the required object, with a one-line reason comment.
+3. **Custom bean** — when the first two rungs cannot construct the required object, prefer verified declarative bean configuration, with a one-line reason comment explaining why those rungs do not apply.
 
 Example datasource:
 
@@ -38,6 +38,39 @@ forage.myDb.jdbc.password={{db.password}}
 ```
 
 A route can then use `sql:...?dataSource=#myDb`.
+
+## Custom Bean Construction
+
+Camel-Kit prefers constructors and properties, factory methods or factory beans, and supported builders before using
+an initialization script. It verifies support against the project's Camel runtime and library versions, including
+argument conversions and lifecycle methods. Existing supported `camel.beans.*` declarations can stay in properties;
+YAML `beans` can express factory construction without a scripting dependency.
+
+For example, when the configured versions support the InfluxDB client factory and Camel's token conversion:
+
+```yaml
+- beans:
+    # Custom bean: verified Forage/component configuration cannot construct this client.
+    - name: influxDbClient
+      type: com.influxdb.client.InfluxDBClient
+      factoryBean: com.influxdb.client.InfluxDBClientFactory
+      factoryMethod: create
+      constructors:
+        0: "{{influxdb.url}}"
+        1: "{{influxdb.token}}"
+        2: "{{influxdb.org}}"
+        3: "{{influxdb.bucket}}"
+      destroyMethod: close
+```
+
+Here `constructors` supplies the static factory's arguments, and Camel converts the token to `char[]`. Connection
+values stay in external configuration. The factory class does not need a no-argument constructor.
+
+Scripts remain available when the verified API requires initialization that declarative configuration cannot express.
+The generated bean must explain that limitation. Generation and review report missing verification as a concern;
+they do not treat a failed lookup as proof that scripting is necessary. Review flags an unnecessary script only when
+the replacement is verified. This preference concerns bean creation, so message transformations and DataMapper
+engine selection are unchanged.
 
 ## Catalog Checks
 
