@@ -173,6 +173,10 @@ The executor invokes `camel-implement` again with the actionable findings and re
 
 After spec compliance passes, the executor validates against the Constitution.
 
+Bean review also applies the [declarative construction preference](../../architecture/forage/#custom-bean-construction):
+use a verified constructor, factory or builder when it meets the requirements, and accept an initialization script
+when its documented limitation is corroborated. Unverified alternatives are reported as concerns, not asserted as fixes.
+
 **Constitution Checklist:**
 
 ```
