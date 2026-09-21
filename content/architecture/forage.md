@@ -13,14 +13,15 @@ Forage (`io.kaoto.forage`) creates infrastructure beans from `forage.<name>.<dom
 
 | Runtime / Camel version | Forage version |
 |-------------------------|----------------|
-| Camel Main / Spring Boot 4.22.1 (default) | No published mapping; use component configuration or verified declarative beans |
+| Camel Main / Spring Boot 4.22.1 (default) | 1.6.1 |
 | Camel Main / Spring Boot 4.22.0 | 1.6.0 |
 | Camel Main / Spring Boot 4.18.4 | 1.4.1 |
 | Camel Quarkus 4.18.3 | 1.4.0 |
 | Unmapped streams | Forage unavailable; use the next configuration rung |
 
-The version mappings in `distribution.properties` are authoritative. Forage `1.6.0` declares Camel `4.22.0`;
-Camel-Kit does not assume support for `4.22.1` from that metadata.
+The version mappings in `distribution.properties` are authoritative. Forage `1.6.1` declares Camel `4.22.1`
+in its published runtime metadata and includes InfluxDB 1 and 2 client factories for Camel Main and Spring Boot.
+Camel-Kit checks the selected catalog's factory coverage and runtime variant before using a factory.
 
 ## Configuration Ladder
 
@@ -48,7 +49,9 @@ an initialization script. It verifies support against the project's Camel runtim
 argument conversions and lifecycle methods. Existing supported `camel.beans.*` declarations can stay in properties;
 YAML `beans` can express factory construction without a scripting dependency.
 
-For example, when the configured versions support the InfluxDB client factory and Camel's token conversion:
+For example, on a runtime whose mapped Forage catalog lacks the required InfluxDB client, use the following
+only after verifying the client factory and Camel's token conversion. With Forage `1.6.1` on Camel Main or
+Spring Boot, use its InfluxDB 2 factory first instead of this custom bean:
 
 ```yaml
 - beans:
