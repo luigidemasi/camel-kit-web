@@ -58,7 +58,7 @@ jbang app install camel-kit@luigidemasi/camel-kit/camel-kit-0.4.1
 ```
 
 This adds `camel-kit` to your PATH and pins the release catalog. Camel Kit `0.4.1` uses
-Knowledge MCP `0.0.1`. Ship remains a [Technology Preview](../pipeline/ship/#overview).
+Knowledge MCP `0.0.2`. Ship remains a [Technology Preview](../pipeline/ship/#overview).
 
 **Verify installation:**
 
@@ -96,7 +96,7 @@ Camel Main and Spring Boot. The existing `4.22.0` to Forage `1.6.0` mapping rema
 Version `0.4.1` updates the shared generation and review guidance to prefer verified declarative
 bean construction after Forage and component configuration. See the
 [bean construction priority](../architecture/forage/#custom-bean-construction).
-Knowledge MCP remains at `0.0.1`.
+Knowledge MCP `0.0.2` updates endpoint validation to the Camel `4.22.1` catalog.
 
 Reinstall the standalone CLI with `jbang app install --force camel-kit@luigidemasi/camel-kit/camel-kit-0.4.1`,
 or rerun the plugin installation above. To apply the updated guidance to an existing project,
@@ -111,7 +111,7 @@ jbang app install --force camel-kit@luigidemasi/camel-kit
 
 The unqualified alias follows the latest deployed `0.4.2-SNAPSHOT`, which may lag `main`.
 For an exact revision, clone the repository and build it with `./mvnw -B clean install`.
-Knowledge development continues at `0.0.2-SNAPSHOT`; released installations use `0.0.1`.
+Knowledge development continues at `0.0.3-SNAPSHOT`; released installations use `0.0.2`.
 
 <!--step Initialize Project-->
 ## Initialize Your First Project

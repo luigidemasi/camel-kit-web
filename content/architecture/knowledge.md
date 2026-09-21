@@ -5,14 +5,14 @@ description: "Apache Camel documentation search via hybrid semantic search"
 toc: false
 ---
 
-The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. Knowledge MCP **0.0.1** accompanies Camel Kit **0.4.1**. The September 15 index contains **20,366 documents**, with component and runtime documentation for supported Camel **4.18 and 4.22 LTS** lines and historical release notes from **4.18 through 4.22**. Use `camel_docs_index_info` to check the installed corpus. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
+The Knowledge MCP server gives AI agents release-backed access to Apache Camel documentation, component references, migration guides, CVE advisories, release notes, and JIRA issues. Knowledge MCP **0.0.2** accompanies Camel Kit **0.4.1**. The September 21 index contains **20,367 documents**, with component and runtime documentation for supported Camel **4.18 and 4.22 LTS** lines and historical release notes from **4.18 through 4.22**. Use `camel_docs_index_info` to check the installed corpus. Index releases are rebuilt deliberately, so results reflect the installed index rather than a live crawl of the web.
 
 ## Server release
 
-Camel Kit `0.4.1` configures Knowledge MCP `0.0.1` automatically. To run it directly:
+Camel Kit `0.4.1` configures Knowledge MCP `0.0.2` automatically. To run it directly:
 
 ```bash
-jbang io.github.luigidemasi:camel-kit-knowledge-mcp:0.0.1:runner
+jbang io.github.luigidemasi:camel-kit-knowledge-mcp:0.0.2:runner
 ```
 
 The server uses stdio and opens no HTTP listener by default. To opt into HTTP/SSE
@@ -137,7 +137,7 @@ Validate one Camel endpoint URI deterministically against the catalog bundled wi
 camel_docs_validate_endpoint(uri="kafka:orders?brokers=localhost:9092")
 ```
 
-The response reports the catalog version, unknown component or options, missing required options, and an error summary when validation fails.
+Knowledge MCP `0.0.2` bundles the Camel `4.22.1` catalog. The response reports the catalog version, unknown component or options, missing required options, and an error summary when validation fails. Downloading a newer index does not change the bundled validator catalog.
 
 <!--step camel_docs_index_info-->
 
@@ -201,7 +201,7 @@ The blended candidates are reranked by a local MiniLM cross-encoder before the r
 
 ## What's Indexed
 
-The checked-in manifest reports **30,520 Lucene documents** across Camel 4.18, 4.19, 4.20, 4.21, and 4.22.
+The September 21 manifest reports **20,367 Lucene documents** across Camel 4.18, 4.19, 4.20, 4.21, and 4.22.
 
 {{< tabs id="index-contents" >}}
 <!--tab Component Docs-->
