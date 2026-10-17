@@ -10,6 +10,10 @@ Migrate from Microsoft BizTalk Server to Apache Camel 4.x using Camel-Kit's auto
 
 **Supported BizTalk versions:** 2004, 2006, 2006 R2, 2009, 2010, 2013, 2013 R2, 2016, 2020.
 
+Try the [BizTalk order-processing sample](https://github.com/luigidemasi/camel-kit-examples/tree/main/biztalk-order-processing)
+in the separate [Camel Kit Examples repository](https://github.com/luigidemasi/camel-kit-examples).
+It includes source artifacts, migration instructions, and a description of the expected output.
+
 **Key features:**
 - Orchestration (.odx) analysis with 38 recognized shape element names; each recognized shape can be automatic, manual-review, or unsupported for conversion
 - Maps (.btm) to canonical DataMapper mappings, rendered as inline Groovy or XSLT by the shared engine-selection rule (45 functoid type mappings)

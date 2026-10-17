@@ -11,6 +11,9 @@ The greenfield workflow guides you through building a new Apache Camel integrati
 
 This guide walks through a complete example: building an order processing integration.
 
+The companion [order-processing walkthrough](https://github.com/luigidemasi/camel-kit-examples/tree/main/order-processing)
+is maintained in the separate [Camel Kit Examples repository](https://github.com/luigidemasi/camel-kit-examples).
+
 {{< carousel id="greenfield-steps" >}}
 <!--step Initialize the Project-->
 
