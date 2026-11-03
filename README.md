@@ -1,19 +1,10 @@
-# Camel Kit website
+# Camel Kit website (retired)
 
-Documentation for **Camel Kit 0.4.1** and **Camel Kit Knowledge 0.0.2**.
-Ship remains a Technology Preview. The next development versions are
-`0.4.2-SNAPSHOT` and `0.0.3-SNAPSHOT`, respectively.
+Camel Kit is an Apache Camel subproject since October 2026. Its documentation
+lives at <https://camel.apache.org/camel-kit/next/> and its source code at
+<https://github.com/apache/camel-kit>.
 
-## Build
-
-Requires Node.js and Hugo Extended 0.157.0 or later.
-
-```bash
-npm ci
-npm run build
-```
-
-Website content lives in `content/`, with templates in `layouts/`.
-Keep installation commands, version references, and release notes aligned with the
-[CLI](https://github.com/luigidemasi/camel-kit) and
-[Knowledge MCP](https://github.com/luigidemasi/camel-kit-knowledge) repositories.
+This repository only serves the notice page published at
+<https://luigidemasi.github.io/camel-kit-web/>: the `site/` folder, deployed to
+GitHub Pages by the workflow in `.github/workflows/pages.yaml`. The former Hugo
+site is kept in the Git history before this change.

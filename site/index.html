@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Camel Kit has moved to Apache Camel</title>
+  <meta name="description" content="Camel Kit is now an Apache Camel subproject. Its documentation lives at camel.apache.org/camel-kit and its source code at github.com/apache/camel-kit.">
+  <meta property="og:title" content="Camel Kit joins Apache Camel">
+  <meta property="og:description" content="Camel Kit is now an official Apache Camel subproject. Find the documentation at camel.apache.org/camel-kit.">
+  <meta property="og:image" content="https://luigidemasi.github.io/camel-kit-web/camel-kit-logo.png">
+  <link rel="icon" type="image/png" href="/camel-kit-web/favicon.png">
+  <style>
+    :root {
+      --ink: #18232d;
+      --ink-soft: #53616c;
+      --cream: #fffaf2;
+      --tan: #f4dfbd;
+      --orange: #ffac42;
+      --orange-deep: #e97826;
+      --line: #c6ccd1;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, "Inter Display", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--orange-deep); }
+    .wrap { margin: 0 auto; max-width: 880px; padding: 0 24px; }
+    .hero {
+      background: radial-gradient(120% 90% at 50% 0%, #2a3745 0%, var(--ink) 55%, #121a22 100%);
+      color: var(--cream);
+      padding: 40px 0 56px;
+    }
+    .eyebrow {
+      align-items: center;
+      display: flex;
+      font-size: 13px;
+      font-weight: 700;
+      justify-content: space-between;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .eyebrow .tag { color: var(--orange); display: flex; align-items: center; gap: 12px; }
+    .eyebrow .tag::before { background: var(--orange); content: ""; display: inline-block; height: 3px; width: 28px; }
+    .eyebrow .sub { color: var(--line); font-weight: 600; }
+    h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin: 36px 0 44px;
+    }
+    h1 span { color: var(--orange); }
+    .logos {
+      align-items: center;
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      margin: 0 auto;
+      max-width: 720px;
+    }
+    .logo { text-align: center; }
+    .logo img {
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.06);
+      display: block;
+      height: 200px;
+      margin: 0 auto 18px;
+      object-fit: contain;
+      width: 200px;
+    }
+    .logo img.kit { background: none; }
+    .logo img.camel { padding: 32px; }
+    .logo figcaption { font-size: 20px; font-weight: 700; }
+    .part-of { color: var(--line); flex: none; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-align: center; text-transform: uppercase; }
+    .part-of::after { border-top: 2px solid var(--orange); content: ""; display: block; margin: 8px auto 0; width: 72px; }
+    .notice { padding: 56px 0 48px; }
+    .notice h2 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; letter-spacing: -0.01em; margin: 0 0 14px; }
+    .notice p { color: var(--ink-soft); font-size: 18px; margin: 0 0 16px; max-width: 64ch; }
+    .cta {
+      align-items: center;
+      background: var(--ink);
+      border-radius: 14px;
+      color: var(--cream);
+      display: flex;
+      font-size: 20px;
+      font-weight: 700;
+      gap: 24px;
+      justify-content: space-between;
+      margin: 32px 0 16px;
+      padding: 20px 28px;
+      text-decoration: none;
+    }
+    .cta:hover { background: #24313d; }
+    .cta small { color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+    .cta span { overflow-wrap: anywhere; }
+    .source { font-size: 16px; }
+    footer { border-top: 1px solid var(--tan); color: var(--ink-soft); font-size: 13px; padding: 24px 0 40px; }
+    @media (max-width: 640px) {
+      .eyebrow { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .logos { flex-direction: column; gap: 20px; }
+      .part-of::after { width: 2px; height: 40px; border-top: 0; border-left: 2px solid var(--orange); }
+      .logo img { height: 150px; width: 150px; }
+      .cta { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="tag">A new chapter</span><span class="sub">Official subproject</span></p>
+      <h1>Camel Kit joins <span>Apache Camel.</span></h1>
+      <div class="logos">
+        <figure class="logo">
+          <img class="kit" src="/camel-kit-web/camel-kit-logo.png" alt="Camel Kit logo: a camel wearing a glowing visor" width="200" height="200">
+          <figcaption>Camel Kit</figcaption>
+        </figure>
+        <div class="part-of" aria-hidden="true">Part of</div>
+        <figure class="logo">
+          <img class="camel" src="/camel-kit-web/apache-camel-logo.svg" alt="Apache Camel logo" width="200" height="200">
+          <figcaption>Apache Camel</figcaption>
+        </figure>
+      </div>
+    </div>
+  </header>
+  <main class="notice">
+    <div class="wrap">
+      <h2>This site has moved.</h2>
+      <p>Camel Kit has a new home at the Apache Software Foundation as an official Apache Camel subproject. Its documentation now lives on camel.apache.org and its source code is developed in the Apache organisation on GitHub.</p>
+      <p>This site is no longer updated. Everything that used to be here, from getting started to the architecture and reference pages, is available at the new address.</p>
+      <a class="cta" href="https://camel.apache.org/camel-kit/next/"><small>Explore</small><span>camel.apache.org/camel-kit</span></a>
+      <p class="source">Source code and issue tracker: <a href="https://github.com/apache/camel-kit">github.com/apache/camel-kit</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">Apache Camel, Apache, the Apache feather logo and the Apache Camel project logo are trademarks of The Apache Software Foundation.</div>
+  </footer>
+</body>
+</html>
